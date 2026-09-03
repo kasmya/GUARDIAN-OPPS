@@ -11,36 +11,47 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="GuardianOps — Instrument Panel"/>
 <meta name="twitter:description" content="Self-healing MLOps monitor: live health, drift detection, policy-gated recovery."/>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2317191B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z'/%3E%3Cpath d='M9 12 L11 14 L15.5 9.5'/%3E%3C/svg%3E"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316211A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z'/%3E%3Cpath d='M9 12 L11 14 L15.5 9.5'/%3E%3C/svg%3E"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:          #F1F1EF;
-    --paper:       #F7F6F2;
-    --ink:         #17191B;
-    --ink-soft:    #6B6A64;
-    --ink-faint:   #9B988E;
-    --red:         #D6453D;
-    --blue:        #3567C8;
-    --green:       #21865A;
-    --amber:       #C98A22;
-    --line:        #DBD9D1;
-    --line-strong: #B9B6AC;
+    --bg:          #F2F4F1;
+    --paper:       #F2F4F1;
+    --ink:         #16211A;
+    --ink-soft:    #55625A;
+    --ink-faint:   #8B9992;
+    --red:         #C94B4B;
+    --blue:        #3B7FA6;
+    --green:       #2D8659;
+    --amber:       #D9A441;
+    --line:        #D6DBD5;
+    --line-strong: #AEB8B0;
+    --signal:      #167F6B;
+    --signal-soft: rgba(22,127,107,0.08);
+    --signal-line: rgba(22,127,107,0.30);
+    --desk:        #F2F4F1;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
-  html{ background:var(--bg); }
+  html{ background:var(--desk); }
   body{
-    background:var(--bg);
-    background-image:radial-gradient(circle at 1px 1px, rgba(23,25,27,0.035) 1px, transparent 0);
-    background-size:26px 26px;
+    background-color:var(--desk);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 50% -8%, var(--signal-soft), transparent 60%),
+      linear-gradient(rgba(22,33,26,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(22,33,26,0.045) 1px, transparent 1px);
+    background-size:auto, 40px 40px, 40px 40px;
     color:var(--ink);
-    font-family:'Public Sans', sans-serif;
+    font-family:'Space Grotesk', sans-serif;
     font-size:16px; line-height:1.55;
-    -webkit-font-smoothing:antialiased; padding:0;
+    -webkit-font-smoothing:antialiased; padding:40px 20px;
   }
-  .mono{ font-family:'Fragment Mono', monospace; }
-  .bezel{ max-width:1600px; margin:0 auto; padding:44px 52px 60px; position:relative; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .bezel{
+    max-width:1600px; margin:0 auto; padding:44px 52px 60px; position:relative;
+    background:transparent;
+    border:1px solid var(--line-strong);
+  }
   .bezel::before, .bezel::after,
   .corner-tl, .corner-tr, .corner-bl, .corner-br{
     content:''; position:absolute; width:20px; height:20px; border-color:var(--line-strong);
@@ -52,37 +63,67 @@
   .cal-strip{ display:flex; justify-content:space-between; padding:0 4px 12px; margin-bottom:22px; }
   .cal-strip .tick-row{ display:flex; gap:4px; align-items:flex-end; }
   .cal-strip .tick{ width:1px; height:7px; background:var(--line-strong); }
-  .cal-strip .tick.major{ height:12px; }
-  .cal-strip .id{ font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.08em; color:var(--ink-faint); }
-  header{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:18px; }
+  .cal-strip .tick.major{ height:12px; background:var(--signal); opacity:0.55; }
+  .cal-strip .id{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.08em; color:var(--ink-faint); }
+  header{ position:relative; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:18px; margin:-8px -12px 0; padding:16px 12px 8px; }
+  header::before{
+    content:'';
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse 520px 160px at 12% 30%, var(--signal-soft), transparent 70%);
+    pointer-events:none;
+    z-index:0;
+  }
+  header > *{ position:relative; z-index:1; }
   header .title-block{ display:flex; align-items:baseline; gap:16px; }
   header .mark{
     width:40px; height:40px; border:2px solid var(--ink);
     display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; top:2px;
   }
   header .mark svg{ width:22px; height:22px; }
-  header .title-block h1{ font-size:32px; font-weight:700; letter-spacing:-0.015em; }
-  header .title-block p{ font-family:'Fragment Mono', monospace; font-size:14px; color:var(--ink-soft); margin-top:6px; letter-spacing:0.01em; }
-  header .status-block{ text-align:right; font-family:'Fragment Mono', monospace; }
+  header .title-block h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:32px; font-weight:800; letter-spacing:-0.02em;
+  }
+  header .title-block p{ font-family:'IBM Plex Mono', monospace; font-size:14px; color:var(--ink-soft); margin-top:6px; letter-spacing:0.01em; }
+  .status-chip{
+    display:inline-flex; align-items:center; gap:7px;
+    vertical-align:middle;
+    border:1px solid var(--signal-line);
+    color:var(--signal);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; letter-spacing:0.1em;
+    padding:4px 10px;
+    margin-left:14px;
+    white-space:nowrap;
+  }
+  .status-chip .chip-dot{ width:5px; height:5px; background:var(--signal); flex-shrink:0; }
+  header .status-block{ text-align:right; font-family:'IBM Plex Mono', monospace; }
   header .clock{ font-size:17px; font-weight:500; display:flex; align-items:center; justify-content:flex-end; gap:12px; }
   header .clock .sep{ color:var(--line-strong); }
   .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); position:relative; }
   .dot.pulse::after{ content:''; position:absolute; inset:-5px; border-radius:50%; border:1px solid var(--green); animation:pulse 2.4s ease-out infinite; }
   @keyframes pulse{ 0%{ transform:scale(0.5); opacity:0.8; } 100%{ transform:scale(2.8); opacity:0; } }
   header .status-block .active{ color:var(--green); letter-spacing:0.05em; display:inline-flex; align-items:center; gap:6px; }
-  .legend-strip{ display:flex; gap:26px; align-items:center; margin-top:14px; font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.05em; color:var(--ink-soft); }
+  .legend-strip{ display:flex; gap:26px; align-items:center; margin-top:14px; font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.05em; color:var(--ink-soft); }
   .legend-strip .key{ display:flex; align-items:center; gap:7px; }
   .legend-strip .swatch-dot{ width:8px; height:8px; border-radius:50%; }
   .legend-strip .swatch-dot.healthy{ background:var(--green); }
   .legend-strip .swatch-dot.pending{ background:var(--amber); }
   .legend-strip .swatch-dot.alert{ background:var(--red); }
-  hr.rule{ border:none; border-top:1px solid var(--line-strong); margin:34px 0; }
-  .section-label{ font-family:'Fragment Mono', monospace; font-size:12.5px; letter-spacing:0.11em; color:var(--ink-faint); text-align:center; margin-bottom:26px; position:relative; }
+  hr.rule{ position:relative; border:none; border-top:1px solid var(--line-strong); margin:34px 0; overflow:visible; }
+  hr.rule::before{
+    content:''; position:absolute; left:0; top:-1px; width:100%; height:1px;
+    background-image:repeating-linear-gradient(to right, var(--bg) 0 3px, transparent 3px 4px);
+    background-size:8px 1px;
+    opacity:0.9;
+  }
+  .section-label{ font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.11em; color:var(--ink-faint); text-align:center; margin-bottom:26px; position:relative; }
   .section-label::before, .section-label::after{ content:''; display:inline-block; width:36px; height:1px; background:var(--line); vertical-align:middle; margin:0 12px 4px; }
+  .subhead{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.07em; color:var(--ink-faint); margin-bottom:14px; }
   .panel{ display:grid; grid-template-columns:220px 1fr 240px; gap:36px; align-items:stretch; }
   .readouts{ display:flex; flex-direction:column; justify-content:center; gap:22px; border-right:1px solid var(--line); padding-right:28px; }
-  .readout .label{ font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.08em; color:var(--ink-faint); }
-  .readout .value{ font-family:'Fragment Mono', monospace; font-size:22px; font-weight:500; margin-top:5px; display:flex; align-items:center; gap:9px; }
+  .readout .label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.08em; color:var(--ink-faint); }
+  .readout .value{ font-family:'IBM Plex Mono', monospace; font-size:22px; font-weight:500; margin-top:5px; display:flex; align-items:center; gap:9px; }
   .readout.healthy .value{ color:var(--green); }
   .readout.healthy .value::before{ content:''; width:8px; height:8px; border-radius:50%; background:var(--green); }
   .readout.alert .value{ color:var(--red); }
@@ -90,13 +131,18 @@
   .readout.warn .value{ color:var(--amber); }
   .readout.warn .value::before{ content:''; width:8px; height:8px; border-radius:50%; background:var(--amber); }
   .exposure{ display:flex; flex-direction:column; justify-content:center; text-align:right; border-left:1px solid var(--line); padding-left:28px; }
-  .exposure .label{ font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.08em; color:var(--ink-faint); }
-  .exposure .value{ font-family:'Fragment Mono', monospace; font-size:42px; font-weight:700; color:var(--red); letter-spacing:-0.02em; margin-top:10px; line-height:1; }
+  .exposure .label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.08em; color:var(--ink-faint); }
+  .exposure .value{ font-family:'IBM Plex Mono', monospace; font-size:42px; font-weight:700; color:var(--red); letter-spacing:-0.02em; margin-top:10px; line-height:1; }
   .exposure .value .cents{ font-size:22px; font-weight:500; color:var(--ink-soft); }
-  .exposure .delta{ font-family:'Fragment Mono', monospace; font-size:12.5px; color:var(--red); margin-top:12px; letter-spacing:0.02em; }
+  .exposure .delta{ font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--red); margin-top:12px; letter-spacing:0.02em; }
   .exposure.calm .value{ color:var(--ink); }
   .exposure.calm .delta{ color:var(--ink-faint); }
   .scope{ position:relative; height:340px; background:var(--paper); border:1px solid var(--line-strong); overflow:visible; }
+  .scope::before, .scope::after{
+    content:''; position:absolute; width:10px; height:10px; pointer-events:none;
+  }
+  .scope::before{ top:-1px; left:-1px; border-top:2px solid var(--signal); border-left:2px solid var(--signal); }
+  .scope::after{ bottom:-1px; right:-1px; border-bottom:2px solid var(--signal); border-right:2px solid var(--signal); }
   .scope .grid-lines{
     position:absolute; inset:0;
     background-image:
@@ -104,11 +150,10 @@
       repeating-linear-gradient(to bottom, transparent 0 9.99%, var(--line) 10% 10.05%);
     opacity:0.6;
   }
-  .scope .mid-line{ display:none; }
   .scope svg.trace{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
   .scope-callout{
     position:absolute;
-    font-family:'Fragment Mono', monospace;
+    font-family:'IBM Plex Mono', monospace;
     font-size:11px;
     line-height:1.35;
     text-align:center;
@@ -126,55 +171,55 @@
   .scope-nosignal{
     position:absolute;
     display:flex; align-items:center; justify-content:center;
-    background:repeating-linear-gradient(135deg, rgba(214,69,61,0.08), rgba(214,69,61,0.08) 3px, transparent 3px, transparent 8px);
+    background:repeating-linear-gradient(135deg, rgba(201,75,75,0.08), rgba(201,75,75,0.08) 3px, transparent 3px, transparent 8px);
     border:1px dashed var(--red);
     z-index:3;
   }
   .scope-nosignal span{
-    font-family:'Fragment Mono', monospace;
+    font-family:'IBM Plex Mono', monospace;
     font-size:11px; color:var(--red);
     background:var(--paper); padding:4px 8px;
     letter-spacing:0.05em; text-align:center;
   }
-  .scope .no-signal{ position:absolute; top:0; bottom:0; left:0; right:0; background:repeating-linear-gradient(135deg, rgba(214,69,61,0.09), rgba(214,69,61,0.09) 3px, transparent 3px, transparent 9px); display:none; align-items:center; justify-content:center; z-index:3; }
-  .scope.down .no-signal{ display:flex; }
-  .scope .no-signal span{ font-family:'Fragment Mono', monospace; font-size:10.5px; letter-spacing:0.1em; color:var(--red); background:var(--paper); padding:6px 12px; border:1px solid var(--red); }
-  .scope .axis-tag{ position:absolute; font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); background:var(--paper); padding:2px 4px; z-index:2; }
-  .scope .legend{ position:absolute; top:14px; right:16px; display:flex; gap:20px; font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-soft); z-index:2; }
+  .scope .axis-tag{ position:absolute; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-faint); background:var(--paper); padding:2px 4px; z-index:2; }
+  .scope .legend{ position:absolute; top:14px; right:16px; display:flex; gap:20px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); z-index:2; }
   .scope .legend span{ display:flex; align-items:center; gap:8px; }
   .swatch{ width:16px; height:2px; background:var(--ink); display:inline-block; }
   .swatch.dashed{ height:0; border-top:1px dashed var(--ink-soft); }
-  .scope .marker-flag{ position:absolute; font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.04em; color:var(--red); display:none; align-items:center; gap:5px; background:var(--paper); padding:2px 6px; z-index:2; }
+  .scope .marker-flag{ position:absolute; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.04em; color:var(--red); display:none; align-items:center; gap:5px; background:var(--paper); padding:2px 6px; z-index:2; }
   .scope.drift .marker-flag{ display:flex; }
   .scope .marker-flag::before{ content:''; width:5px; height:5px; background:var(--red); transform:rotate(45deg); }
   .actions{ display:grid; grid-template-columns:repeat(3, 1fr); }
-  .action-btn{ background:none; border:none; border-top:1px solid var(--line-strong); border-right:1px solid var(--line); padding:26px 22px 22px; font-family:'Fragment Mono', monospace; cursor:pointer; color:var(--ink); text-align:left; transition:background 0.15s ease, border-top-color 0.15s ease; display:flex; flex-direction:column; gap:12px; }
+  .action-btn{ position:relative; background:none; border:none; border-top:2px solid var(--line-strong); border-right:1px solid var(--line); padding:26px 22px 22px; font-family:'IBM Plex Mono', monospace; cursor:pointer; color:var(--ink); text-align:left; transition:background 0.15s ease, border-top-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; display:flex; flex-direction:column; gap:12px; }
   .actions .action-btn:last-child{ border-right:none; }
-  .force-check{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:none; border:1px dashed var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:12.5px; letter-spacing:0.06em; padding:14px; margin-top:18px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  .action-btn:hover{ background:rgba(22,33,26,0.028); transform:translateY(-2px); box-shadow:0 6px 16px rgba(22,33,26,0.08); }
+  .action-btn.terminate{ border-top-color:rgba(201,75,75,0.45); }
+  .action-btn.terminate:hover{ border-top-color:var(--red); }
+  .action-btn.terminate:hover .name{ color:var(--red); }
+  .action-btn.terminate svg{ stroke:var(--red); }
+  .action-btn.latency{ border-top-color:rgba(59,127,166,0.45); }
+  .action-btn.latency:hover{ border-top-color:var(--blue); }
+  .action-btn.latency:hover .name{ color:var(--blue); }
+  .action-btn.latency svg{ stroke:var(--blue); }
+  .action-btn.corrupt{ border-top-color:rgba(217,164,65,0.45); }
+  .action-btn.corrupt:hover{ border-top-color:var(--amber); }
+  .action-btn.corrupt:hover .name{ color:var(--amber); }
+  .action-btn.corrupt svg{ stroke:var(--amber); }
+  .action-btn:active{ transform:translateY(0px); box-shadow:none; }
+  .action-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .force-check{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:none; border:1px dashed var(--line-strong); color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.06em; padding:14px; margin-top:18px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
   .force-check:hover{ border-color:var(--blue); color:var(--blue); }
   .force-check svg{ width:15px; height:15px; }
   .action-btn .icon-row{ display:flex; align-items:center; justify-content:space-between; }
   .action-btn svg{ width:22px; height:22px; }
-  .action-btn .code{ font-size:11px; color:var(--ink-faint); letter-spacing:0.03em; }
+  .action-btn .code{ font-size:10.5px; color:var(--ink-faint); letter-spacing:0.05em; border:1px solid var(--line); padding:2px 6px; }
   .action-btn .name{ font-size:14.5px; letter-spacing:0.05em; font-weight:500; }
-  .action-btn .sub{ font-family:'Public Sans', sans-serif; font-size:13px; color:var(--ink-soft); }
-  .action-btn:hover{ background:rgba(23,25,27,0.028); }
-  .action-btn.terminate:hover{ border-top-color:var(--red); }
-  .action-btn.terminate:hover .name{ color:var(--red); }
-  .action-btn.terminate svg{ stroke:var(--red); }
-  .action-btn.latency:hover{ border-top-color:var(--blue); }
-  .action-btn.latency:hover .name{ color:var(--blue); }
-  .action-btn.latency svg{ stroke:var(--blue); }
-  .action-btn.corrupt:hover{ border-top-color:var(--amber); }
-  .action-btn.corrupt:hover .name{ color:var(--amber); }
-  .action-btn.corrupt svg{ stroke:var(--amber); }
-  .action-btn:active{ transform:translateY(1px); }
-  .action-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .action-btn .sub{ font-family:'Space Grotesk', sans-serif; font-size:13px; color:var(--ink-soft); }
   .policy{ display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line); }
   .policy .rule-item{ padding:22px 26px; display:flex; flex-direction:column; gap:8px; }
   .policy .rule-item:first-child{ border-right:1px solid var(--line); }
-  .policy .rule-item .trigger{ font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.08em; color:var(--ink-faint); }
-  .policy .rule-item .flow{ font-family:'Fragment Mono', monospace; font-size:15.5px; display:flex; align-items:center; gap:10px; }
+  .policy .rule-item .trigger{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.08em; color:var(--ink-faint); }
+  .policy .rule-item .flow{ font-family:'IBM Plex Mono', monospace; font-size:15.5px; display:flex; align-items:center; gap:10px; }
   .policy .rule-item .flow svg{ width:16px; height:16px; flex-shrink:0; }
   .policy .rule-item.auto .flow{ color:var(--green); }
   .policy .rule-item.manual .flow{ color:var(--amber); }
@@ -183,11 +228,11 @@
   .approval-item{ padding:16px 0; border-bottom:1px solid var(--line); }
   .approval-item:last-of-type{ border-bottom:none; margin-bottom:18px; }
   .approval-item .ap-headline{
-    font-family:'Public Sans', sans-serif; font-size:16.5px; font-weight:600;
+    font-family:'Space Grotesk', sans-serif; font-size:16.5px; font-weight:600;
     color:var(--ink); line-height:1.35; margin-bottom:6px;
   }
   .approval-item .ap-subhead{
-    font-family:'Public Sans', sans-serif; font-size:13.5px; color:var(--ink-soft);
+    font-family:'Space Grotesk', sans-serif; font-size:13.5px; color:var(--ink-soft);
     line-height:1.55; margin-bottom:14px;
   }
   .approval-item .ap-facts{
@@ -196,11 +241,11 @@
     margin-bottom:14px;
   }
   .approval-item .ap-facts .fk{
-    font-family:'Fragment Mono', monospace; font-size:10px; letter-spacing:0.08em;
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.08em;
     color:var(--ink-faint); text-transform:uppercase; margin-bottom:4px;
   }
   .approval-item .ap-facts .fv{
-    font-family:'Fragment Mono', monospace; font-size:16px; color:var(--ink);
+    font-family:'IBM Plex Mono', monospace; font-size:16px; color:var(--ink);
   }
   .approval-item .ap-facts .fv.amber{ color:var(--amber); }
   .approval-item .ap-facts .fv.red{ color:var(--red); }
@@ -208,7 +253,7 @@
   .ap-collapsible details{ padding:8px 0; border-bottom:1px solid var(--line); }
   .ap-collapsible details:last-child{ border-bottom:none; }
   .ap-collapsible summary{
-    font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.05em;
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.05em;
     color:var(--ink-soft); cursor:pointer; padding:8px 4px; list-style:none;
     display:flex; align-items:center; gap:9px; user-select:none;
     text-transform:uppercase;
@@ -217,52 +262,52 @@
   .ap-collapsible summary::before{
     content:'+'; width:16px; height:16px; display:inline-flex;
     align-items:center; justify-content:center; border:1px solid var(--line-strong);
-    font-family:'Fragment Mono', monospace; font-size:13px; color:var(--ink-faint);
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-faint);
     line-height:1; flex-shrink:0;
   }
   .ap-collapsible details[open] summary::before{ content:'−'; }
   .ap-collapsible summary:hover{ color:var(--ink); }
   .ap-collapsible details[open] summary{ color:var(--ink); }
   .ap-collapsible .ap-body{
-    font-family:'Public Sans', sans-serif; font-size:13px; color:var(--ink-soft);
+    font-family:'Space Grotesk', sans-serif; font-size:13px; color:var(--ink-soft);
     line-height:1.6; padding:4px 4px 12px 26px;
   }
   .ap-collapsible .ap-body code{
-    font-family:'Fragment Mono', monospace; font-size:12px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
     background:var(--paper); border:1px solid var(--line); padding:1px 5px;
   }
   .ap-collapsible .ap-body .kv{
     display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin-top:6px;
-    font-family:'Fragment Mono', monospace; font-size:12px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
   }
   .ap-collapsible .ap-body .kv dt{ color:var(--ink-faint); }
   .ap-collapsible .ap-body .kv dd{ color:var(--ink); margin:0; }
   .ap-collapsible .ap-body em.raw{
     display:block; margin-top:8px; padding:10px 12px;
     border-left:2px solid var(--line-strong); background:var(--paper);
-    font-family:'Fragment Mono', monospace; font-size:12px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
     color:var(--ink-soft); font-style:normal; line-height:1.55;
   }
   .report{ margin-top:22px; border:1px solid var(--line); background:var(--paper); padding:22px 26px; }
   .report .report-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line); }
-  .report .report-head .label{ font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.09em; color:var(--ink-faint); margin:0; }
-  .report .report-head .report-id{ font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); }
-  .report dl{ font-family:'Fragment Mono', monospace; font-size:14px; display:grid; grid-template-columns:auto 1fr; gap:8px 20px; }
+  .report .report-head .label{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.09em; color:var(--ink-faint); margin:0; }
+  .report .report-head .report-id{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-faint); }
+  .report dl{ font-family:'IBM Plex Mono', monospace; font-size:14px; display:grid; grid-template-columns:auto 1fr; gap:8px 20px; }
   .report dt{ color:var(--ink-faint); }
   .report dd{ color:var(--ink); }
   .report dd.type-crash{ color:var(--red); }
   .report dd.type-drift{ color:var(--amber); }
-  .block .label{ font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.09em; margin-bottom:14px; display:flex; align-items:center; gap:9px; }
+  .block .label{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.09em; margin-bottom:14px; display:flex; align-items:center; gap:9px; }
   .block.auth{ border-left:2px solid var(--amber); padding-left:22px; margin-left:-24px; }
   .block.auth .label{ color:var(--amber); }
   .block.auth .label::before{ content:''; width:8px; height:8px; background:var(--amber); border-radius:50%; }
-  .authorize-btn{ background:none; border:1px solid var(--ink); color:var(--ink); font-family:'Fragment Mono', monospace; font-size:13px; letter-spacing:0.07em; padding:14px 24px; cursor:pointer; transition:background 0.15s ease, color 0.15s ease; display:inline-flex; align-items:center; gap:10px; }
+  .authorize-btn{ background:none; border:1px solid var(--ink); color:var(--ink); font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.07em; padding:14px 24px; cursor:pointer; transition:background 0.15s ease, color 0.15s ease; display:inline-flex; align-items:center; gap:10px; }
   .authorize-btn svg{ width:14px; height:14px; }
   .authorize-btn:hover{ background:var(--ink); color:var(--paper); }
   .authorize-btn:disabled{ opacity:0.5; cursor:not-allowed; }
   .block.incident .label{ color:var(--ink-faint); }
   .block.incident .label::before{ content:''; width:8px; height:8px; border:1px solid var(--ink-faint); border-radius:50%; }
-  .incident-row{ display:flex; justify-content:space-between; font-family:'Fragment Mono', monospace; font-size:14px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .incident-row{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:14px; padding:10px 0; border-bottom:1px solid var(--line); }
   .incident-row:last-child{ border-bottom:none; }
   .incident-row .k{ color:var(--ink-faint); }
   .incident-row .v.resolved{ color:var(--green); display:flex; align-items:center; gap:7px; }
@@ -276,56 +321,63 @@
   .tl-point.filled .dot-marker{ background:var(--red); border-color:var(--red); }
   .tl-point.ok .dot-marker{ background:var(--green); border-color:var(--green); }
   .tl-point.warn .dot-marker{ background:var(--amber); border-color:var(--amber); }
-  .tl-point .tag{ position:absolute; bottom:calc(100% + 10px); font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.06em; font-weight:500; white-space:nowrap; }
-  .tl-point .time{ position:absolute; top:calc(100% + 10px); font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); white-space:nowrap; }
-  footer{ margin-top:50px; display:flex; justify-content:space-between; align-items:center; font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); letter-spacing:0.05em; flex-wrap:wrap; gap:14px; }
+  .tl-point .tag{ position:absolute; bottom:calc(100% + 10px); font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.06em; font-weight:500; white-space:nowrap; }
+  .tl-point .time{ position:absolute; top:calc(100% + 10px); font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-faint); white-space:nowrap; }
+  footer{ margin-top:50px; display:flex; justify-content:space-between; align-items:center; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-faint); letter-spacing:0.05em; flex-wrap:wrap; gap:14px; }
   footer .pipeline-status{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
   footer .pipeline-status .badge{ display:flex; align-items:center; gap:7px; }
   footer .pipeline-status .badge .dot-marker{ width:7px; height:7px; border-radius:50%; background:var(--green); }
   footer .pipeline-status .badge.down .dot-marker{ background:var(--red); }
-  footer .reset-btn{ background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.05em; padding:8px 16px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  footer .reset-btn{ background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.05em; padding:8px 16px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
   footer .reset-btn:hover{ border-color:var(--ink); color:var(--ink); }
-  .stamp-updated{ font-family:'Fragment Mono', monospace; font-size:11px; color:var(--ink-faint); margin-top:14px; }
-  .empty-state{ font-family:'Fragment Mono', monospace; font-size:13px; color:var(--ink-faint); padding:14px 0; }
+  .stamp-updated{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); margin-top:14px; }
+  .empty-state{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-faint); padding:14px 0; }
   .flash-alert{ animation:flashAlert 1.1s ease-in-out 2; }
-  @keyframes flashAlert{ 0%,100%{ background:transparent; } 50%{ background:rgba(214,69,61,0.08); } }
+  @keyframes flashAlert{ 0%,100%{ background:transparent; } 50%{ background:rgba(201,75,75,0.08); } }
   .flash-ok{ animation:flashOk 1.1s ease-in-out 2; }
-  @keyframes flashOk{ 0%,100%{ background:transparent; } 50%{ background:rgba(33,134,90,0.08); } }
-  .config-strip{ display:flex; flex-wrap:wrap; gap:28px; align-items:center; font-family:'Fragment Mono', monospace; font-size:12.5px; color:var(--ink-faint); letter-spacing:0.03em; padding:14px 20px; border:1px solid var(--line); background:var(--paper); margin-bottom:28px; }
+  @keyframes flashOk{ 0%,100%{ background:transparent; } 50%{ background:rgba(45,134,89,0.08); } }
+  .config-strip{
+    display:flex; flex-wrap:wrap; gap:28px; align-items:center;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-faint); letter-spacing:0.03em;
+    padding:14px 20px; border:1px solid var(--line); margin-bottom:28px;
+    background-color:var(--paper);
+    background-image:repeating-linear-gradient(45deg, rgba(22,33,26,0.018) 0 1px, transparent 1px 6px);
+  }
   .config-strip .item span{ color:var(--ink-soft); }
-  .config-strip .settings-toggle{ margin-left:auto; background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.05em; padding:6px 12px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  .config-strip .settings-toggle{ margin-left:auto; display:inline-flex; align-items:center; gap:7px; background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.05em; padding:6px 12px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  .config-strip .settings-toggle svg{ width:12px; height:12px; }
   .config-strip .settings-toggle:hover{ border-color:var(--ink); color:var(--ink); }
   .settings-panel{ display:none; border:1px solid var(--line-strong); background:var(--paper); padding:22px 24px; margin-bottom:28px; }
   .settings-panel.open{ display:block; }
-  .settings-panel .sp-title{ font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.08em; color:var(--ink-faint); margin-bottom:18px; }
+  .settings-panel .sp-title{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.08em; color:var(--ink-faint); margin-bottom:18px; }
   .settings-row{ display:grid; grid-template-columns:240px 1fr 90px; align-items:center; gap:18px; padding:12px 0; border-bottom:1px solid var(--line); }
   .settings-row:last-of-type{ border-bottom:none; }
-  .settings-row label{ font-family:'Fragment Mono', monospace; font-size:14px; }
+  .settings-row label{ font-family:'IBM Plex Mono', monospace; font-size:14px; }
   .settings-row input[type="range"]{ width:100%; -webkit-appearance:none; appearance:none; height:1px; background:var(--line-strong); outline:none; cursor:pointer; }
   .settings-row input[type="range"]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%; background:var(--paper); border:2px solid var(--ink); cursor:pointer; }
   .settings-row input[type="range"]::-moz-range-thumb{ width:12px; height:12px; border-radius:50%; background:var(--paper); border:2px solid var(--ink); cursor:pointer; }
   .settings-row input[type="range"]::-moz-range-track{ height:1px; background:var(--line-strong); }
-  .settings-row .sp-value{ font-family:'Fragment Mono', monospace; font-size:12px; text-align:right; }
+  .settings-row .sp-value{ font-family:'IBM Plex Mono', monospace; font-size:12px; text-align:right; }
   .settings-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:14px; }
-  .settings-save, .settings-cancel{ font-family:'Fragment Mono', monospace; font-size:10px; letter-spacing:0.05em; padding:7px 14px; cursor:pointer; transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
+  .settings-save, .settings-cancel{ font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.05em; padding:7px 14px; cursor:pointer; transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
   .settings-save{ background:var(--ink); color:var(--paper); border:1px solid var(--ink); }
   .settings-save:hover{ opacity:0.85; }
   .settings-cancel{ background:none; color:var(--ink-soft); border:1px solid var(--line-strong); }
   .settings-cancel:hover{ border-color:var(--ink); color:var(--ink); }
-  .settings-note{ font-family:'Public Sans', sans-serif; font-size:10.5px; color:var(--ink-faint); margin-top:12px; }
-  .glossary{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; border:1px solid var(--ink-faint); border-radius:50%; font-size:8px; color:var(--ink-faint); cursor:help; margin-left:5px; font-family:'Fragment Mono', monospace; }
-  .glossary .tip{ position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:190px; background:var(--ink); color:var(--paper); font-family:'Public Sans', sans-serif; font-size:11px; line-height:1.4; padding:9px 11px; letter-spacing:0; opacity:0; pointer-events:none; transition:opacity 0.15s ease; z-index:5; }
+  .settings-note{ font-family:'Space Grotesk', sans-serif; font-size:10.5px; color:var(--ink-faint); margin-top:12px; }
+  .glossary{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; border:1px solid var(--ink-faint); border-radius:50%; font-size:8px; color:var(--ink-faint); cursor:help; margin-left:5px; font-family:'IBM Plex Mono', monospace; }
+  .glossary .tip{ position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:190px; background:var(--ink); color:var(--paper); font-family:'Space Grotesk', sans-serif; font-size:11px; line-height:1.4; padding:9px 11px; letter-spacing:0; opacity:0; pointer-events:none; transition:opacity 0.15s ease; z-index:5; }
   .glossary:hover .tip, .glossary:focus .tip{ opacity:1; }
-  .guardian-strip{ display:flex; align-items:center; gap:12px; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); font-family:'Fragment Mono', monospace; font-size:13.5px; }
+  .guardian-strip{ display:flex; align-items:center; gap:12px; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); font-family:'IBM Plex Mono', monospace; font-size:13.5px; }
   .guardian-strip .dot-marker{ width:8px; height:8px; border-radius:50%; background:var(--green); }
   .guardian-strip .g-label{ color:var(--ink-faint); font-size:11.5px; letter-spacing:0.07em; }
-  .confirm-msg{ font-family:'Fragment Mono', monospace; font-size:13px; color:var(--green); margin-top:14px; display:flex; align-items:center; gap:8px; height:18px; opacity:0; transition:opacity 0.2s ease; }
+  .confirm-msg{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--green); margin-top:14px; display:flex; align-items:center; gap:8px; height:18px; opacity:0; transition:opacity 0.2s ease; }
   .confirm-msg.show{ opacity:1; }
   .confirm-msg::before{ content:'\2713'; }
-  .copy-btn, .print-report-btn{ background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.05em; padding:6px 12px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  .copy-btn, .print-report-btn{ background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.05em; padding:6px 12px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
   .copy-btn:hover, .print-report-btn:hover{ border-color:var(--ink); color:var(--ink); }
   .history{ margin-top:18px; max-height:320px; overflow-y:auto; border:1px solid var(--line); }
-  .history-row{ display:grid; grid-template-columns:90px 1fr 220px 140px; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line); font-family:'Fragment Mono', monospace; font-size:13px; align-items:center; }
+  .history-row{ display:grid; grid-template-columns:90px 1fr 220px 140px; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line); font-family:'IBM Plex Mono', monospace; font-size:13px; align-items:center; }
   .history-row:last-child{ border-bottom:none; }
   .history-row .h-id{ color:var(--ink-faint); }
   .history-row .h-type.crash{ color:var(--red); }
@@ -335,14 +387,14 @@
   .history-row .h-status.pending_approval{ color:var(--amber); }
   .history-row .h-status.in_progress{ color:var(--blue); }
   .approval-history{ margin-top:22px; padding-top:16px; border-top:1px dashed var(--line); }
-  .approval-history .ah-label{ font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.07em; color:var(--ink-faint); margin-bottom:10px; }
-  .ah-row{ display:flex; justify-content:space-between; font-family:'Fragment Mono', monospace; font-size:12.5px; color:var(--ink-soft); padding:6px 0; }
+  .approval-history .ah-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.07em; color:var(--ink-faint); margin-bottom:10px; }
+  .ah-row{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft); padding:6px 0; }
   .ah-row .ah-who{ color:var(--ink-faint); }
-  .identity-select{ display:flex; align-items:center; gap:10px; font-family:'Fragment Mono', monospace; font-size:12px; color:var(--ink-faint); margin-bottom:18px; }
-  .identity-select select{ font-family:'Fragment Mono', monospace; font-size:13px; background:var(--paper); border:1px solid var(--line-strong); color:var(--ink); padding:7px 32px 7px 12px; cursor:pointer; -webkit-appearance:none; appearance:none; border-radius:0; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6A64' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:13px; }
+  .identity-select{ display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-faint); margin-bottom:18px; }
+  .identity-select select{ font-family:'IBM Plex Mono', monospace; font-size:13px; background:var(--paper); border:1px solid var(--line-strong); color:var(--ink); padding:7px 32px 7px 12px; cursor:pointer; -webkit-appearance:none; -moz-appearance:none; appearance:none; border-radius:0; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2355625A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:13px; }
   .identity-select select:hover{ border-color:var(--ink); }
   .identity-select select:focus{ outline:none; border-color:var(--blue); }
-  .conn-badge{ display:inline-flex; align-items:center; gap:7px; font-family:'Fragment Mono', monospace; font-size:11px; padding:5px 10px; border:1px solid var(--line-strong); color:var(--ink-soft); }
+  .conn-badge{ display:inline-flex; align-items:center; gap:7px; font-family:'IBM Plex Mono', monospace; font-size:11px; padding:5px 10px; border:1px solid var(--line-strong); color:var(--ink-soft); }
   .conn-badge .cb-dot{ width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
 
   /* ---------- Pending-approval banner ---------- */
@@ -351,15 +403,15 @@
     position:sticky; top:0; z-index:10;
     background:var(--amber); color:#1c1408;
     padding:14px 20px; margin-bottom:20px;
-    font-family:'Fragment Mono', monospace; font-size:13.5px;
+    font-family:'IBM Plex Mono', monospace; font-size:13.5px;
     letter-spacing:0.03em; box-shadow:0 4px 14px rgba(0,0,0,0.08);
     align-items:center; justify-content:space-between; gap:16px;
     animation:banner-pulse 2.4s ease-in-out infinite;
   }
   .approval-banner.open{ display:flex; }
   @keyframes banner-pulse{
-    0%,100%{ box-shadow:0 4px 14px rgba(201,138,34,0.30); }
-    50%    { box-shadow:0 4px 22px rgba(201,138,34,0.55); }
+    0%,100%{ box-shadow:0 4px 14px rgba(217,164,65,0.30); }
+    50%    { box-shadow:0 4px 22px rgba(217,164,65,0.55); }
   }
   .approval-banner .ab-left{ display:flex; align-items:center; gap:14px; }
   .approval-banner .ab-dot{
@@ -370,17 +422,17 @@
   .approval-banner .ab-msg strong{ font-weight:700; margin-right:6px; }
   .approval-banner .ab-btn{
     background:#1c1408; color:var(--amber); border:none;
-    font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.08em;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.08em;
     padding:10px 16px; cursor:pointer; text-transform:uppercase;
   }
   .approval-banner .ab-btn:hover{ background:#000; }
 
-  /* ---------- Replay modal ---------- */
+  /* ---------- Replay button + modal ---------- */
   .replay-btn{
     display:flex; align-items:center; justify-content:center; gap:10px;
     width:100%; background:var(--paper);
     border:1px solid var(--ink); color:var(--ink);
-    font-family:'Fragment Mono', monospace; font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
     letter-spacing:0.06em; padding:14px; margin-top:12px;
     cursor:pointer; transition:background 0.15s ease, color 0.15s ease;
     text-transform:uppercase;
@@ -388,47 +440,53 @@
   .replay-btn:hover{ background:var(--ink); color:var(--paper); }
   .replay-btn:disabled{ opacity:0.5; cursor:wait; }
   .replay-btn svg{ width:14px; height:14px; }
-  .replay-btn .rb-caption{ font-family:'Public Sans', sans-serif; font-size:11px; color:var(--ink-soft); text-transform:none; margin-left:6px; letter-spacing:0; }
+  .replay-btn .rb-caption{ font-family:'Space Grotesk', sans-serif; font-size:11px; color:var(--ink-soft); text-transform:none; margin-left:6px; letter-spacing:0; }
   .replay-btn:hover .rb-caption{ color:var(--paper); }
 
   .modal-scrim{
     display:none; position:fixed; inset:0;
-    background:rgba(23,25,27,0.45); z-index:100;
+    background:rgba(22,33,26,0.45); z-index:100;
     align-items:center; justify-content:center; padding:40px;
   }
   .modal-scrim.open{ display:flex; }
   .modal{
     background:var(--paper); border:1px solid var(--ink);
-    max-width:900px; width:100%; max-height:85vh; overflow-y:auto;
+    max-width:1000px; width:100%; max-height:88vh; overflow-y:auto;
     padding:26px 30px;
   }
   .modal .m-head{
     display:flex; justify-content:space-between; align-items:baseline;
     padding-bottom:14px; border-bottom:1px solid var(--line); margin-bottom:18px;
   }
-  .modal .m-title{ font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.1em; color:var(--ink-faint); text-transform:uppercase; }
-  .modal .m-close{ background:none; border:1px solid var(--line-strong); font-family:'Fragment Mono', monospace; font-size:11px; padding:5px 11px; cursor:pointer; color:var(--ink-soft); }
+  .modal .m-title{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.1em; color:var(--ink-faint); text-transform:uppercase; }
+  .modal .m-close{ background:none; border:1px solid var(--line-strong); font-family:'IBM Plex Mono', monospace; font-size:11px; padding:5px 11px; cursor:pointer; color:var(--ink-soft); }
   .modal .m-close:hover{ border-color:var(--ink); color:var(--ink); }
   .modal .m-summary{
     display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
     gap:0; border:1px solid var(--line); margin-bottom:22px;
   }
+  .modal .m-summary .st{
+    padding:14px 18px; border-right:1px solid var(--line);
+  }
+  .modal .m-summary .st:last-child{ border-right:none; }
+  .modal .m-summary .stk{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint); letter-spacing:0.07em; text-transform:uppercase; }
+  .modal .m-summary .stv{ font-family:'IBM Plex Mono', monospace; font-size:22px; margin-top:5px; }
   .modal .m-block-title{
-    font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.1em;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.1em;
     color:var(--ink-faint); text-transform:uppercase; margin:22px 0 10px;
     display:flex; align-items:center; gap:10px;
   }
   .modal .m-block-title::after{ content:''; flex:1; height:1px; background:var(--line); }
   .modal .m-metrics{
-    display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:14px;
+    display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:16px;
   }
   .modal .confusion{
     display:grid; grid-template-columns:auto auto auto;
     gap:1px; background:var(--line); border:1px solid var(--line);
   }
   .modal .confusion > div{
-    background:var(--paper); padding:12px 14px; font-family:'Fragment Mono', monospace;
-    font-size:12.5px; min-width:110px;
+    background:var(--paper); padding:12px 14px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; min-width:110px;
   }
   .modal .confusion .ch{
     color:var(--ink-faint); font-size:10.5px; letter-spacing:0.06em;
@@ -438,29 +496,23 @@
   .modal .confusion .cell.good{ color:var(--green); }
   .modal .confusion .cell.bad{ color:var(--red); }
   .modal .metric-tiles{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); }
-  .modal .metric-tile{
-    background:var(--paper); padding:12px 14px;
-  }
+  .modal .metric-tile{ background:var(--paper); padding:12px 14px; }
   .modal .metric-tile .mk{
-    font-family:'Fragment Mono', monospace; font-size:10.5px;
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
     letter-spacing:0.06em; color:var(--ink-faint); text-transform:uppercase;
   }
   .modal .metric-tile .mv{
-    font-family:'Fragment Mono', monospace; font-size:24px; margin-top:4px;
+    font-family:'IBM Plex Mono', monospace; font-size:24px; margin-top:4px;
   }
   .modal .metric-tile .mx{
-    font-family:'Public Sans', sans-serif; font-size:11px; color:var(--ink-faint); margin-top:4px;
+    font-family:'Space Grotesk', sans-serif; font-size:11px; color:var(--ink-faint); margin-top:4px;
   }
-  .modal tr.tp td.verd{ color:var(--green); }
-  .modal tr.fp td.verd{ color:var(--red); }
-  .modal tr.tn td.verd{ color:var(--ink-soft); }
-  .modal tr.fn td.verd{ color:var(--red); font-weight:600; }
   .modal .segmented-tabs{
     display:flex; border:1px solid var(--line); margin-bottom:12px;
   }
   .modal .segmented-tabs button{
     flex:1; background:none; border:none; padding:9px 14px;
-    font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.04em;
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.04em;
     color:var(--ink-soft); cursor:pointer; border-right:1px solid var(--line);
     text-transform:uppercase;
   }
@@ -468,24 +520,23 @@
   .modal .segmented-tabs button.active{ background:var(--ink); color:var(--paper); }
   .modal .segmented-tabs button:hover{ color:var(--ink); }
   .modal .segmented-tabs button.active:hover{ color:var(--paper); }
-  .modal .m-summary .st{
-    padding:14px 18px; border-right:1px solid var(--line);
-  }
-  .modal .m-summary .st:last-child{ border-right:none; }
-  .modal .m-summary .stk{ font-family:'Fragment Mono', monospace; font-size:10.5px; color:var(--ink-faint); letter-spacing:0.07em; text-transform:uppercase; }
-  .modal .m-summary .stv{ font-family:'Fragment Mono', monospace; font-size:22px; margin-top:5px; }
   .modal table{
-    width:100%; border-collapse:collapse; font-family:'Fragment Mono', monospace; font-size:12.5px;
+    width:100%; border-collapse:collapse; font-family:'IBM Plex Mono', monospace; font-size:12.5px;
   }
   .modal th{ text-align:left; color:var(--ink-faint); font-size:10px; letter-spacing:0.08em; padding:8px 10px; border-bottom:1px solid var(--line); text-transform:uppercase; }
   .modal td{ padding:8px 10px; border-bottom:1px solid var(--line); }
   .modal tr td.lbl-fraud{ color:var(--red); }
   .modal tr td.lbl-review{ color:var(--amber); }
   .modal tr td.lbl-ok{ color:var(--green); }
-  .modal .m-note{ font-family:'Public Sans', sans-serif; font-size:12px; color:var(--ink-soft); margin-top:16px; line-height:1.55; }
+  .modal tr.tp td.verd{ color:var(--green); }
+  .modal tr.fp td.verd{ color:var(--red); }
+  .modal tr.tn td.verd{ color:var(--ink-soft); }
+  .modal tr.fn td.verd{ color:var(--red); font-weight:600; }
+  .modal .m-note{ font-family:'Space Grotesk', sans-serif; font-size:12px; color:var(--ink-soft); margin-top:16px; line-height:1.55; }
   .conn-badge.up .cb-dot{ background:var(--green); }
   .conn-badge.down .cb-dot{ background:var(--red); }
   @media (max-width:760px){
+    body{ padding:14px 8px; }
     .bezel{ padding:24px 18px 32px; }
     .panel{ grid-template-columns:1fr; }
     .readouts{ flex-direction:row; flex-wrap:wrap; justify-content:space-between; border-right:none; border-bottom:1px solid var(--line); padding:0 0 16px; }
@@ -496,6 +547,7 @@
     .split .divider{ display:none; }
     .block.auth{ margin-left:0; }
     footer{ flex-direction:column; gap:6px; align-items:flex-start; }
+    .modal .m-metrics{ grid-template-columns:1fr; }
   }
   :focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
   @media (prefers-reduced-motion: reduce){ .dot.pulse::after{ animation:none; } }
@@ -508,48 +560,63 @@
     .report dl{ font-size:13px; }
   }
 
-  /* ---------- SESSION LEDGER (new component) ---------- */
+  /* ---------- SESSION LEDGER ---------- */
   .ledger{ display:grid; grid-template-columns:repeat(6, 1fr); border:1px solid var(--line); background:var(--paper); margin-bottom:28px; }
-  .ledger-tile{ padding:18px 22px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .ledger-tile{ position:relative; padding:20px 22px 18px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .ledger-tile::before{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--line-strong); }
   .ledger-tile:last-child{ border-right:none; }
-  .ledger-tile .l-label{ font-family:'Fragment Mono', monospace; font-size:10.5px; letter-spacing:0.08em; color:var(--ink-faint); text-transform:uppercase; }
-  .ledger-tile .l-value{ font-family:'Fragment Mono', monospace; font-size:24px; font-weight:500; color:var(--ink); line-height:1.1; }
-  .ledger-tile .l-sub{ font-family:'Fragment Mono', monospace; font-size:10.5px; color:var(--ink-soft); }
+  .ledger-tile .l-label{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.08em; color:var(--ink-faint); text-transform:uppercase; }
+  .ledger-tile .l-value{ font-family:'IBM Plex Mono', monospace; font-size:24px; font-weight:500; color:var(--ink); line-height:1.1; }
+  .ledger-tile .l-sub{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); }
   .ledger-tile.accent-red .l-value{ color:var(--red); }
+  .ledger-tile.accent-red::before{ background:var(--red); }
   .ledger-tile.accent-amber .l-value{ color:var(--amber); }
+  .ledger-tile.accent-amber::before{ background:var(--amber); }
   .ledger-tile.accent-green .l-value{ color:var(--green); }
+  .ledger-tile.accent-green::before{ background:var(--green); }
   @media (max-width:900px){ .ledger{ grid-template-columns:repeat(3, 1fr); } .ledger-tile:nth-child(3n){ border-right:none; } .ledger-tile{ border-bottom:1px solid var(--line); } }
 
-  /* ---------- DISTRIBUTION (new component) ---------- */
+  /* ---------- DISTRIBUTION ---------- */
   .distribution{ display:grid; grid-template-columns:1fr 220px; gap:36px; align-items:stretch; }
   .dist-plot{ position:relative; height:220px; background:var(--paper); border:1px solid var(--line-strong); overflow:hidden; }
   .dist-plot svg{ position:absolute; inset:0; width:100%; height:100%; }
-  .dist-plot .baseline-band{ fill:rgba(23,25,27,0.10); }
-  .dist-plot .live-band{ fill:rgba(214,69,61,0.28); }
-  .dist-plot .live-band.stable{ fill:rgba(33,134,90,0.28); }
-  .dist-plot .axis-tag{ position:absolute; font-family:'Fragment Mono', monospace; font-size:11px; color:var(--ink-faint); }
+  .dist-plot .baseline-band{ fill:rgba(22,33,26,0.10); }
+  .dist-plot .live-band{ fill:rgba(201,75,75,0.28); }
+  .dist-plot .live-band.stable{ fill:rgba(45,134,89,0.28); }
+  .dist-plot .axis-tag{ position:absolute; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); }
   .dist-plot .axis-tag.left{ left:10px; top:10px; }
   .dist-plot .axis-tag.right{ right:10px; top:10px; }
   .dist-plot .axis-tag.bottom-left{ left:10px; bottom:8px; }
   .dist-plot .axis-tag.bottom-right{ right:10px; bottom:8px; }
   .dist-plot .axis-tag.bottom-center{ left:50%; transform:translateX(-50%); bottom:8px; }
   .dist-summary{ display:flex; flex-direction:column; justify-content:center; gap:16px; border-left:1px solid var(--line); padding-left:28px; }
-  .dist-summary .row{ font-family:'Fragment Mono', monospace; font-size:13px; display:flex; justify-content:space-between; gap:16px; padding:6px 0; border-bottom:1px solid var(--line); }
+  .dist-summary .row{ font-family:'IBM Plex Mono', monospace; font-size:13px; display:flex; justify-content:space-between; gap:16px; padding:6px 0; border-bottom:1px solid var(--line); }
   .dist-summary .row:last-child{ border-bottom:none; }
   .dist-summary .k{ color:var(--ink-faint); font-size:11px; letter-spacing:0.06em; }
   .dist-summary .v{ color:var(--ink); font-weight:500; }
-  .dist-summary .verdict{ font-family:'Fragment Mono', monospace; font-size:15px; padding:12px 14px; border:1px solid var(--line-strong); text-align:center; letter-spacing:0.05em; }
+  .dist-summary .verdict{ font-family:'IBM Plex Mono', monospace; font-size:15px; padding:12px 14px; border:1px solid var(--line-strong); text-align:center; letter-spacing:0.05em; }
   .dist-summary .verdict.stable{ color:var(--green); border-color:var(--green); }
   .dist-summary .verdict.minor{ color:var(--amber); border-color:var(--amber); }
   .dist-summary .verdict.significant{ color:var(--red); border-color:var(--red); }
-  .dist-legend{ position:absolute; top:14px; right:16px; display:flex; gap:16px; font-family:'Fragment Mono', monospace; font-size:11px; color:var(--ink-soft); }
+  .dist-legend{ position:absolute; top:14px; right:16px; display:flex; gap:16px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); }
   .dist-legend .sw{ display:inline-block; width:12px; height:8px; margin-right:6px; vertical-align:middle; }
-  .dist-legend .sw.base{ background:rgba(23,25,27,0.32); }
+  .dist-legend .sw.base{ background:rgba(22,33,26,0.32); }
   .dist-legend .sw.live{ background:var(--red); }
   @media (max-width:760px){ .distribution{ grid-template-columns:1fr; } .dist-summary{ border-left:none; border-top:1px solid var(--line); padding:22px 0 0; } }
 
-  /* ---------- NARRATION FEED (new component) ---------- */
-  .narration{ border:1px solid var(--line-strong); background:#101216; color:#D5D5D0; font-family:'Fragment Mono', monospace; font-size:13px; padding:18px 22px; max-height:280px; overflow-y:auto; line-height:1.65; }
+  /* ---------- NARRATION FEED ---------- */
+  .narration-console{ border:1px solid var(--line-strong); background:#101216; }
+  .narration-chrome{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .narration-chrome .nc-dots{ display:flex; gap:6px; }
+  .narration-chrome .nc-dots span{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.18); }
+  .narration-chrome .nc-title{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.1em;
+    color:rgba(255,255,255,0.4); text-transform:uppercase;
+  }
+  .narration{ border:none; background:transparent; color:#D5D5D0; font-family:'IBM Plex Mono', monospace; font-size:13px; padding:18px 22px; max-height:280px; overflow-y:auto; line-height:1.65; }
   .narration .n-line{ display:grid; grid-template-columns:82px 92px 1fr; gap:14px; padding:3px 0; border-bottom:1px dashed rgba(255,255,255,0.05); }
   .narration .n-line:last-child{ border-bottom:none; }
   .narration .n-time{ color:#7C7C74; }
@@ -584,7 +651,7 @@
       <div class="tick major"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
       <div class="tick major"></div>
     </div>
-    <span class="id mono">UNIT 0091 / REV C</span>
+    <span class="id mono">SIGNAL LAB — CAL. CYCLE 0091</span>
   </div>
 
   <header>
@@ -596,7 +663,7 @@
         </svg>
       </div>
       <div>
-        <h1>GuardianOps</h1>
+        <h1>GuardianOps <span class="status-chip"><span class="chip-dot"></span>SELF-HEALING</span></h1>
         <p>Self-healing pipeline for real-time fraud detection</p>
       </div>
     </div>
@@ -656,7 +723,7 @@
     <div class="settings-note" id="settings-note">Threshold, poll interval and drift check cadence apply live on Guardian's next monitor loop cycle — no restart required. Baseline window size is fixed at container startup (it sizes the internal ring buffer); to change it, edit <code>services/guardian/app/config.py</code> and restart the guardian container.</div>
   </div>
 
-  <div class="section-label mono">SESSION LEDGER</div>
+  <div class="subhead mono">SESSION LEDGER</div>
   <div class="ledger" id="ledger">
     <div class="ledger-tile">
       <div class="l-label">Total Incidents</div>
@@ -748,7 +815,7 @@
     <button class="action-btn terminate" id="btn-terminate" data-endpoint="POST http://localhost:8003/crash">
       <div class="icon-row">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
-        <span class="code">01</span>
+        <span class="code">SIGTERM</span>
       </div>
       <span class="name">TERMINATE PROCESS</span>
       <span class="sub">Kill fraud-api. Compose restarts it.</span>
@@ -756,7 +823,7 @@
     <button class="action-btn latency" id="btn-latency" data-endpoint="POST http://localhost:8003/slow">
       <div class="icon-row">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5 V12 L15 14"/></svg>
-        <span class="code">02</span>
+        <span class="code">+1500MS</span>
       </div>
       <span class="name">INDUCE LATENCY</span>
       <span class="sub">Add 1.5 s to every /score call.</span>
@@ -764,7 +831,7 @@
     <button class="action-btn corrupt" id="btn-corrupt" data-endpoint="POST http://localhost:8003/corrupt">
       <div class="icon-row">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 Q7 6 10 12 T16 12 T20 12"/></svg>
-        <span class="code">03</span>
+        <span class="code">SILENT</span>
       </div>
       <span class="name">CORRUPT OUTPUT</span>
       <span class="sub">Silent scoring failure. No crash.</span>
@@ -779,12 +846,12 @@
   <button class="replay-btn" id="btn-replay" data-endpoint="POST http://localhost:8001/replay">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l14 8-14 8V4z"/></svg>
     <span id="replay-label">REPLAY REAL DATASET</span>
-    <span class="rb-caption">— stream 200 real credit-card transactions through /score</span>
+    <span class="rb-caption">— score 500 realistic transactions with ground-truth labels; get precision/recall/F1 back</span>
   </button>
 
   <hr class="rule">
 
-  <div class="section-label mono">SCORE DISTRIBUTION — BASELINE vs LIVE</div>
+  <div class="subhead mono">SCORE DISTRIBUTION — BASELINE vs LIVE</div>
   <div class="distribution">
     <div class="dist-plot" id="dist-plot">
       <svg id="dist-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
@@ -862,20 +929,26 @@
       <div class="incident-row"><span class="k">STATUS</span><span class="v" id="li-status">&mdash;</span></div>
       <div class="incident-row"><span class="k">BLAST RADIUS</span><span class="v" id="li-blast">0</span></div>
       <div class="incident-row"><span class="k">REASONING</span></div>
-      <div style="font-family:'Public Sans', sans-serif; font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.55;" id="li-reasoning">Awaiting first incident.</div>
+      <div style="font-family:'Space Grotesk', sans-serif; font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.55;" id="li-reasoning">Awaiting first incident.</div>
     </div>
   </div>
 
   <hr class="rule">
 
-  <div class="section-label mono">INCIDENT TIMELINE</div>
+  <div class="subhead mono">INCIDENT TIMELINE</div>
   <div class="timeline" id="timeline-strip">
     <div class="track"></div>
   </div>
 
   <div class="section-label mono">GUARDIAN NARRATION — LIVE DECISION FEED</div>
-  <div class="narration" id="narration">
-    <div class="n-line"><span class="n-time">--:--:--</span><span class="n-tag info">STARTUP</span><span class="n-msg">Waiting for Guardian to connect…</span></div>
+  <div class="narration-console">
+    <div class="narration-chrome">
+      <span class="nc-dots"><span></span><span></span><span></span></span>
+      <span class="nc-title">guardian decision log</span>
+    </div>
+    <div class="narration" id="narration">
+      <div class="n-line"><span class="n-time">--:--:--</span><span class="n-tag info">STARTUP</span><span class="n-msg">Waiting for Guardian to connect…</span></div>
+    </div>
   </div>
 
   <hr class="rule">
@@ -894,7 +967,7 @@
 
   <hr class="rule">
 
-  <div class="section-label mono">INCIDENT HISTORY</div>
+  <div class="subhead mono">INCIDENT HISTORY</div>
   <div class="history" id="incident-history">
     <div class="empty-state" style="padding:16px 20px;">No incidents recorded yet.</div>
   </div>
@@ -908,7 +981,7 @@
       <span class="badge"><span class="dot-marker"></span><a href="http://localhost:8002/docs" target="_blank" style="color:inherit; text-decoration:none;">API DOCS</a></span>
     </div>
     <div style="display:flex; align-items:center; gap:16px;">
-      <span id="ep-hint">CLICK ANY ELEMENT TO SEE ITS ENDPOINT IN CONSOLE</span>
+      <span id="ep-hint">GUARDIANOPS v1.5 — LOCAL SIGNAL LAB</span>
       <button class="reset-btn" id="btn-reset">RESET CHAOS STATE</button>
     </div>
   </footer>
@@ -919,10 +992,11 @@
     <div class="m-head">
       <div>
         <div class="m-title">Replay · Real Credit-Card Transactions</div>
-        <div style="font-size:11px; color:var(--ink-faint); margin-top:4px; font-family:'Fragment Mono', monospace;" id="replay-source">source: data/replay/transactions.csv</div>
+        <div style="font-size:11px; color:var(--ink-faint); margin-top:4px; font-family:'IBM Plex Mono', monospace;" id="replay-source">source: data/replay/transactions.csv · 500 rows · ~4% ground-truth fraud</div>
       </div>
       <button class="m-close" id="replay-close">CLOSE</button>
     </div>
+
     <div class="m-summary" id="replay-summary"></div>
 
     <div class="m-metrics">
@@ -938,7 +1012,7 @@
 
     <div class="m-block-title">Rows</div>
     <div class="segmented-tabs" id="replay-tabs">
-      <button data-tab="all"    class="active">All scored</button>
+      <button data-tab="all"    class="active">All scored (first 20)</button>
       <button data-tab="missed">Missed fraud (false negatives)</button>
     </div>
     <table>
@@ -952,15 +1026,6 @@
 <script>
 /* ==============================================================
    GuardianOps dashboard — wiring layer
-   ==============================================================
-   Talks to three services:
-     Guardian       http://localhost:8002   (brain — status, incidents, approvals, reports)
-     Fraud API      http://localhost:8001   (subject — /health for mode)
-     Chaos Injector http://localhost:8003   (attack surface — crash / slow / corrupt / reset)
-
-   Every visible UI element is bound to one of these calls. The `data-endpoint`
-   attributes on the buttons are informational only; the actual wiring lives
-   in the event handlers below.
    ============================================================== */
 
 const GUARDIAN = 'http://localhost:8002';
@@ -970,7 +1035,6 @@ const POLL_MS  = 1500;
 
 const $ = (id) => document.getElementById(id);
 
-// ---------- tiny fetch helpers ----------
 async function jget(url) {
   const r = await fetch(url, { cache: 'no-store' });
   if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
@@ -982,7 +1046,6 @@ async function jpost(url) {
   return r.json();
 }
 
-// ---------- clock + updated-N-ago stamp ----------
 function fmtClock(d) { return d.toLocaleTimeString('en-GB', { hour12: false }); }
 function tickClock() { $('clock').textContent = fmtClock(new Date()); }
 tickClock(); setInterval(tickClock, 1000);
@@ -995,14 +1058,12 @@ setInterval(() => {
 }, 500);
 function markUpdated() { lastUpdate = Date.now(); }
 
-// ---------- connection badges ----------
 function setBadge(id, up) {
   const b = $(id);
   b.classList.remove('up', 'down');
   b.classList.add(up ? 'up' : 'down');
 }
 
-// ---------- helpers ----------
 function fmtId(n)    { return '#' + String(n).padStart(4, '0'); }
 function fmtTime(iso){
   if (!iso) return '--:--:--';
@@ -1015,10 +1076,13 @@ function fmtMttr(s) {
   const m = Math.floor(s / 60), r = Math.round(s % 60);
   return m + 'm ' + r + 's';
 }
-function capitalize(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+
+let LAST_INCIDENTS = [];
+let LAST_STATUS = {};
+let LAST_REPLAY = null;
 
 // ==============================================================
-// POLL 1 — Guardian /status  (fraud-api up/down, confidence, active incident)
+// POLL 1 — /status
 // ==============================================================
 async function pollStatus() {
   try {
@@ -1026,7 +1090,6 @@ async function pollStatus() {
     LAST_STATUS = s;
     setBadge('conn-guardian', true);
 
-    // Fraud API status card
     const zone = $('readout-status');
     const val  = $('readout-status-value');
     const legend = $('legend-dot-healthy');
@@ -1050,13 +1113,11 @@ async function pollStatus() {
       }
     }
 
-    // Confidence readout (0-100)
     const conf = Math.round(s.confidence || 0);
     const confEl = $('readout-confidence');
     confEl.textContent = conf + '/100';
     confEl.style.color = conf < 40 ? 'var(--red)' : conf < 70 ? 'var(--amber)' : 'var(--green)';
 
-    // Guardian strip
     if (s.active_incident_type) {
       $('guardian-dot').style.background = 'var(--amber)';
       $('guardian-status').textContent = 'RESPONDING · ' + s.active_incident_type.toUpperCase().replace('_', ' ');
@@ -1065,7 +1126,6 @@ async function pollStatus() {
       $('guardian-status').textContent = 'WATCHING';
     }
 
-    // Config strip — refresh from live Guardian values
     if (s.config) {
       $('cfg-threshold-display').textContent = s.config.psi_alert.toFixed(2);
       $('cfg-window-display').textContent    = s.config.window_size + ' SAMPLES';
@@ -1073,14 +1133,12 @@ async function pollStatus() {
       $('cfg-cadence-display').textContent   = s.config.drift_check_interval_s + 's';
     }
 
-    // Drift flag on scope
     if (s.last_drift && s.last_drift.verdict === 'significant') {
       $('scope-panel').classList.add('drift');
     } else {
       $('scope-panel').classList.remove('drift');
     }
 
-    // Header connection dot
     $('conn-dot').style.background = 'var(--green)';
     $('conn-label').textContent = 'ACTIVE';
 
@@ -1097,9 +1155,6 @@ async function pollStatus() {
   }
 }
 
-// ==============================================================
-// POLL 2 — Guardian /live-metrics  (uptime, latency, throughput)
-// ==============================================================
 async function pollLiveMetrics() {
   try {
     const m = await jget(GUARDIAN + '/live-metrics');
@@ -1107,12 +1162,6 @@ async function pollLiveMetrics() {
     $('readout-latency').textContent = m.latency_ms_p50 != null ? Math.round(m.latency_ms_p50) + 'ms' : '--';
   } catch (_) {}
 }
-
-// ==============================================================
-// POLL 3 — Guardian /score-history  (SVG scope trace)
-// ==============================================================
-let LAST_INCIDENTS = [];
-let LAST_STATUS = {};
 
 async function pollScope() {
   try {
@@ -1144,27 +1193,23 @@ function renderScope(h, incidents) {
   const samples = h.live;
   const n = samples.length;
   const w = 100;
-  const yFor = (v) => 92 - Math.max(0, Math.min(1, v)) * 84;   // score 0 -> y=92, 1 -> y=8
+  const yFor = (v) => 92 - Math.max(0, Math.min(1, v)) * 84;
   const step = n > 1 ? (w - 4) / (n - 1) : 0;
   const t0 = samples[0].t, tN = samples[n - 1].t, tSpan = Math.max(tN - t0, 1);
   const xForT = (t) => 2 + ((t - t0) / tSpan) * (w - 4);
 
-  // Baseline mean
   const baseMean = h.baseline_mean ?? 0.3;
   const baseY = yFor(baseMean);
 
-  // 1. Threshold zones (very subtle so they don't clutter)
   let bg =
     '<rect x="0" y="' + yFor(1).toFixed(1) + '" width="100" height="' +
-      (yFor(0.7) - yFor(1)).toFixed(1) + '" fill="rgba(214,69,61,0.035)"/>' +
+      (yFor(0.7) - yFor(1)).toFixed(1) + '" fill="rgba(201,75,75,0.035)"/>' +
     '<rect x="0" y="' + yFor(0.7).toFixed(1) + '" width="100" height="' +
-      (yFor(0.4) - yFor(0.7)).toFixed(1) + '" fill="rgba(201,138,34,0.025)"/>';
+      (yFor(0.4) - yFor(0.7)).toFixed(1) + '" fill="rgba(217,164,65,0.025)"/>';
 
-  // 2. Baseline dashed line
   bg += '<line x1="0" x2="100" y1="' + baseY.toFixed(2) + '" y2="' + baseY.toFixed(2) +
     '" stroke="#6B6A64" stroke-width="0.35" stroke-dasharray="1.4 1.4" opacity="0.85"/>';
 
-  // 3. Segment trace by state (normal=black, drift=red). Crash breaks the line.
   const stateFor = (t) => stateAt(t, incidents);
   const segs = [];
   let cur = null;
@@ -1178,9 +1223,7 @@ function renderScope(h, incidents) {
       segs.push(cur);
     }
     cur.pts.push([x, y]);
-    // add first point of next segment to prev for continuity
   }
-  // ensure adjacent segments share their edge point so the line looks continuous
   for (let i = 1; i < segs.length; i++) {
     if (segs[i - 1].pts.length && segs[i].pts.length &&
         segs[i - 1].state !== 'crash' && segs[i].state !== 'crash') {
@@ -1191,30 +1234,25 @@ function renderScope(h, incidents) {
   let traceSvg = '';
   for (const seg of segs) {
     if (seg.state === 'crash' || seg.pts.length < 2) continue;
-    // Normal state trace is green (healthy); drift is red; crash is a gap.
-    const color = seg.state === 'drift' ? '#D6453D' : '#21865A';
+    const color = seg.state === 'drift' ? '#C94B4B' : '#2D8659';
     const pts = seg.pts.map(([x, y]) => x.toFixed(2) + ',' + y.toFixed(2)).join(' ');
     traceSvg += '<polyline points="' + pts + '" fill="none" stroke="' + color +
       '" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
   }
 
-  // 4. Shaded fill under trace segments — green under healthy, red under drift
   let fills = '';
   for (const seg of segs) {
     if (seg.state === 'crash' || seg.pts.length < 2) continue;
     let d = 'M ' + seg.pts[0][0].toFixed(2) + ',' + baseY.toFixed(2);
     for (const [x, y] of seg.pts) d += ' L ' + x.toFixed(2) + ',' + y.toFixed(2);
     d += ' L ' + seg.pts[seg.pts.length - 1][0].toFixed(2) + ',' + baseY.toFixed(2) + ' Z';
-    const fillColor = seg.state === 'drift' ? 'rgba(214,69,61,0.12)' : 'rgba(33,134,90,0.06)';
+    const fillColor = seg.state === 'drift' ? 'rgba(201,75,75,0.12)' : 'rgba(45,134,89,0.06)';
     fills += '<path d="' + d + '" fill="' + fillColor + '"/>';
   }
-  const driftFill = fills;
 
-  svg.innerHTML = bg + driftFill + traceSvg;
+  svg.innerHTML = bg + fills + traceSvg;
 
-  // 5. NO SIGNAL box for any crash gaps within the visible window
   callouts.innerHTML = '';
-  const scopeRect = $('scope-panel').getBoundingClientRect();
   for (const inc of incidents) {
     if (inc.type !== 'crash') continue;
     const s = new Date(inc.detected_at).getTime() / 1000;
@@ -1233,11 +1271,7 @@ function renderScope(h, incidents) {
     callouts.appendChild(box);
   }
 
-  // 6. Callouts — ONE per incident, merged. Start-and-end get combined into
-  // a single label ("DRIFT 0.31 → AUTHORIZED 15s") so a fast incident (5s
-  // crash + restart) doesn't produce two overlapping tags on top of each
-  // other. Then we sort by x and push colliding tags down to the next tier
-  // (three tiers total).
+  const threshold = (LAST_STATUS.config && LAST_STATUS.config.psi_alert) || 0.20;
   const items = [];
   for (const inc of incidents) {
     const t = new Date(inc.detected_at).getTime() / 1000;
@@ -1245,54 +1279,42 @@ function renderScope(h, incidents) {
     const x = xForT(t);
     if (inc.type === 'crash') {
       if (inc.status === 'resolved') {
-        items.push({
-          x, cls: 'recovery',
+        items.push({ x, cls: 'recovery',
           title: 'TERMINATED → AUTO-RESTART',
-          sub: fmtMttr(inc.mttr_seconds) + ' RECOVERY',
-        });
+          sub: fmtMttr(inc.mttr_seconds) + ' RECOVERY' });
       } else {
-        items.push({
-          x, cls: 'crash',
+        items.push({ x, cls: 'crash',
           title: 'PROCESS TERMINATED',
-          sub: fmtClock(new Date(inc.detected_at)),
-        });
+          sub: fmtClock(new Date(inc.detected_at)) });
       }
     } else {
       const psi = inc?.evidence?.drift?.psi;
       const psiStr = psi != null ? psi.toFixed(2) : '?';
       if (inc.status === 'resolved' && inc.action === 'rollback_approved') {
-        items.push({
-          x, cls: 'approved',
+        items.push({ x, cls: 'approved',
           title: 'DRIFT ' + psiStr + ' → AUTHORIZED',
-          sub: fmtMttr(inc.mttr_seconds) + ' TO ROLLBACK',
-        });
+          sub: fmtMttr(inc.mttr_seconds) + ' TO ROLLBACK' });
       } else {
-        items.push({
-          x, cls: 'drift',
+        items.push({ x, cls: 'drift',
           title: 'DRIFT SCORE ' + psiStr,
-          sub: 'THRESHOLD 0.20 EXCEEDED',
-        });
+          sub: 'THRESHOLD ' + threshold.toFixed(2) + ' EXCEEDED' });
       }
     }
   }
   items.sort((a, b) => a.x - b.x);
 
-  // Three tiers (top / mid / bottom). If a callout is within X_GAP % of the
-  // previous callout at the same tier, push it to the next tier down; if all
-  // three tiers collide, drop the label (keeps the display readable rather
-  // than a stack of overlapping rectangles).
   const tiers = [
     { top:   4, line: 96, occupied: -Infinity },
     { top:  50, line: 50, occupied: -Infinity },
     { top:  98, line:  4, occupied: -Infinity },
   ];
-  const X_GAP = 13; // percent of scope width — roughly one callout wide
+  const X_GAP = 13;
   items.forEach((it) => {
     let placed = null;
     for (const tier of tiers) {
       if (it.x - tier.occupied >= X_GAP) { placed = tier; break; }
     }
-    if (!placed) return; // too crowded — drop
+    if (!placed) return;
     placed.occupied = it.x;
     const co = document.createElement('div');
     co.className = 'scope-callout ' + it.cls;
@@ -1310,91 +1332,8 @@ function renderScope(h, incidents) {
   }
 }
 
-// Legacy stub retained only for reference
-function _renderScopeOLD(h) {
-  const svg = $('scope-svg');
-  if (!h.live || h.live.length === 0) { svg.innerHTML = ''; return; }
-
-  // Coordinate frame: 0..100 in X and Y. Score 0 → y=95, score 1 → y=5,
-  // so we get a small margin on top and bottom.
-  const w = 100;
-  const yFor = (v) => 95 - Math.max(0, Math.min(1, v)) * 90;
-
-  const baseMean = h.baseline_mean ?? 0.5;
-  const baseStd = (h.baseline_std ?? 0.1) || 0.05;
-  const baseY = yFor(baseMean);
-  const bandTop = yFor(baseMean + baseStd);
-  const bandBot = yFor(baseMean - baseStd);
-
-  // Threshold zones — the fraud-api itself labels score > 0.7 as "fraud"
-  // and score > 0.4 as "review". Shading these regions makes the trace
-  // instantly readable: any spike into the top zone is a fraud call.
-  const thresholdShades =
-    '<rect x="0" y="' + yFor(1).toFixed(1) + '" width="100" height="' +
-      (yFor(0.7) - yFor(1)).toFixed(1) + '" fill="rgba(214,69,61,0.05)"/>' +
-    '<rect x="0" y="' + yFor(0.7).toFixed(1) + '" width="100" height="' +
-      (yFor(0.4) - yFor(0.7)).toFixed(1) + '" fill="rgba(201,138,34,0.04)"/>' +
-    '<line x1="0" x2="100" y1="' + yFor(0.7).toFixed(1) + '" y2="' + yFor(0.7).toFixed(1) +
-      '" stroke="#D6453D" stroke-width="0.15" stroke-dasharray="0.6 1.2" opacity="0.5"/>' +
-    '<line x1="0" x2="100" y1="' + yFor(0.4).toFixed(1) + '" y2="' + yFor(0.4).toFixed(1) +
-      '" stroke="#C98A22" stroke-width="0.15" stroke-dasharray="0.6 1.2" opacity="0.4"/>';
-
-  // Baseline ±σ band (light fill) plus its dashed mean line
-  const baselineBand =
-    '<rect x="0" y="' + bandTop.toFixed(1) + '" width="100" height="' +
-      (bandBot - bandTop).toFixed(1) + '" fill="rgba(23,25,27,0.05)"/>' +
-    '<line x1="0" x2="100" y1="' + bandTop.toFixed(1) + '" y2="' + bandTop.toFixed(1) +
-      '" stroke="#9B988E" stroke-width="0.15" stroke-dasharray="0.4 0.9" opacity="0.55"/>' +
-    '<line x1="0" x2="100" y1="' + bandBot.toFixed(1) + '" y2="' + bandBot.toFixed(1) +
-      '" stroke="#9B988E" stroke-width="0.15" stroke-dasharray="0.4 0.9" opacity="0.55"/>' +
-    '<line x1="0" x2="100" y1="' + baseY.toFixed(1) + '" y2="' + baseY.toFixed(1) +
-      '" stroke="#6B6A64" stroke-width="0.3" stroke-dasharray="1.2 1.2" opacity="0.8"/>';
-
-  const alertColor = '#D6453D', okColor = '#17191B';
-  const stroke = h.current_verdict === 'significant' ? alertColor : okColor;
-
-  // Live trace + per-sample vertical hair-lines dropping to the baseline
-  // mean, plus a tiny point at each sample. Result is denser, more
-  // instrument-like — you can count samples visually.
-  const n = h.live.length;
-  const step = n <= 1 ? 0 : (w - 4) / (n - 1);
-  let hairs = '', dots = '', linePts = [];
-  for (let i = 0; i < n; i++) {
-    const x = (2 + i * step).toFixed(2);
-    const y = yFor(h.live[i].score);
-    linePts.push(x + ',' + y.toFixed(2));
-    // hair-line from baseline mean down/up to the sample
-    hairs +=
-      '<line x1="' + x + '" x2="' + x + '" y1="' + baseY.toFixed(2) + '" y2="' + y.toFixed(2) +
-      '" stroke="' + stroke + '" stroke-width="0.08" opacity="0.28"/>';
-    // tiny dot at the sample
-    dots += '<circle cx="' + x + '" cy="' + y.toFixed(2) + '" r="0.35" fill="' + stroke +
-      '" opacity="0.65"/>';
-  }
-
-  const trace =
-    '<polyline points="' + linePts.join(' ') + '" fill="none" stroke="' + stroke +
-    '" stroke-width="0.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
-
-  // Mean of the live window (thin dashed horizontal, for visual comparison)
-  const liveMean =
-    n > 5
-      ? '<line x1="0" x2="100" y1="' +
-        yFor(h.live.reduce((a, b) => a + b.score, 0) / n).toFixed(2) +
-        '" y2="' + yFor(h.live.reduce((a, b) => a + b.score, 0) / n).toFixed(2) +
-        '" stroke="' + stroke + '" stroke-width="0.2" stroke-dasharray="0.5 0.8" opacity="0.4"/>'
-      : '';
-
-  svg.innerHTML = thresholdShades + baselineBand + hairs + trace + dots + liveMean;
-
-  if (h.live.length) {
-    $('axis-start').textContent = fmtClock(new Date(h.live[0].t * 1000));
-    $('axis-end').textContent   = fmtClock(new Date(h.live[h.live.length - 1].t * 1000));
-  }
-}
-
 // ==============================================================
-// POLL 4 — Guardian /pending-approvals  (approval queue)
+// POLL 4 — /pending-approvals  (plain-English card + collapsibles)
 // ==============================================================
 let activeApproval = null;
 
@@ -1410,8 +1349,6 @@ function renderApprovals(pending) {
   const btn = $('btn-authorize');
   label.textContent = 'PENDING AUTHORIZATION (' + pending.length + ')';
 
-  // Sticky top banner surfaces any pending queue immediately, even from
-  // deep in the page. Click smooth-scrolls to the approval section.
   const banner = $('approval-banner');
   if (pending.length > 0) {
     banner.classList.add('open');
@@ -1447,7 +1384,6 @@ function renderApprovals(pending) {
 
     return `
       <div class="approval-item" id="approval-${p.id}">
-
         <div class="ap-headline">Fraud API is returning scores that don't match its baseline.</div>
         <div class="ap-subhead">
           Guardian classified this as a <strong>${severityWord} distribution shift</strong>${blastLive ? ' after seeing ' + blastLive + ' transactions with unusual scores' : ''}.
@@ -1455,20 +1391,18 @@ function renderApprovals(pending) {
         </div>
 
         <div class="ap-facts">
-          <div><div class="fk">Drift severity</div><div class="fv ${severity}">${(psi).toFixed(2)} / ${threshold.toFixed(2)}</div></div>
+          <div><div class="fk">Drift severity</div><div class="fv ${severity}">${psi.toFixed(2)} / ${threshold.toFixed(2)}</div></div>
           <div><div class="fk">Impact so far</div><div class="fv">${blastLive} tx</div></div>
           <div><div class="fk">First detected</div><div class="fv">${fmtTime(p.detected_at)}</div></div>
         </div>
 
         <div class="ap-collapsible">
-
           <details>
             <summary>What does "drift" mean here?</summary>
             <div class="ap-body">
               Guardian keeps a snapshot of what fraud scores look like when the API is healthy — a distribution captured at startup from ${nRef || 200} clean transactions. Every few seconds it compares the last window of live scores against that snapshot. When the two distributions no longer match, we call it <em>drift</em>. Big drift usually means one of three things: a bad model deploy, a data-pipeline bug feeding the model wrong inputs, or the model itself getting silently corrupted. None of those crash the service, which is what makes them dangerous.
             </div>
           </details>
-
           <details>
             <summary>See the numbers</summary>
             <div class="ap-body">
@@ -1483,27 +1417,23 @@ function renderApprovals(pending) {
               </div>
             </div>
           </details>
-
           <details>
             <summary>Why does Guardian ask before rolling back?</summary>
             <div class="ap-body">
               Crashes are safe to auto-recover — you either can score a transaction or you can't, and a restart brings you back. But rolling back a live fraud model is a governed action: you're changing which model is deciding real card charges. In a real bank, that decision needs a human on the hook, so if it turns out to be the wrong call there's an accountable person, not "the algorithm did it". This gate is the digital version of that sign-off. Guardian's policy for this is <code>P-002 — silent-failure class</code>.
             </div>
           </details>
-
           <details>
             <summary>Full Guardian reasoning (raw)</summary>
             <div class="ap-body">
               <em class="raw">${(p.reasoning || '(no reasoning captured)').replace(/</g, '&lt;')}</em>
             </div>
           </details>
-
         </div>
       </div>`;
   }).join('');
 }
 
-// ---------- Authorize click ----------
 $('btn-authorize').addEventListener('click', async () => {
   if (activeApproval == null) return;
   const btn = $('btn-authorize');
@@ -1518,7 +1448,6 @@ $('btn-authorize').addEventListener('click', async () => {
     msg.classList.add('show');
     setTimeout(() => msg.classList.remove('show'), 4000);
 
-    // Optimistically prepend to approval history
     const rows = $('approval-history-rows');
     if (rows.querySelector('.empty-state')) rows.innerHTML = '';
     const row = document.createElement('div');
@@ -1527,7 +1456,6 @@ $('btn-authorize').addEventListener('click', async () => {
       '<span class="ah-who mono">' + fmtClock(new Date()) + ' &middot; ' + $('identity-picker').value + '</span>';
     rows.insertBefore(row, rows.firstChild);
 
-    // Force an immediate refresh so UI catches up
     await Promise.all([pollApprovals(), pollIncidents(), pollReport()]);
   } catch (e) {
     alert('Approve failed: ' + e.message);
@@ -1538,7 +1466,7 @@ $('btn-authorize').addEventListener('click', async () => {
 });
 
 // ==============================================================
-// POLL 5 — Guardian /incidents  (history table, timeline, latest, exposure)
+// POLL 5 — /incidents
 // ==============================================================
 async function pollIncidents() {
   try {
@@ -1548,7 +1476,7 @@ async function pollIncidents() {
     renderTimeline(incidents);
     renderLatest(incidents);
     updateExposure(incidents);
-    updateFooterStatus(incidents);
+    $('badge-mlflow').firstElementChild.style.background = 'var(--green)';
   } catch (_) {}
 }
 
@@ -1640,10 +1568,7 @@ function updateExposure(list) {
     return;
   }
   exposure.classList.remove('calm');
-  // Use Guardian's LIVE blast counter from /status while the incident is
-  // in-flight. The DB row's blast_radius is only written at resolution.
   const blast = LAST_STATUS.blast_radius_current || active.blast_radius || 0;
-  // Per-transaction average from the replay dataset (mean amount ~ $85).
   const amt = blast * 84.72;
   const dollars = Math.floor(amt);
   const cents = ((amt - dollars) * 100).toFixed(0).padStart(2, '0');
@@ -1651,12 +1576,8 @@ function updateExposure(list) {
   delta.textContent = '↑ ' + blast + ' TX UNGUARDED (live)';
 }
 
-function updateFooterStatus(list) {
-  $('badge-mlflow').firstElementChild.style.background = 'var(--green)';
-}
-
 // ==============================================================
-// POLL 6 — Guardian /report/latest  (auto-generated markdown)
+// POLL 6 — /report/latest
 // ==============================================================
 async function pollReport() {
   try {
@@ -1693,7 +1614,6 @@ function renderReport(reportResp, latest) {
   $('btn-copy-report').dataset.markdown = reportResp.markdown || '';
 }
 
-// ---------- copy + print ----------
 $('btn-copy-report').addEventListener('click', () => {
   const md = $('btn-copy-report').dataset.markdown || '';
   if (md && navigator.clipboard) navigator.clipboard.writeText(md).catch(() => {});
@@ -1704,7 +1624,7 @@ $('btn-copy-report').addEventListener('click', () => {
 $('btn-print-report').addEventListener('click', () => window.print());
 
 // ==============================================================
-// POLL 7 — Guardian /session-stats  (Session Ledger tiles)
+// POLL 7 — /session-stats
 // ==============================================================
 async function pollSessionStats() {
   try {
@@ -1720,8 +1640,7 @@ async function pollSessionStats() {
 }
 
 // ==============================================================
-// POLL 8 — Guardian /baseline  (fetched ONCE, cached)
-// Computes and renders the score distribution histogram client-side.
+// POLL 8 — /baseline + distribution histogram
 // ==============================================================
 let BASELINE_SAMPLES = null;
 
@@ -1802,7 +1721,7 @@ async function pollDistribution() {
 }
 
 // ==============================================================
-// GUARDIAN NARRATION — client-side state diff → live feed
+// GUARDIAN NARRATION
 // ==============================================================
 const NARR_MAX = 40;
 const narrPrev = { fraud_up: null, active_incident: null, verdict: null, pending_count: null, resolved_count: null };
@@ -1857,9 +1776,6 @@ async function pollNarrate() {
   } catch (_) {}
 }
 
-// ==============================================================
-// POLL 9 — Fraud-API /health  (mode display) + Chaos-Injector /health
-// ==============================================================
 async function pollAncillary() {
   try { await jget(FRAUD + '/health'); setBadge('conn-fraud', true); }
   catch (_) { setBadge('conn-fraud', false); }
@@ -1868,7 +1784,7 @@ async function pollAncillary() {
 }
 
 // ==============================================================
-// CHAOS BUTTONS  →  POST http://localhost:8003/{crash|slow|corrupt|reset}
+// CHAOS + force-check + reset
 // ==============================================================
 async function chaos(kind, params) {
   const btns = document.querySelectorAll('.action-btn, #btn-reset');
@@ -1889,9 +1805,6 @@ $('btn-latency').addEventListener('click',   () => chaos('slow', { ms: 1500 }));
 $('btn-corrupt').addEventListener('click',   () => chaos('corrupt'));
 $('btn-reset').addEventListener('click',     () => chaos('reset'));
 
-// ==============================================================
-// FORCE CHECK  →  POST http://localhost:8002/check-now
-// ==============================================================
 $('btn-force-check').addEventListener('click', async () => {
   const btn = $('btn-force-check');
   const lbl = $('force-check-label');
@@ -1918,13 +1831,11 @@ $('btn-force-check').addEventListener('click', async () => {
 });
 
 // ==============================================================
-// SETTINGS PANEL  (display-only — see the note in the panel body)
+// SETTINGS PANEL — real POST /config
 // ==============================================================
 const settingsPanel = $('settings-panel');
 $('btn-settings-toggle').addEventListener('click', async () => {
   settingsPanel.classList.toggle('open');
-  // On open, hydrate the sliders from Guardian's current live config so
-  // they reflect what's actually running (not the HTML defaults).
   if (settingsPanel.classList.contains('open')) {
     try {
       const c = await jget(GUARDIAN + '/config');
@@ -1935,7 +1846,7 @@ $('btn-settings-toggle').addEventListener('click', async () => {
       $('cfg-cadence').value = c.mutable.drift_check_interval_s;
       $('cfg-cadence-live').textContent = c.mutable.drift_check_interval_s + 's';
       $('cfg-window').value = c.fixed.window_size;
-      $('cfg-window').disabled = true;   // fixed at startup
+      $('cfg-window').disabled = true;
       $('cfg-window-live').textContent = c.fixed.window_size + ' (fixed)';
     } catch (_) {}
   }
@@ -1960,11 +1871,9 @@ $('btn-settings-save').addEventListener('click', async () => {
     });
     if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
     const conf = await r.json();
-    // update the header strip immediately
     $('cfg-threshold-display').textContent = conf.mutable.psi_alert.toFixed(2);
     $('cfg-poll-display').textContent      = conf.mutable.poll_interval_s + 's';
     $('cfg-cadence-display').textContent   = conf.mutable.drift_check_interval_s + 's';
-    // baseline window is fixed — refresh from the fixed side
     $('cfg-window-display').textContent    = conf.fixed.window_size + ' SAMPLES';
     btn.textContent = 'SAVED ✓';
     note.style.color = 'var(--green)';
@@ -1996,32 +1905,26 @@ $('btn-settings-save').addEventListener('click', async () => {
   });
 });
 
-// ==============================================================
-// Endpoint logger — every button announces its target on click
-// ==============================================================
 document.querySelectorAll('[data-endpoint]').forEach(el => {
   el.addEventListener('click', () => console.log('[wire]', el.dataset.endpoint));
 });
 
-// ==============================================================
-// Approval-banner smooth scroll
-// ==============================================================
 $('ab-scroll').addEventListener('click', () => {
   const target = document.querySelector('.block.auth') || $('approvals-list');
   if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
 // ==============================================================
-// REPLAY REAL DATASET  →  POST http://localhost:8001/replay
+// REPLAY — confusion matrix + precision/recall/F1
 // ==============================================================
 $('btn-replay').addEventListener('click', async () => {
   const btn = $('btn-replay');
   const lbl = $('replay-label');
   const orig = lbl.textContent;
   btn.disabled = true;
-  lbl.textContent = 'STREAMING REAL TRANSACTIONS…';
+  lbl.textContent = 'STREAMING 500 REAL TRANSACTIONS…';
   try {
-    const r = await jpost(FRAUD + '/replay?limit=200');
+    const r = await jpost(FRAUD + '/replay?limit=500');
     if (r.error) throw new Error(r.error);
     renderReplay(r);
     $('replay-modal').classList.add('open');
@@ -2037,8 +1940,6 @@ $('replay-modal').addEventListener('click', (e) => {
   if (e.target.id === 'replay-modal') $('replay-modal').classList.remove('open');
 });
 
-let LAST_REPLAY = null;
-
 function renderReplay(r) {
   LAST_REPLAY = r;
   const summary = $('replay-summary');
@@ -2050,10 +1951,8 @@ function renderReplay(r) {
     tile('FLAGGED REVIEW', r.flagged_review, 'var(--amber)') +
     tile('MARKED OK',      r.flagged_ok,     'var(--green)');
 
-  // Confusion matrix in a 3×3 grid
   const cm = r.confusion_matrix;
-  const conf = $('replay-confusion');
-  conf.innerHTML =
+  $('replay-confusion').innerHTML =
     `<div></div>
      <div class="ch">Predicted fraud/review</div>
      <div class="ch">Predicted ok</div>
@@ -2066,11 +1965,9 @@ function renderReplay(r) {
      <div class="cell bad">${cm.false_positive}</div>
      <div class="cell good">${cm.true_negative}</div>`;
 
-  // Metric tiles
   const m = r.metrics;
-  const mm = $('replay-metrics');
   const fmtPct = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
-  mm.innerHTML =
+  $('replay-metrics').innerHTML =
     metricTile('Precision', fmtPct(m.precision),
                'Of flagged rows, how many were actually fraud') +
     metricTile('Recall',    fmtPct(m.recall),
@@ -2080,10 +1977,8 @@ function renderReplay(r) {
     metricTile('Accuracy',  fmtPct(m.accuracy),
                'Overall correct predictions');
 
-  // Table — default view
   renderReplayRows('all');
 
-  // Tab switching
   document.querySelectorAll('#replay-tabs button').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('#replay-tabs button').forEach(b => b.classList.remove('active'));
@@ -2098,7 +1993,7 @@ function renderReplayRows(tab) {
   const src = tab === 'missed' ? LAST_REPLAY.misclassified : LAST_REPLAY.first_20;
   const tb = $('replay-table');
   if (!src || src.length === 0) {
-    tb.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--ink-faint); padding:20px;">No rows in this view.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--ink-faint); padding:20px;">No rows in this view — nothing was misclassified.</td></tr>';
     return;
   }
   const short = { true_positive: 'TP', false_positive: 'FP', true_negative: 'TN', false_negative: 'FN' };
