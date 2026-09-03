@@ -182,10 +182,67 @@
   .split .divider{ background:var(--line); }
   .approval-item{ padding:16px 0; border-bottom:1px solid var(--line); }
   .approval-item:last-of-type{ border-bottom:none; margin-bottom:18px; }
-  .approval-item .detail{ font-family:'Fragment Mono', monospace; font-size:15px; margin-bottom:6px; }
-  .approval-item .detail .num{ color:var(--amber); font-weight:500; }
-  .approval-item .meta{ font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); }
-  .approval-item .reason{ font-family:'Public Sans', sans-serif; font-size:13.5px; color:var(--ink-soft); margin-top:8px; line-height:1.55; }
+  .approval-item .ap-headline{
+    font-family:'Public Sans', sans-serif; font-size:16.5px; font-weight:600;
+    color:var(--ink); line-height:1.35; margin-bottom:6px;
+  }
+  .approval-item .ap-subhead{
+    font-family:'Public Sans', sans-serif; font-size:13.5px; color:var(--ink-soft);
+    line-height:1.55; margin-bottom:14px;
+  }
+  .approval-item .ap-facts{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;
+    border:1px solid var(--line); background:var(--paper); padding:12px 14px;
+    margin-bottom:14px;
+  }
+  .approval-item .ap-facts .fk{
+    font-family:'Fragment Mono', monospace; font-size:10px; letter-spacing:0.08em;
+    color:var(--ink-faint); text-transform:uppercase; margin-bottom:4px;
+  }
+  .approval-item .ap-facts .fv{
+    font-family:'Fragment Mono', monospace; font-size:16px; color:var(--ink);
+  }
+  .approval-item .ap-facts .fv.amber{ color:var(--amber); }
+  .approval-item .ap-facts .fv.red{ color:var(--red); }
+  .ap-collapsible{ border-top:1px solid var(--line); }
+  .ap-collapsible details{ padding:8px 0; border-bottom:1px solid var(--line); }
+  .ap-collapsible details:last-child{ border-bottom:none; }
+  .ap-collapsible summary{
+    font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.05em;
+    color:var(--ink-soft); cursor:pointer; padding:8px 4px; list-style:none;
+    display:flex; align-items:center; gap:9px; user-select:none;
+    text-transform:uppercase;
+  }
+  .ap-collapsible summary::-webkit-details-marker{ display:none; }
+  .ap-collapsible summary::before{
+    content:'+'; width:16px; height:16px; display:inline-flex;
+    align-items:center; justify-content:center; border:1px solid var(--line-strong);
+    font-family:'Fragment Mono', monospace; font-size:13px; color:var(--ink-faint);
+    line-height:1; flex-shrink:0;
+  }
+  .ap-collapsible details[open] summary::before{ content:'−'; }
+  .ap-collapsible summary:hover{ color:var(--ink); }
+  .ap-collapsible details[open] summary{ color:var(--ink); }
+  .ap-collapsible .ap-body{
+    font-family:'Public Sans', sans-serif; font-size:13px; color:var(--ink-soft);
+    line-height:1.6; padding:4px 4px 12px 26px;
+  }
+  .ap-collapsible .ap-body code{
+    font-family:'Fragment Mono', monospace; font-size:12px;
+    background:var(--paper); border:1px solid var(--line); padding:1px 5px;
+  }
+  .ap-collapsible .ap-body .kv{
+    display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin-top:6px;
+    font-family:'Fragment Mono', monospace; font-size:12px;
+  }
+  .ap-collapsible .ap-body .kv dt{ color:var(--ink-faint); }
+  .ap-collapsible .ap-body .kv dd{ color:var(--ink); margin:0; }
+  .ap-collapsible .ap-body em.raw{
+    display:block; margin-top:8px; padding:10px 12px;
+    border-left:2px solid var(--line-strong); background:var(--paper);
+    font-family:'Fragment Mono', monospace; font-size:12px;
+    color:var(--ink-soft); font-style:normal; line-height:1.55;
+  }
   .report{ margin-top:22px; border:1px solid var(--line); background:var(--paper); padding:22px 26px; }
   .report .report-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line); }
   .report .report-head .label{ font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.09em; color:var(--ink-faint); margin:0; }
@@ -1305,16 +1362,72 @@ function renderApprovals(pending) {
     ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>';
 
   list.innerHTML = pending.map(p => {
-    const psi = (p.evidence && p.evidence.drift && p.evidence.drift.psi) || 0;
-    const threshold = 0.20;
-    return '<div class="approval-item" id="approval-' + p.id + '">' +
-      '<div class="detail">' + fmtId(p.id) + ' &mdash; PSI <span class="num">' + psi.toFixed(3) +
-        '</span> exceeds threshold <span class="num">' + threshold.toFixed(2) + '</span></div>' +
-      '<div class="meta mono">DETECTED ' + fmtTime(p.detected_at) + ' &middot; PSI + KS DRIFT CHECK' +
-        '<span class="glossary" tabindex="0">?<span class="tip">Population Stability Index on the fraud-score distribution vs. the baseline captured at startup. Above 0.20 means the two distributions no longer match.</span></span>' +
-      '</div>' +
-      (p.reasoning ? '<div class="reason">' + p.reasoning + '</div>' : '') +
-      '</div>';
+    const drift = (p.evidence && p.evidence.drift) || {};
+    const psi = drift.psi || 0;
+    const ksP = drift.ks_pvalue;
+    const nRef = drift.n_reference;
+    const nCur = drift.n_current;
+    const threshold = (LAST_STATUS.config && LAST_STATUS.config.psi_alert) || 0.20;
+    const blastLive = LAST_STATUS.blast_radius_current || 0;
+    const severity = psi > 0.40 ? 'red' : 'amber';
+    const severityWord = psi > 0.40 ? 'severe' : psi > 0.20 ? 'significant' : 'minor';
+    const psiPctOverThreshold = threshold > 0 ? Math.round((psi / threshold) * 100) : 0;
+
+    return `
+      <div class="approval-item" id="approval-${p.id}">
+
+        <div class="ap-headline">Fraud API is returning scores that don't match its baseline.</div>
+        <div class="ap-subhead">
+          Guardian classified this as a <strong>${severityWord} distribution shift</strong>${blastLive ? ' after seeing ' + blastLive + ' transactions with unusual scores' : ''}.
+          The service didn't crash and there's no latency spike — but the answers it's giving are different from what it gave when we know it was healthy. Rolling back returns it to that known-good behaviour.
+        </div>
+
+        <div class="ap-facts">
+          <div><div class="fk">Drift severity</div><div class="fv ${severity}">${(psi).toFixed(2)} / ${threshold.toFixed(2)}</div></div>
+          <div><div class="fk">Impact so far</div><div class="fv">${blastLive} tx</div></div>
+          <div><div class="fk">First detected</div><div class="fv">${fmtTime(p.detected_at)}</div></div>
+        </div>
+
+        <div class="ap-collapsible">
+
+          <details>
+            <summary>What does "drift" mean here?</summary>
+            <div class="ap-body">
+              Guardian keeps a snapshot of what fraud scores look like when the API is healthy — a distribution captured at startup from ${nRef || 200} clean transactions. Every few seconds it compares the last window of live scores against that snapshot. When the two distributions no longer match, we call it <em>drift</em>. Big drift usually means one of three things: a bad model deploy, a data-pipeline bug feeding the model wrong inputs, or the model itself getting silently corrupted. None of those crash the service, which is what makes them dangerous.
+            </div>
+          </details>
+
+          <details>
+            <summary>See the numbers</summary>
+            <div class="ap-body">
+              <dl class="kv">
+                <dt>PSI</dt><dd>${psi.toFixed(3)} &nbsp;<span style="color:var(--ink-faint)">(threshold ${threshold.toFixed(2)} — currently ${psiPctOverThreshold}% of threshold)</span></dd>
+                <dt>KS p-value</dt><dd>${ksP != null ? ksP.toExponential(2) : 'n/a'}</dd>
+                <dt>Baseline window</dt><dd>${nRef || '—'} samples (frozen at startup)</dd>
+                <dt>Live window</dt><dd>${nCur || '—'} samples (rolling)</dd>
+              </dl>
+              <div style="margin-top:10px; font-size:12.5px;">
+                PSI (Population Stability Index) is the drift metric bank risk teams use. <code>0 – 0.10</code> = stable, <code>0.10 – 0.20</code> = minor drift worth watching, <code>&gt; 0.20</code> = significant drift, roll-back candidate.
+              </div>
+            </div>
+          </details>
+
+          <details>
+            <summary>Why does Guardian ask before rolling back?</summary>
+            <div class="ap-body">
+              Crashes are safe to auto-recover — you either can score a transaction or you can't, and a restart brings you back. But rolling back a live fraud model is a governed action: you're changing which model is deciding real card charges. In a real bank, that decision needs a human on the hook, so if it turns out to be the wrong call there's an accountable person, not "the algorithm did it". This gate is the digital version of that sign-off. Guardian's policy for this is <code>P-002 — silent-failure class</code>.
+            </div>
+          </details>
+
+          <details>
+            <summary>Full Guardian reasoning (raw)</summary>
+            <div class="ap-body">
+              <em class="raw">${(p.reasoning || '(no reasoning captured)').replace(/</g, '&lt;')}</em>
+            </div>
+          </details>
+
+        </div>
+      </div>`;
   }).join('');
 }
 
