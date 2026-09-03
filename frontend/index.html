@@ -96,21 +96,46 @@
   .exposure .delta{ font-family:'Fragment Mono', monospace; font-size:12.5px; color:var(--red); margin-top:12px; letter-spacing:0.02em; }
   .exposure.calm .value{ color:var(--ink); }
   .exposure.calm .delta{ color:var(--ink-faint); }
-  .scope{ position:relative; height:340px; background:var(--paper); border:1px solid var(--line-strong); overflow:hidden; }
+  .scope{ position:relative; height:340px; background:var(--paper); border:1px solid var(--line-strong); overflow:visible; }
   .scope .grid-lines{
     position:absolute; inset:0;
     background-image:
       repeating-linear-gradient(to right, transparent 0 9.99%, var(--line) 10% 10.05%),
-      repeating-linear-gradient(to bottom, transparent 0 9.99%, var(--line) 10% 10.05%),
-      repeating-linear-gradient(to right, transparent 0 1.99%, rgba(185,182,172,0.35) 2% 2.03%),
-      repeating-linear-gradient(to bottom, transparent 0 4.99%, rgba(185,182,172,0.30) 5% 5.03%);
-    opacity:0.85;
+      repeating-linear-gradient(to bottom, transparent 0 9.99%, var(--line) 10% 10.05%);
+    opacity:0.6;
   }
-  .scope .mid-line{ position:absolute; left:0; right:0; top:50%; height:1px; background:var(--line-strong); opacity:0.55; }
-  .scope svg.trace{ position:absolute; inset:0; width:100%; height:100%; }
-  .scope .edge-ticks-x, .scope .edge-ticks-y{ position:absolute; z-index:2; }
-  .scope .edge-ticks-x{ left:0; right:0; bottom:0; height:6px; background:repeating-linear-gradient(to right, var(--line-strong) 0 1px, transparent 1px 5%); opacity:0.7; }
-  .scope .edge-ticks-y{ top:0; bottom:0; left:0; width:6px; background:repeating-linear-gradient(to bottom, var(--line-strong) 0 1px, transparent 1px 5%); opacity:0.7; }
+  .scope .mid-line{ display:none; }
+  .scope svg.trace{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .scope-callout{
+    position:absolute;
+    font-family:'Fragment Mono', monospace;
+    font-size:11px;
+    line-height:1.35;
+    text-align:center;
+    transform:translateX(-50%);
+    letter-spacing:0.03em;
+    pointer-events:none;
+    z-index:4;
+    white-space:nowrap;
+  }
+  .scope-callout .co-line{ width:1px; background:currentColor; margin:4px auto 0; }
+  .scope-callout.crash{ color:var(--red); }
+  .scope-callout.recovery{ color:var(--blue); }
+  .scope-callout.drift{ color:var(--amber); }
+  .scope-callout.approved{ color:var(--green); }
+  .scope-nosignal{
+    position:absolute;
+    display:flex; align-items:center; justify-content:center;
+    background:repeating-linear-gradient(135deg, rgba(214,69,61,0.08), rgba(214,69,61,0.08) 3px, transparent 3px, transparent 8px);
+    border:1px dashed var(--red);
+    z-index:3;
+  }
+  .scope-nosignal span{
+    font-family:'Fragment Mono', monospace;
+    font-size:11px; color:var(--red);
+    background:var(--paper); padding:4px 8px;
+    letter-spacing:0.05em; text-align:center;
+  }
   .scope .no-signal{ position:absolute; top:0; bottom:0; left:0; right:0; background:repeating-linear-gradient(135deg, rgba(214,69,61,0.09), rgba(214,69,61,0.09) 3px, transparent 3px, transparent 9px); display:none; align-items:center; justify-content:center; z-index:3; }
   .scope.down .no-signal{ display:flex; }
   .scope .no-signal span{ font-family:'Fragment Mono', monospace; font-size:10.5px; letter-spacing:0.1em; color:var(--red); background:var(--paper); padding:6px 12px; border:1px solid var(--red); }
@@ -491,13 +516,11 @@
 
     <div class="scope" id="scope-panel">
       <div class="grid-lines"></div>
-      <div class="mid-line"></div>
-      <div class="edge-ticks-x"></div>
-      <div class="edge-ticks-y"></div>
       <div class="legend">
         <span><span class="swatch"></span>LIVE</span>
-        <span><span class="swatch dashed"></span>BASELINE ±σ</span>
+        <span><span class="swatch dashed"></span>BASELINE</span>
       </div>
+      <div id="scope-callouts"></div>
       <span class="axis-tag" style="left:8px; top:8px;">1.0</span>
       <span class="axis-tag" style="left:8px; top:calc(50% - 7px);">0.5</span>
       <span class="axis-tag" style="left:8px; bottom:24px;">0.0</span>
@@ -842,16 +865,181 @@ async function pollLiveMetrics() {
 // ==============================================================
 // POLL 3 — Guardian /score-history  (SVG scope trace)
 // ==============================================================
+let LAST_INCIDENTS = [];
+
 async function pollScope() {
   try {
-    const h = await jget(GUARDIAN + '/score-history?limit=200');
+    const h = await jget(GUARDIAN + '/score-history?limit=160');
     setBadge('conn-fraud', true);
-    renderScope(h);
+    renderScope(h, LAST_INCIDENTS);
   } catch (_) {
     setBadge('conn-fraud', false);
   }
 }
-function renderScope(h) {
+
+function stateAt(tsec, incidents) {
+  const tms = tsec * 1000;
+  for (const i of incidents) {
+    const s = new Date(i.detected_at).getTime();
+    const e = i.resolved_at ? new Date(i.resolved_at).getTime() : Date.now();
+    if (tms >= s && tms <= e) {
+      return i.type === 'crash' ? 'crash' : 'drift';
+    }
+  }
+  return 'normal';
+}
+
+function renderScope(h, incidents) {
+  const svg = $('scope-svg');
+  const callouts = $('scope-callouts');
+  if (!h.live || h.live.length === 0) { svg.innerHTML = ''; callouts.innerHTML = ''; return; }
+
+  const samples = h.live;
+  const n = samples.length;
+  const w = 100;
+  const yFor = (v) => 92 - Math.max(0, Math.min(1, v)) * 84;   // score 0 -> y=92, 1 -> y=8
+  const step = n > 1 ? (w - 4) / (n - 1) : 0;
+  const t0 = samples[0].t, tN = samples[n - 1].t, tSpan = Math.max(tN - t0, 1);
+  const xForT = (t) => 2 + ((t - t0) / tSpan) * (w - 4);
+
+  // Baseline mean
+  const baseMean = h.baseline_mean ?? 0.3;
+  const baseY = yFor(baseMean);
+
+  // 1. Threshold zones (very subtle so they don't clutter)
+  let bg =
+    '<rect x="0" y="' + yFor(1).toFixed(1) + '" width="100" height="' +
+      (yFor(0.7) - yFor(1)).toFixed(1) + '" fill="rgba(214,69,61,0.035)"/>' +
+    '<rect x="0" y="' + yFor(0.7).toFixed(1) + '" width="100" height="' +
+      (yFor(0.4) - yFor(0.7)).toFixed(1) + '" fill="rgba(201,138,34,0.025)"/>';
+
+  // 2. Baseline dashed line
+  bg += '<line x1="0" x2="100" y1="' + baseY.toFixed(2) + '" y2="' + baseY.toFixed(2) +
+    '" stroke="#6B6A64" stroke-width="0.35" stroke-dasharray="1.4 1.4" opacity="0.85"/>';
+
+  // 3. Segment trace by state (normal=black, drift=red). Crash breaks the line.
+  const stateFor = (t) => stateAt(t, incidents);
+  const segs = [];
+  let cur = null;
+  for (let i = 0; i < n; i++) {
+    const s = samples[i];
+    const st = stateFor(s.t);
+    const x = 2 + i * step;
+    const y = yFor(s.score);
+    if (!cur || cur.state !== st) {
+      cur = { state: st, pts: [] };
+      segs.push(cur);
+    }
+    cur.pts.push([x, y]);
+    // add first point of next segment to prev for continuity
+  }
+  // ensure adjacent segments share their edge point so the line looks continuous
+  for (let i = 1; i < segs.length; i++) {
+    if (segs[i - 1].pts.length && segs[i].pts.length &&
+        segs[i - 1].state !== 'crash' && segs[i].state !== 'crash') {
+      segs[i - 1].pts.push(segs[i].pts[0]);
+    }
+  }
+
+  let traceSvg = '';
+  for (const seg of segs) {
+    if (seg.state === 'crash' || seg.pts.length < 2) continue;
+    const color = seg.state === 'drift' ? '#D6453D' : '#17191B';
+    const pts = seg.pts.map(([x, y]) => x.toFixed(2) + ',' + y.toFixed(2)).join(' ');
+    traceSvg += '<polyline points="' + pts + '" fill="none" stroke="' + color +
+      '" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
+  }
+
+  // 4. Drift-region shaded fill under the red trace segments (soft red)
+  let driftFill = '';
+  for (const seg of segs) {
+    if (seg.state !== 'drift' || seg.pts.length < 2) continue;
+    let d = 'M ' + seg.pts[0][0].toFixed(2) + ',' + baseY.toFixed(2);
+    for (const [x, y] of seg.pts) d += ' L ' + x.toFixed(2) + ',' + y.toFixed(2);
+    d += ' L ' + seg.pts[seg.pts.length - 1][0].toFixed(2) + ',' + baseY.toFixed(2) + ' Z';
+    driftFill += '<path d="' + d + '" fill="rgba(214,69,61,0.12)"/>';
+  }
+
+  svg.innerHTML = bg + driftFill + traceSvg;
+
+  // 5. NO SIGNAL box for any crash gaps within the visible window
+  callouts.innerHTML = '';
+  const scopeRect = $('scope-panel').getBoundingClientRect();
+  for (const inc of incidents) {
+    if (inc.type !== 'crash') continue;
+    const s = new Date(inc.detected_at).getTime() / 1000;
+    const e = inc.resolved_at ? new Date(inc.resolved_at).getTime() / 1000 : Date.now() / 1000;
+    if (e < t0 || s > tN) continue;
+    const x1 = Math.max(2, xForT(Math.max(s, t0)));
+    const x2 = Math.min(98, xForT(Math.min(e, tN)));
+    if (x2 - x1 < 0.5) continue;
+    const box = document.createElement('div');
+    box.className = 'scope-nosignal';
+    box.style.left = x1 + '%';
+    box.style.width = (x2 - x1) + '%';
+    box.style.top = '32%';
+    box.style.bottom = '18%';
+    box.innerHTML = '<span>NO SIGNAL<br>SERVICE DOWN</span>';
+    callouts.appendChild(box);
+  }
+
+  // 6. Callouts pinned to the last few incident starts (only those in view)
+  const inView = incidents.filter(i => {
+    const t = new Date(i.detected_at).getTime() / 1000;
+    return t >= t0 && t <= tN;
+  }).slice(0, 4);
+
+  for (const inc of inView) {
+    const t = new Date(inc.detected_at).getTime() / 1000;
+    const x = xForT(t);
+    const co = document.createElement('div');
+    let cls, title, sub;
+    if (inc.type === 'crash') {
+      cls = 'crash';
+      title = 'PROCESS TERMINATED';
+      sub = fmtClock(new Date(inc.detected_at));
+    } else {
+      cls = 'drift';
+      const psi = inc?.evidence?.drift?.psi;
+      title = 'DRIFT SCORE ' + (psi != null ? psi.toFixed(2) : '?');
+      sub = 'THRESHOLD 0.20 EXCEEDED';
+    }
+    co.className = 'scope-callout ' + cls;
+    co.style.left = x + '%';
+    co.style.top = '4px';
+    co.innerHTML = title + '<br><span style="font-size:10px;opacity:0.75;">' + sub + '</span>' +
+      '<div class="co-line" style="height:' + (inc.type === 'crash' ? 46 : 40) + 'px;"></div>';
+    callouts.appendChild(co);
+
+    // Recovery callout for resolved incidents
+    if (inc.resolved_at && (inc.type === 'crash' || inc.action === 'rollback_approved')) {
+      const tr = new Date(inc.resolved_at).getTime() / 1000;
+      if (tr <= tN) {
+        const xr = xForT(tr);
+        const rc = document.createElement('div');
+        rc.className = 'scope-callout ' + (inc.type === 'crash' ? 'recovery' : 'approved');
+        rc.style.left = xr + '%';
+        rc.style.top = '4px';
+        const label = inc.type === 'crash'
+          ? 'AUTO-RESTARTED'
+          : 'AUTHORIZED';
+        const secs = fmtMttr(inc.mttr_seconds);
+        rc.innerHTML = label + '<br><span style="font-size:10px;opacity:0.75;">' +
+          secs + ' RECOVERY</span>' +
+          '<div class="co-line" style="height:52px;"></div>';
+        callouts.appendChild(rc);
+      }
+    }
+  }
+
+  if (h.live.length) {
+    $('axis-start').textContent = fmtClock(new Date(h.live[0].t * 1000));
+    $('axis-end').textContent   = fmtClock(new Date(h.live[h.live.length - 1].t * 1000));
+  }
+}
+
+// Legacy stub retained only for reference
+function _renderScopeOLD(h) {
   const svg = $('scope-svg');
   if (!h.live || h.live.length === 0) { svg.innerHTML = ''; return; }
 
@@ -1016,6 +1204,7 @@ $('btn-authorize').addEventListener('click', async () => {
 async function pollIncidents() {
   try {
     const { incidents } = await jget(GUARDIAN + '/incidents?limit=30');
+    LAST_INCIDENTS = incidents;
     renderHistory(incidents);
     renderTimeline(incidents);
     renderLatest(incidents);
