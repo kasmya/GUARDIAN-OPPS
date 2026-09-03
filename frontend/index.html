@@ -287,6 +287,90 @@
   .identity-select select:focus{ outline:none; border-color:var(--blue); }
   .conn-badge{ display:inline-flex; align-items:center; gap:7px; font-family:'Fragment Mono', monospace; font-size:11px; padding:5px 10px; border:1px solid var(--line-strong); color:var(--ink-soft); }
   .conn-badge .cb-dot{ width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+
+  /* ---------- Pending-approval banner ---------- */
+  .approval-banner{
+    display:none;
+    position:sticky; top:0; z-index:10;
+    background:var(--amber); color:#1c1408;
+    padding:14px 20px; margin-bottom:20px;
+    font-family:'Fragment Mono', monospace; font-size:13.5px;
+    letter-spacing:0.03em; box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    align-items:center; justify-content:space-between; gap:16px;
+    animation:banner-pulse 2.4s ease-in-out infinite;
+  }
+  .approval-banner.open{ display:flex; }
+  @keyframes banner-pulse{
+    0%,100%{ box-shadow:0 4px 14px rgba(201,138,34,0.30); }
+    50%    { box-shadow:0 4px 22px rgba(201,138,34,0.55); }
+  }
+  .approval-banner .ab-left{ display:flex; align-items:center; gap:14px; }
+  .approval-banner .ab-dot{
+    width:10px; height:10px; border-radius:50%; background:#1c1408;
+    animation:banner-dot 1.2s ease-in-out infinite;
+  }
+  @keyframes banner-dot{ 0%,100%{opacity:1} 50%{opacity:.35} }
+  .approval-banner .ab-msg strong{ font-weight:700; margin-right:6px; }
+  .approval-banner .ab-btn{
+    background:#1c1408; color:var(--amber); border:none;
+    font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.08em;
+    padding:10px 16px; cursor:pointer; text-transform:uppercase;
+  }
+  .approval-banner .ab-btn:hover{ background:#000; }
+
+  /* ---------- Replay modal ---------- */
+  .replay-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; background:var(--paper);
+    border:1px solid var(--ink); color:var(--ink);
+    font-family:'Fragment Mono', monospace; font-size:12.5px;
+    letter-spacing:0.06em; padding:14px; margin-top:12px;
+    cursor:pointer; transition:background 0.15s ease, color 0.15s ease;
+    text-transform:uppercase;
+  }
+  .replay-btn:hover{ background:var(--ink); color:var(--paper); }
+  .replay-btn:disabled{ opacity:0.5; cursor:wait; }
+  .replay-btn svg{ width:14px; height:14px; }
+  .replay-btn .rb-caption{ font-family:'Public Sans', sans-serif; font-size:11px; color:var(--ink-soft); text-transform:none; margin-left:6px; letter-spacing:0; }
+  .replay-btn:hover .rb-caption{ color:var(--paper); }
+
+  .modal-scrim{
+    display:none; position:fixed; inset:0;
+    background:rgba(23,25,27,0.45); z-index:100;
+    align-items:center; justify-content:center; padding:40px;
+  }
+  .modal-scrim.open{ display:flex; }
+  .modal{
+    background:var(--paper); border:1px solid var(--ink);
+    max-width:900px; width:100%; max-height:85vh; overflow-y:auto;
+    padding:26px 30px;
+  }
+  .modal .m-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding-bottom:14px; border-bottom:1px solid var(--line); margin-bottom:18px;
+  }
+  .modal .m-title{ font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.1em; color:var(--ink-faint); text-transform:uppercase; }
+  .modal .m-close{ background:none; border:1px solid var(--line-strong); font-family:'Fragment Mono', monospace; font-size:11px; padding:5px 11px; cursor:pointer; color:var(--ink-soft); }
+  .modal .m-close:hover{ border-color:var(--ink); color:var(--ink); }
+  .modal .m-summary{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:0; border:1px solid var(--line); margin-bottom:18px;
+  }
+  .modal .m-summary .st{
+    padding:14px 18px; border-right:1px solid var(--line);
+  }
+  .modal .m-summary .st:last-child{ border-right:none; }
+  .modal .m-summary .stk{ font-family:'Fragment Mono', monospace; font-size:10.5px; color:var(--ink-faint); letter-spacing:0.07em; text-transform:uppercase; }
+  .modal .m-summary .stv{ font-family:'Fragment Mono', monospace; font-size:22px; margin-top:5px; }
+  .modal table{
+    width:100%; border-collapse:collapse; font-family:'Fragment Mono', monospace; font-size:12.5px;
+  }
+  .modal th{ text-align:left; color:var(--ink-faint); font-size:10px; letter-spacing:0.08em; padding:8px 10px; border-bottom:1px solid var(--line); text-transform:uppercase; }
+  .modal td{ padding:8px 10px; border-bottom:1px solid var(--line); }
+  .modal tr td.lbl-fraud{ color:var(--red); }
+  .modal tr td.lbl-review{ color:var(--amber); }
+  .modal tr td.lbl-ok{ color:var(--green); }
+  .modal .m-note{ font-family:'Public Sans', sans-serif; font-size:12px; color:var(--ink-soft); margin-top:16px; line-height:1.55; }
   .conn-badge.up .cb-dot{ background:var(--green); }
   .conn-badge.down .cb-dot{ background:var(--red); }
   @media (max-width:760px){
@@ -373,6 +457,14 @@
 <div class="bezel">
   <div class="corner-tl"></div><div class="corner-tr"></div>
   <div class="corner-bl"></div><div class="corner-br"></div>
+
+  <div class="approval-banner" id="approval-banner" role="alert" aria-live="polite">
+    <div class="ab-left">
+      <span class="ab-dot"></span>
+      <span class="ab-msg"><strong id="ab-count">0</strong> silent-failure incident<span id="ab-plural">s</span> awaiting your sign-off</span>
+    </div>
+    <button class="ab-btn" id="ab-scroll">REVIEW &amp; AUTHORIZE ↓</button>
+  </div>
 
   <div class="cal-strip">
     <div class="tick-row">
@@ -572,6 +664,12 @@
     <span id="force-check-label">FORCE DRIFT CHECK NOW</span>
   </button>
 
+  <button class="replay-btn" id="btn-replay" data-endpoint="POST http://localhost:8001/replay">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l14 8-14 8V4z"/></svg>
+    <span id="replay-label">REPLAY REAL DATASET</span>
+    <span class="rb-caption">— stream 200 real credit-card transactions through /score</span>
+  </button>
+
   <hr class="rule">
 
   <div class="section-label mono">SCORE DISTRIBUTION — BASELINE vs LIVE</div>
@@ -704,6 +802,24 @@
   </footer>
 </div>
 
+<div class="modal-scrim" id="replay-modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="m-head">
+      <div>
+        <div class="m-title">Replay · Real Credit-Card Transactions</div>
+        <div style="font-size:11px; color:var(--ink-faint); margin-top:4px; font-family:'Fragment Mono', monospace;" id="replay-source">source: data/replay/transactions.csv</div>
+      </div>
+      <button class="m-close" id="replay-close">CLOSE</button>
+    </div>
+    <div class="m-summary" id="replay-summary"></div>
+    <table>
+      <thead><tr><th>#</th><th>Amount</th><th>Category</th><th>Hour</th><th>Score</th><th>Label</th></tr></thead>
+      <tbody id="replay-table"></tbody>
+    </table>
+    <div class="m-note">Every one of these rows went through <code>fraud-api /score</code> via the same code path a single request uses. The scores + labels above are the actual output. This is what proves the pipeline handles real transaction shapes — not just the random samples Guardian generates when it polls.</div>
+  </div>
+</div>
+
 <script>
 /* ==============================================================
    GuardianOps dashboard — wiring layer
@@ -778,6 +894,7 @@ function capitalize(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
 async function pollStatus() {
   try {
     const s = await jget(GUARDIAN + '/status');
+    LAST_STATUS = s;
     setBadge('conn-guardian', true);
 
     // Fraud API status card
@@ -866,6 +983,7 @@ async function pollLiveMetrics() {
 // POLL 3 — Guardian /score-history  (SVG scope trace)
 // ==============================================================
 let LAST_INCIDENTS = [];
+let LAST_STATUS = {};
 
 async function pollScope() {
   try {
@@ -986,53 +1104,74 @@ function renderScope(h, incidents) {
     callouts.appendChild(box);
   }
 
-  // 6. Callouts pinned to the last few incident starts (only those in view).
-  // Build the list first, sort by x, then stagger vertically so adjacent
-  // callouts don't crowd. Each callout is a { x, cls, title, sub, lineTo }
-  // where lineTo is the y (in svg coords) the connector should drop to.
+  // 6. Callouts — ONE per incident, merged. Start-and-end get combined into
+  // a single label ("DRIFT 0.31 → AUTHORIZED 15s") so a fast incident (5s
+  // crash + restart) doesn't produce two overlapping tags on top of each
+  // other. Then we sort by x and push colliding tags down to the next tier
+  // (three tiers total).
   const items = [];
   for (const inc of incidents) {
     const t = new Date(inc.detected_at).getTime() / 1000;
-    if (t >= t0 && t <= tN) {
-      const x = xForT(t);
-      if (inc.type === 'crash') {
-        items.push({ x, cls: 'crash', title: 'PROCESS TERMINATED', sub: fmtClock(new Date(inc.detected_at)) });
+    if (t < t0 || t > tN) continue;
+    const x = xForT(t);
+    if (inc.type === 'crash') {
+      if (inc.status === 'resolved') {
+        items.push({
+          x, cls: 'recovery',
+          title: 'TERMINATED → AUTO-RESTART',
+          sub: fmtMttr(inc.mttr_seconds) + ' RECOVERY',
+        });
       } else {
-        const psi = inc?.evidence?.drift?.psi;
-        items.push({ x, cls: 'drift', title: 'DRIFT SCORE ' + (psi != null ? psi.toFixed(2) : '?'), sub: 'PSI · THRESHOLD 0.20 EXCEEDED' });
+        items.push({
+          x, cls: 'crash',
+          title: 'PROCESS TERMINATED',
+          sub: fmtClock(new Date(inc.detected_at)),
+        });
       }
-    }
-    if (inc.resolved_at) {
-      const tr = new Date(inc.resolved_at).getTime() / 1000;
-      if (tr >= t0 && tr <= tN) {
-        const xr = xForT(tr);
-        if (inc.type === 'crash') {
-          items.push({ x: xr, cls: 'recovery', title: 'AUTO-RESTARTED', sub: fmtMttr(inc.mttr_seconds) + ' RECOVERY' });
-        } else if (inc.action === 'rollback_approved') {
-          items.push({ x: xr, cls: 'approved', title: 'AUTHORIZED', sub: fmtMttr(inc.mttr_seconds) + ' RECOVERY' });
-        }
+    } else {
+      const psi = inc?.evidence?.drift?.psi;
+      const psiStr = psi != null ? psi.toFixed(2) : '?';
+      if (inc.status === 'resolved' && inc.action === 'rollback_approved') {
+        items.push({
+          x, cls: 'approved',
+          title: 'DRIFT ' + psiStr + ' → AUTHORIZED',
+          sub: fmtMttr(inc.mttr_seconds) + ' TO ROLLBACK',
+        });
+      } else {
+        items.push({
+          x, cls: 'drift',
+          title: 'DRIFT SCORE ' + psiStr,
+          sub: 'THRESHOLD 0.20 EXCEEDED',
+        });
       }
     }
   }
   items.sort((a, b) => a.x - b.x);
 
-  // Stagger: cycle through three tiers (4px / 44px / 84px from top of scope)
-  // so adjacent callouts miss each other on the y axis. Line length grows to
-  // reach roughly the middle of the scope.
+  // Three tiers (top / mid / bottom). If a callout is within X_GAP % of the
+  // previous callout at the same tier, push it to the next tier down; if all
+  // three tiers collide, drop the label (keeps the display readable rather
+  // than a stack of overlapping rectangles).
   const tiers = [
-    { top: 4,  line: 78 },
-    { top: 46, line: 40 },
-    { top: 88, line: 14 },
+    { top:   4, line: 96, occupied: -Infinity },
+    { top:  50, line: 50, occupied: -Infinity },
+    { top:  98, line:  4, occupied: -Infinity },
   ];
-  items.forEach((it, i) => {
-    const tier = tiers[i % tiers.length];
+  const X_GAP = 13; // percent of scope width — roughly one callout wide
+  items.forEach((it) => {
+    let placed = null;
+    for (const tier of tiers) {
+      if (it.x - tier.occupied >= X_GAP) { placed = tier; break; }
+    }
+    if (!placed) return; // too crowded — drop
+    placed.occupied = it.x;
     const co = document.createElement('div');
     co.className = 'scope-callout ' + it.cls;
     co.style.left = it.x + '%';
-    co.style.top = tier.top + 'px';
+    co.style.top = placed.top + 'px';
     co.innerHTML = it.title +
       '<br><span style="font-size:10px;opacity:0.75;">' + it.sub + '</span>' +
-      '<div class="co-line" style="height:' + tier.line + 'px;"></div>';
+      '<div class="co-line" style="height:' + placed.line + 'px;"></div>';
     callouts.appendChild(co);
   });
 
@@ -1141,6 +1280,17 @@ function renderApprovals(pending) {
   const label = $('approval-count-label');
   const btn = $('btn-authorize');
   label.textContent = 'PENDING AUTHORIZATION (' + pending.length + ')';
+
+  // Sticky top banner surfaces any pending queue immediately, even from
+  // deep in the page. Click smooth-scrolls to the approval section.
+  const banner = $('approval-banner');
+  if (pending.length > 0) {
+    banner.classList.add('open');
+    $('ab-count').textContent = pending.length;
+    $('ab-plural').style.display = pending.length === 1 ? 'none' : 'inline';
+  } else {
+    banner.classList.remove('open');
+  }
 
   if (!pending.length) {
     list.innerHTML = '<div class="empty-state">No pending approvals &mdash; all clear.</div>';
@@ -1305,14 +1455,15 @@ function updateExposure(list) {
     return;
   }
   exposure.classList.remove('calm');
-  const blast = active.blast_radius || 0;
-  // Rough per-transaction estimate. The demo point isn't the exact dollar
-  // amount — it's translating "500 wrong decisions" into money.
+  // Use Guardian's LIVE blast counter from /status while the incident is
+  // in-flight. The DB row's blast_radius is only written at resolution.
+  const blast = LAST_STATUS.blast_radius_current || active.blast_radius || 0;
+  // Per-transaction average from the replay dataset (mean amount ~ $85).
   const amt = blast * 84.72;
   const dollars = Math.floor(amt);
   const cents = ((amt - dollars) * 100).toFixed(0).padStart(2, '0');
   val.innerHTML = '$' + dollars.toLocaleString() + '<span class="cents">.' + cents + '</span>';
-  delta.textContent = '↑ ' + blast + ' TX UNGUARDED';
+  delta.textContent = '↑ ' + blast + ' TX UNGUARDED (live)';
 }
 
 function updateFooterStatus(list) {
@@ -1609,6 +1760,66 @@ $('btn-settings-save').addEventListener('click', () => {
 document.querySelectorAll('[data-endpoint]').forEach(el => {
   el.addEventListener('click', () => console.log('[wire]', el.dataset.endpoint));
 });
+
+// ==============================================================
+// Approval-banner smooth scroll
+// ==============================================================
+$('ab-scroll').addEventListener('click', () => {
+  const target = document.querySelector('.block.auth') || $('approvals-list');
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// ==============================================================
+// REPLAY REAL DATASET  →  POST http://localhost:8001/replay
+// ==============================================================
+$('btn-replay').addEventListener('click', async () => {
+  const btn = $('btn-replay');
+  const lbl = $('replay-label');
+  const orig = lbl.textContent;
+  btn.disabled = true;
+  lbl.textContent = 'STREAMING REAL TRANSACTIONS…';
+  try {
+    const r = await jpost(FRAUD + '/replay?limit=200');
+    if (r.error) throw new Error(r.error);
+    renderReplay(r);
+    $('replay-modal').classList.add('open');
+  } catch (e) {
+    alert('Replay failed: ' + e.message);
+  } finally {
+    lbl.textContent = orig;
+    btn.disabled = false;
+  }
+});
+$('replay-close').addEventListener('click', () => $('replay-modal').classList.remove('open'));
+$('replay-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'replay-modal') $('replay-modal').classList.remove('open');
+});
+
+function renderReplay(r) {
+  const summary = $('replay-summary');
+  summary.innerHTML =
+    tile('SCORED',         r.scored) +
+    tile('MEAN AMOUNT',    '$' + r.mean_amount.toFixed(2)) +
+    tile('MEAN SCORE',     r.mean_score.toFixed(3)) +
+    tile('FLAGGED FRAUD',  r.flagged_fraud,  'var(--red)') +
+    tile('FLAGGED REVIEW', r.flagged_review, 'var(--amber)') +
+    tile('MARKED OK',      r.flagged_ok,     'var(--green)');
+  const tb = $('replay-table');
+  tb.innerHTML = r.first_20.map((row, i) =>
+    '<tr>' +
+    '<td>' + (i + 1) + '</td>' +
+    '<td>$' + row.amount.toFixed(2) + '</td>' +
+    '<td>' + row.category + '</td>' +
+    '<td>' + String(row.hour).padStart(2, '0') + ':00</td>' +
+    '<td>' + row.score.toFixed(3) + '</td>' +
+    '<td class="lbl-' + row.label + '">' + row.label.toUpperCase() + '</td>' +
+    '</tr>'
+  ).join('');
+}
+function tile(k, v, colour) {
+  return '<div class="st"><div class="stk">' + k + '</div>' +
+    '<div class="stv"' + (colour ? ' style="color:' + colour + '"' : '') + '>' + v + '</div></div>';
+}
 
 // ==============================================================
 // Main polling loop

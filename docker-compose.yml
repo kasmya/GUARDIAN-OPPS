@@ -8,6 +8,7 @@ services:
       SERVICE_NAME: fraud-api
     volumes:
       - ./shared:/shared
+      - ./data/replay:/data/replay:ro
     restart: on-failure
 
   guardian:
