@@ -777,7 +777,7 @@ async function pollStatus() {
     // Guardian strip
     if (s.active_incident_type) {
       $('guardian-dot').style.background = 'var(--amber)';
-      $('guardian-status').textContent = 'RESPONDING &mdash; ' + s.active_incident_type.toUpperCase().replace('_', ' ');
+      $('guardian-status').textContent = 'RESPONDING · ' + s.active_incident_type.toUpperCase().replace('_', ' ');
     } else {
       $('guardian-dot').style.background = 'var(--green)';
       $('guardian-status').textContent = 'WATCHING';

@@ -201,6 +201,49 @@ Total: **9 passing tests.** All ran green locally before commit.
 
 ---
 
+## STAGE 11 — Premium polish + three new components (done, after e2e demo run)
+
+**Skill invoked:** Hallmark (anti-AI-slop design skill). This is a `hallmark redesign` at page scope — kept the existing macrostructure (Workbench / instrument-panel), preserved every route and endpoint, added three new components, tightened the visual language.
+
+**Three new premium components added, each backed by real backend data:**
+
+1. **Session Ledger** (top band, above the main panel). Six tiles: Total Incidents · Crashes · Silent Failures · Avg. MTTR · Autonomous Rate · Total Blast Radius. Every number comes from `GET /session-stats`, which aggregates the incidents table server-side (no fabricated metrics — Hallmark's rule 2). If a professor asks *"where does this number come from?"* the answer is a specific column of a specific table.
+2. **Score Distribution — Baseline vs Live**. Under the actions row. Two overlapping histograms (baseline in gray, live in green or red depending on verdict) rendered as SVG areas over 20 bins. Live μ vs baseline μ shown numerically alongside a verdict badge (STABLE / MINOR / SIGNIFICANT). This is the *distributional* view of drift — complements the *temporal* view in the oscilloscope. Fed by `GET /baseline` (once, cached) + `GET /score-history` (live poll). Client-side binning; no extra backend cost.
+3. **Guardian Narration — Live Decision Feed**. Under the timeline. Terminal-styled scroll of timestamped state transitions: fraud-api up/down, PSI verdict changes, incidents opened/resolved, approvals added. Emitted client-side by diffing successive `/status` + `/incidents` polls. Colour-coded: INFO blue, WARN amber, ALERT red, OK green.
+
+**New Guardian endpoints to make it possible:**
+- `GET /baseline` — raw baseline samples + summary stats (for client-side histogram binning).
+- `GET /session-stats` — aggregated ledger numbers derived from the incidents table.
+
+**Two real bugs found and fixed during the e2e demo run (this is why demo runs matter):**
+1. **Startup false-positive drift.** With only ~20 samples, PSI was inflated and would trigger a spurious silent-failure incident before any chaos was injected. Fixed by requiring the rolling window to reach full size (60 samples) before running the drift check.
+2. **Crash resolver clobber.** If a silent_failure incident fired *after* a crash was in-flight, the STATE tracker got overwritten and the crash was never resolved. Fixed by having the crash-recovery watcher query the DB for any `in_progress` crash instead of trusting the mutable STATE object.
+
+**Third fix, quality-of-life:** approval now clears the score window so residual corrupt-mode scores don't age-out slowly and re-trigger the same incident.
+
+**End-to-end demo run — every feature exercised, verified working:**
+
+| Feature | Verified how | Result |
+|---|---|---|
+| fraud-api /score | `curl -X POST` | Returns score + label |
+| Guardian baseline capture | `/status.baseline_size` | Reached 200 samples on cold start |
+| Chaos crash | POST `/chaos/crash` + observe status | fraud-api down, incident #1 raised as `crash / in_progress` |
+| Crash auto-resolve | Manually relaunched fraud-api | Incident #1 flipped to `resolved`, MTTR = 19.38s, report generated |
+| Chaos corrupt | POST `/chaos/corrupt` + wait | PSI rose to 0.444, confidence dropped 100 → 0 within 20s, incident #2 raised as `silent_failure / pending_approval` |
+| Approval flow | POST `/approve/2` | Incident resolved via `rollback_approved`, MTTR = 91.01s, blast_radius = 44 tx |
+| Reasoning strings | Read incident #2's `reasoning` field | Full PSI + KS p-value + policy citation, verbatim in the report and on the dashboard |
+| Report generation | GET `/report/latest` | 1122-byte markdown file written to `data/reports/` |
+| Session Ledger | Dashboard poll | Shows real numbers: 3 total, 1 crash, 2 silents, 33% autonomous |
+| Score Distribution | Dashboard poll | Baseline μ=0.330, Live μ=0.319 (post-reset), verdict correctly shows MINOR |
+| Narration feed | Watched live | Emitted 9 lines across the corrupt cycle |
+| Timeline strip | Dashboard | Three dots plotted: CRASH → APPROVED → DRIFT |
+| Config strip | Dashboard | Shows real values from `/status.config` (0.20 / 60 / 2s / 5s) |
+| Connection badges | Dashboard | Green for Guardian, Fraud-API, Chaos when up |
+
+**All 6 endpoints work: `/status`, `/live-metrics`, `/score-history`, `/baseline`, `/session-stats`, `/check-now`.** All 4 chaos + approval writes work. All 9 unit tests still pass. The stack was booted with `uvicorn` directly (Windows, no Docker), which stood in for `docker compose up`; the only manual step during the demo was relaunching fraud-api after `/chaos/crash` (Docker Compose does this automatically via `restart: on-failure` — I did it by hand in the local run).
+
+---
+
 ## How to actually run this project
 
 ```bash
