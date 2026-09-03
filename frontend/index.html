@@ -151,6 +151,29 @@
     opacity:0.6;
   }
   .scope svg.trace{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .scope svg.overlay{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:auto; cursor:crosshair; }
+  .scope-tooltip{
+    position:absolute; pointer-events:none; z-index:6;
+    background:var(--ink); color:var(--paper);
+    padding:7px 10px; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.02em;
+    box-shadow:0 4px 14px rgba(0,0,0,0.35);
+    opacity:0; transition:opacity 0.12s ease;
+    white-space:nowrap; transform:translate(-50%, -100%);
+    margin-top:-10px;
+  }
+  .scope-tooltip.open{ opacity:1; }
+  .scope-tooltip::after{
+    content:''; position:absolute; left:50%; bottom:-5px;
+    width:0; height:0; margin-left:-5px;
+    border:5px solid transparent; border-top-color:var(--ink); border-bottom:0;
+  }
+  .scope-tooltip .tt-time{ color:rgba(242,244,241,0.6); }
+  .scope-tooltip .tt-score{ color:var(--paper); font-weight:600; margin-left:8px; }
+  .scope-tooltip .tt-verdict{ font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; margin-top:3px; }
+  .scope-tooltip .tt-verdict.stable{ color:#7CC79B; }
+  .scope-tooltip .tt-verdict.drift{ color:#E36B62; }
+  .scope-tooltip .tt-verdict.review{ color:#E5B064; }
   .scope-callout{
     position:absolute;
     font-family:'IBM Plex Mono', monospace;
@@ -1001,6 +1024,8 @@
       <span class="axis-tag" style="left:8px; top:calc(50% - 7px);">0.5</span>
       <span class="axis-tag" style="left:8px; bottom:24px;">0.0</span>
       <svg class="trace" id="scope-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <svg class="overlay" id="scope-overlay" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <div class="scope-tooltip" id="scope-tooltip"><span class="tt-time">--:--:--</span><span class="tt-score">0.00</span><div class="tt-verdict stable">STABLE</div></div>
       <div class="marker-flag" id="drift-flag" style="left:74%; top:24%;">THRESHOLD EXCEEDED</div>
       <div class="no-signal"><span>NO SIGNAL &mdash; FRAUD-API DOWN</span></div>
       <span class="axis-tag" id="axis-start" style="left:8px; bottom:6px;">--:--</span>
@@ -1433,6 +1458,26 @@ function stateAt(tsec, incidents) {
   return 'normal';
 }
 
+// Catmull-Rom -> cubic Bezier for silky smooth curves through the sample points
+function smoothPath(pts, tension = 1) {
+  if (!pts || pts.length < 2) return '';
+  let d = 'M ' + pts[0][0].toFixed(2) + ',' + pts[0][1].toFixed(2);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[Math.min(pts.length - 1, i + 2)];
+    const cp1x = p1[0] + ((p2[0] - p0[0]) / 6) * tension;
+    const cp1y = p1[1] + ((p2[1] - p0[1]) / 6) * tension;
+    const cp2x = p2[0] - ((p3[0] - p1[0]) / 6) * tension;
+    const cp2y = p2[1] - ((p3[1] - p1[1]) / 6) * tension;
+    d += ' C ' + cp1x.toFixed(2) + ',' + cp1y.toFixed(2) + ' ' +
+                 cp2x.toFixed(2) + ',' + cp2y.toFixed(2) + ' ' +
+                 p2[0].toFixed(2) + ',' + p2[1].toFixed(2);
+  }
+  return d;
+}
+
 function renderScope(h, incidents) {
   const svg = $('scope-svg');
   const callouts = $('scope-callouts');
@@ -1449,12 +1494,40 @@ function renderScope(h, incidents) {
   const baseMean = h.baseline_mean ?? 0.3;
   const baseY = yFor(baseMean);
 
+  // SVG defs — gradients, glow filter — these give the trace its premium feel.
+  let defs =
+    '<defs>' +
+      // Vertical stroke gradient: green low, amber mid, red high — colours the trace by score.
+      '<linearGradient id="strokeGrad" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%"   stop-color="#C94B4B"/>' +
+        '<stop offset="40%"  stop-color="#E5B064"/>' +
+        '<stop offset="70%"  stop-color="#2D8659"/>' +
+        '<stop offset="100%" stop-color="#167F6B"/>' +
+      '</linearGradient>' +
+      // Area fill gradients (fade to transparent at bottom).
+      '<linearGradient id="fillGradNormal" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%"   stop-color="rgba(45,134,89,0.35)"/>' +
+        '<stop offset="100%" stop-color="rgba(45,134,89,0)"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="fillGradDrift" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%"   stop-color="rgba(201,75,75,0.42)"/>' +
+        '<stop offset="100%" stop-color="rgba(201,75,75,0)"/>' +
+      '</linearGradient>' +
+      // Subtle glow filter for the trace.
+      '<filter id="traceGlow" x="-10%" y="-40%" width="120%" height="180%">' +
+        '<feGaussianBlur in="SourceGraphic" stdDeviation="0.55" result="blur"/>' +
+        '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+      '</filter>' +
+    '</defs>';
+
+  // Threshold zones (subtle bg tint).
   let bg =
     '<rect x="0" y="' + yFor(1).toFixed(1) + '" width="100" height="' +
-      (yFor(0.7) - yFor(1)).toFixed(1) + '" fill="rgba(201,75,75,0.035)"/>' +
+      (yFor(0.7) - yFor(1)).toFixed(1) + '" fill="rgba(201,75,75,0.045)"/>' +
     '<rect x="0" y="' + yFor(0.7).toFixed(1) + '" width="100" height="' +
-      (yFor(0.4) - yFor(0.7)).toFixed(1) + '" fill="rgba(217,164,65,0.025)"/>';
+      (yFor(0.4) - yFor(0.7)).toFixed(1) + '" fill="rgba(217,164,65,0.035)"/>';
 
+  // Baseline dashed line.
   bg += '<line x1="0" x2="100" y1="' + baseY.toFixed(2) + '" y2="' + baseY.toFixed(2) +
     '" stroke="#6B6A64" stroke-width="0.35" stroke-dasharray="1.4 1.4" opacity="0.85"/>';
 
@@ -1472,6 +1545,7 @@ function renderScope(h, incidents) {
     }
     cur.pts.push([x, y]);
   }
+  // Bridge segments visually so the smoothed curve is continuous across state boundaries.
   for (let i = 1; i < segs.length; i++) {
     if (segs[i - 1].pts.length && segs[i].pts.length &&
         segs[i - 1].state !== 'crash' && segs[i].state !== 'crash') {
@@ -1479,26 +1553,92 @@ function renderScope(h, incidents) {
     }
   }
 
-  let traceSvg = '';
-  for (const seg of segs) {
-    if (seg.state === 'crash' || seg.pts.length < 2) continue;
-    const color = seg.state === 'drift' ? '#C94B4B' : '#2D8659';
-    const pts = seg.pts.map(([x, y]) => x.toFixed(2) + ',' + y.toFixed(2)).join(' ');
-    traceSvg += '<polyline points="' + pts + '" fill="none" stroke="' + color +
-      '" stroke-width="0.55" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
-  }
-
+  // Fills: gradient area under each segment.
   let fills = '';
   for (const seg of segs) {
     if (seg.state === 'crash' || seg.pts.length < 2) continue;
-    let d = 'M ' + seg.pts[0][0].toFixed(2) + ',' + baseY.toFixed(2);
-    for (const [x, y] of seg.pts) d += ' L ' + x.toFixed(2) + ',' + y.toFixed(2);
-    d += ' L ' + seg.pts[seg.pts.length - 1][0].toFixed(2) + ',' + baseY.toFixed(2) + ' Z';
-    const fillColor = seg.state === 'drift' ? 'rgba(201,75,75,0.12)' : 'rgba(45,134,89,0.06)';
-    fills += '<path d="' + d + '" fill="' + fillColor + '"/>';
+    const smooth = smoothPath(seg.pts, 0.9);
+    const first = seg.pts[0], last = seg.pts[seg.pts.length - 1];
+    const areaD = 'M ' + first[0].toFixed(2) + ',' + baseY.toFixed(2) + ' L ' +
+      first[0].toFixed(2) + ',' + first[1].toFixed(2) + ' ' +
+      smooth.slice(2) +
+      ' L ' + last[0].toFixed(2) + ',' + baseY.toFixed(2) + ' Z';
+    const fillUrl = seg.state === 'drift' ? 'url(#fillGradDrift)' : 'url(#fillGradNormal)';
+    fills += '<path d="' + areaD + '" fill="' + fillUrl + '"/>';
   }
 
-  svg.innerHTML = bg + fills + traceSvg;
+  // Traces: smooth Bezier stroke with gradient + glow.
+  let traceSvg = '';
+  for (const seg of segs) {
+    if (seg.state === 'crash' || seg.pts.length < 2) continue;
+    const d = smoothPath(seg.pts, 0.9);
+    traceSvg += '<path d="' + d + '" fill="none" stroke="url(#strokeGrad)" ' +
+      'stroke-width="0.7" stroke-linejoin="round" stroke-linecap="round" ' +
+      'vector-effect="non-scaling-stroke" filter="url(#traceGlow)"/>';
+  }
+
+  // Current-sample pulsing dot (SVG native pulse).
+  const lastPt = samples[n - 1];
+  const lastX = 2 + (n - 1) * step;
+  const lastY = yFor(lastPt.score);
+  const lastState = stateFor(lastPt.t);
+  const dotColor = lastState === 'drift' ? '#C94B4B' : lastState === 'crash' ? '#8B9992' : '#2D8659';
+  const dot =
+    '<circle cx="' + lastX.toFixed(2) + '" cy="' + lastY.toFixed(2) + '" r="1.8" ' +
+      'fill="' + dotColor + '" opacity="0.35">' +
+      '<animate attributeName="r" values="1.4;3.4;1.4" dur="1.8s" repeatCount="indefinite"/>' +
+      '<animate attributeName="opacity" values="0.5;0;0.5" dur="1.8s" repeatCount="indefinite"/>' +
+    '</circle>' +
+    '<circle cx="' + lastX.toFixed(2) + '" cy="' + lastY.toFixed(2) + '" r="0.9" ' +
+      'fill="' + dotColor + '"/>';
+
+  svg.innerHTML = defs + bg + fills + traceSvg + dot;
+
+  // ---- Interactive overlay: hover crosshair + tooltip ----
+  const overlay = $('scope-overlay');
+  const tooltip = $('scope-tooltip');
+  overlay.innerHTML =
+    '<rect id="scope-hitbox" x="0" y="0" width="100" height="100" fill="transparent"/>' +
+    '<line id="scope-crosshair" x1="0" x2="0" y1="0" y2="100" ' +
+      'stroke="#16211A" stroke-width="0.25" stroke-dasharray="0.6 0.6" opacity="0"/>' +
+    '<circle id="scope-hover-dot" r="1.3" fill="#16211A" stroke="var(--paper)" stroke-width="0.5" opacity="0"/>';
+
+  const hitbox = document.getElementById('scope-hitbox');
+  const crosshair = document.getElementById('scope-crosshair');
+  const hoverDot = document.getElementById('scope-hover-dot');
+  hitbox.onmousemove = (evt) => {
+    const rect = overlay.getBoundingClientRect();
+    const px = ((evt.clientX - rect.left) / rect.width) * 100;
+    // find nearest sample by x
+    let bestIdx = 0, bestDx = 1e9;
+    for (let i = 0; i < n; i++) {
+      const x = 2 + i * step;
+      const dx = Math.abs(x - px);
+      if (dx < bestDx) { bestDx = dx; bestIdx = i; }
+    }
+    const s = samples[bestIdx];
+    const sx = 2 + bestIdx * step;
+    const sy = yFor(s.score);
+    crosshair.setAttribute('x1', sx); crosshair.setAttribute('x2', sx);
+    crosshair.setAttribute('opacity', '0.55');
+    hoverDot.setAttribute('cx', sx); hoverDot.setAttribute('cy', sy);
+    hoverDot.setAttribute('opacity', '1');
+    // Position DOM tooltip using CSS %
+    tooltip.style.left = sx + '%';
+    tooltip.style.top = sy + '%';
+    const verdict = s.score > 0.7 ? 'drift' : s.score > 0.4 ? 'review' : 'stable';
+    const verdictText = s.score > 0.7 ? 'FRAUD ZONE' : s.score > 0.4 ? 'REVIEW ZONE' : 'STABLE';
+    tooltip.innerHTML =
+      '<span class="tt-time">' + fmtClock(new Date(s.t * 1000)) + '</span>' +
+      '<span class="tt-score">' + s.score.toFixed(3) + '</span>' +
+      '<div class="tt-verdict ' + verdict + '">' + verdictText + '</div>';
+    tooltip.classList.add('open');
+  };
+  hitbox.onmouseleave = () => {
+    crosshair.setAttribute('opacity', '0');
+    hoverDot.setAttribute('opacity', '0');
+    tooltip.classList.remove('open');
+  };
 
   callouts.innerHTML = '';
   for (const inc of incidents) {
