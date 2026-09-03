@@ -215,14 +215,52 @@
   .action-btn .code{ font-size:10.5px; color:var(--ink-faint); letter-spacing:0.05em; border:1px solid var(--line); padding:2px 6px; }
   .action-btn .name{ font-size:14.5px; letter-spacing:0.05em; font-weight:500; }
   .action-btn .sub{ font-family:'Space Grotesk', sans-serif; font-size:13px; color:var(--ink-soft); }
-  .policy{ display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line); }
-  .policy .rule-item{ padding:22px 26px; display:flex; flex-direction:column; gap:8px; }
-  .policy .rule-item:first-child{ border-right:1px solid var(--line); }
-  .policy .rule-item .trigger{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.08em; color:var(--ink-faint); }
-  .policy .rule-item .flow{ font-family:'IBM Plex Mono', monospace; font-size:15.5px; display:flex; align-items:center; gap:10px; }
-  .policy .rule-item .flow svg{ width:16px; height:16px; flex-shrink:0; }
-  .policy .rule-item.auto .flow{ color:var(--green); }
-  .policy .rule-item.manual .flow{ color:var(--amber); }
+  /* Recovery Policy — documentary reference cards, not clickable */
+  .policy{ display:grid; grid-template-columns:1fr 1fr; gap:24px; border:none; }
+  .policy-card{
+    position:relative; background:var(--paper); border:1px solid var(--line);
+    padding:22px 26px 22px 32px; display:grid; gap:12px;
+    cursor:default; user-select:text;
+  }
+  .policy-card::before{
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  }
+  .policy-card.auto::before{ background:var(--green); }
+  .policy-card.manual::before{ background:var(--amber); }
+  .policy-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    padding-bottom:10px; border-bottom:1px dotted var(--line);
+  }
+  .policy-badge{
+    display:inline-block; font-family:'IBM Plex Mono', monospace;
+    font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--ink-soft); padding:3px 9px; border:1px solid var(--line-strong);
+    background:rgba(22,33,26,0.02);
+  }
+  .policy-doc-note{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'IBM Plex Mono', monospace; font-size:10px;
+    color:var(--ink-faint); letter-spacing:0.06em; text-transform:uppercase;
+  }
+  .policy-doc-note svg{ width:11px; height:11px; }
+  .policy-trigger{
+    font-family:'Space Grotesk', sans-serif; font-size:17px;
+    font-weight:600; color:var(--ink); margin:0; letter-spacing:-0.005em;
+  }
+  .policy-body{
+    font-family:'Space Grotesk', sans-serif; font-size:13.5px;
+    color:var(--ink-soft); line-height:1.55; margin:0;
+  }
+  .policy-verdict{
+    margin-top:4px; padding:9px 14px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    letter-spacing:0.06em; display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--line); background:rgba(22,33,26,0.025);
+    max-width:fit-content;
+  }
+  .policy-verdict svg{ width:14px; height:14px; }
+  .policy-card.auto .policy-verdict{ color:var(--green); border-color:rgba(45,134,89,0.35); background:rgba(45,134,89,0.06); }
+  .policy-card.manual .policy-verdict{ color:var(--amber); border-color:rgba(217,164,65,0.35); background:rgba(217,164,65,0.06); }
   .split{ display:grid; grid-template-columns:1fr 1px 1fr; gap:40px; }
   .split .divider{ background:var(--line); }
   .approval-item{ padding:16px 0; border-bottom:1px solid var(--line); }
@@ -288,15 +326,98 @@
     font-family:'IBM Plex Mono', monospace; font-size:12px;
     color:var(--ink-soft); font-style:normal; line-height:1.55;
   }
-  .report{ margin-top:22px; border:1px solid var(--line); background:var(--paper); padding:22px 26px; }
-  .report .report-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line); }
-  .report .report-head .label{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.09em; color:var(--ink-faint); margin:0; }
-  .report .report-head .report-id{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-faint); }
-  .report dl{ font-family:'IBM Plex Mono', monospace; font-size:14px; display:grid; grid-template-columns:auto 1fr; gap:8px 20px; }
-  .report dt{ color:var(--ink-faint); }
-  .report dd{ color:var(--ink); }
-  .report dd.type-crash{ color:var(--red); }
-  .report dd.type-drift{ color:var(--amber); }
+  /* ---------- INCIDENT REPORT — premium document treatment ---------- */
+  .report{
+    position:relative;
+    margin-top:24px;
+    border:1px solid var(--ink);
+    background:var(--paper);
+    padding:36px 44px 32px;
+  }
+  .report::before{
+    content:''; position:absolute; top:12px; left:12px; right:12px; bottom:12px;
+    border:1px solid var(--line-strong); pointer-events:none;
+  }
+  .report-toolbar{
+    position:absolute; top:-1px; right:-1px;
+    display:flex; gap:6px; padding:8px 12px;
+    background:var(--paper); border:1px solid var(--ink); border-top:none; border-right:none;
+    z-index:2;
+  }
+  .r-letterhead{
+    position:relative; z-index:1;
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:24px; padding-bottom:22px; margin-bottom:26px;
+    border-bottom:1.5px solid var(--ink);
+  }
+  .r-brand{ display:flex; align-items:center; gap:16px; }
+  .r-brand-mark{
+    width:38px; height:38px; border:1.5px solid var(--ink);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .r-brand-mark svg{ width:20px; height:20px; }
+  .r-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:22px; font-weight:700; color:var(--ink);
+    letter-spacing:-0.015em; line-height:1.15; margin:0;
+  }
+  .r-subtitle{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    color:var(--ink-faint); letter-spacing:0.14em; text-transform:uppercase;
+    margin-top:4px;
+  }
+  .r-meta{
+    text-align:right; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; color:var(--ink-faint); letter-spacing:0.03em;
+    line-height:1.55;
+  }
+  .r-meta .r-id{
+    display:block; font-size:14px; color:var(--ink); font-weight:600;
+    letter-spacing:0.03em; margin-bottom:5px;
+  }
+  .report dl{
+    position:relative; z-index:1;
+    font-family:'Space Grotesk', sans-serif; font-size:14px;
+    display:grid; grid-template-columns:170px 1fr; gap:0;
+    margin-bottom:24px;
+  }
+  .report dt{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    color:var(--ink-faint); letter-spacing:0.1em; text-transform:uppercase;
+    padding:14px 20px 14px 0; border-bottom:1px dotted var(--line);
+    align-self:start; padding-top:16px;
+  }
+  .report dd{
+    color:var(--ink); font-weight:500; margin:0;
+    padding:14px 0; border-bottom:1px dotted var(--line);
+  }
+  .report dt:last-of-type, .report dd:last-of-type{ border-bottom:none; }
+  .report dd.type-crash{ color:var(--red); font-weight:600; }
+  .report dd.type-drift{ color:var(--amber); font-weight:600; }
+  .r-signature{
+    position:relative; z-index:1;
+    margin-top:28px; padding-top:22px; border-top:1px solid var(--ink);
+    display:flex; justify-content:space-between; align-items:flex-end;
+    gap:20px;
+  }
+  .r-signed-by{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    color:var(--ink-faint); letter-spacing:0.08em; text-transform:uppercase;
+    line-height:1.6;
+  }
+  .r-signed-by strong{
+    display:block; font-size:13px; color:var(--ink); font-weight:600;
+    letter-spacing:0.02em; margin-bottom:3px;
+  }
+  .r-stamp{
+    padding:8px 18px; border:2px solid var(--green);
+    color:var(--green); font-family:'IBM Plex Mono', monospace;
+    font-size:12px; font-weight:700; letter-spacing:0.2em;
+    transform:rotate(-4deg); text-transform:uppercase;
+    box-shadow:inset 0 0 0 1px rgba(45,134,89,0.15);
+  }
+  .r-stamp.pending{ border-color:var(--amber); color:var(--amber); box-shadow:inset 0 0 0 1px rgba(217,164,65,0.15); }
+  .r-stamp.crash  { border-color:var(--red);   color:var(--red);   box-shadow:inset 0 0 0 1px rgba(201,75,75,0.15); }
   .block .label{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.09em; margin-bottom:14px; display:flex; align-items:center; gap:9px; }
   .block.auth{ border-left:2px solid var(--amber); padding-left:22px; margin-left:-24px; }
   .block.auth .label{ color:var(--amber); }
@@ -552,11 +673,26 @@
   :focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
   @media (prefers-reduced-motion: reduce){ .dot.pulse::after{ animation:none; } }
   @media print{
-    body{ background:#fff; padding:0; }
+    @page{ size:A4; margin:1.5cm 1.8cm; }
+    body{ background:#fff; padding:0; font-family:'Space Grotesk', sans-serif; }
     body *{ visibility:hidden; }
     .report, .report *{ visibility:visible; }
-    .report{ position:absolute; top:0; left:0; width:100%; border:none; background:#fff; padding:0; }
-    .report .copy-btn, .report .print-report-btn{ display:none; }
+    .report{
+      position:absolute; top:0; left:0; width:100%;
+      border:none; background:#fff; padding:24px 0 0;
+    }
+    .report::before{ border:1px solid #000; top:8px; left:8px; right:8px; bottom:8px; }
+    .report .report-toolbar, .report .copy-btn, .report .print-report-btn{ display:none !important; }
+    .r-letterhead{ border-bottom:1.5px solid #000; }
+    .r-title{ color:#000; }
+    .r-brand-mark{ border-color:#000; }
+    .r-brand-mark svg{ stroke:#000; }
+    .r-signature{ border-top:1px solid #000; }
+    .r-stamp{
+      border-width:2px !important;
+      color:#000 !important; border-color:#000 !important;
+      box-shadow:none !important;
+    }
     .report dl{ font-size:13px; }
   }
 
@@ -604,31 +740,100 @@
   .dist-legend .sw.live{ background:var(--red); }
   @media (max-width:760px){ .distribution{ grid-template-columns:1fr; } .dist-summary{ border-left:none; border-top:1px solid var(--line); padding:22px 0 0; } }
 
-  /* ---------- NARRATION FEED ---------- */
-  .narration-console{ border:1px solid var(--line-strong); background:#101216; }
+  /* ---------- NARRATION CONSOLE (premium) ---------- */
+  .narration-console{
+    position:relative; border:1px solid var(--line-strong);
+    background:linear-gradient(180deg, #0c0d11 0%, #121419 100%);
+    box-shadow:
+      inset 0 0 80px rgba(0,0,0,0.55),
+      inset 0 1px 0 rgba(255,255,255,0.03);
+    overflow:hidden;
+  }
+  .narration-console::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent 0%, var(--signal) 20%, var(--signal) 80%, transparent 100%);
+    opacity:0.65;
+  }
+  .narration-console::after{
+    content:''; position:absolute; inset:0;
+    background-image:repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.014) 0 1px,
+      transparent 1px 3px
+    );
+    pointer-events:none;
+  }
   .narration-chrome{
+    position:relative; z-index:1;
     display:flex; align-items:center; justify-content:space-between;
-    padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.08);
+    padding:12px 20px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.015);
   }
+  .narration-chrome .nc-left{ display:flex; align-items:center; gap:14px; }
   .narration-chrome .nc-dots{ display:flex; gap:6px; }
-  .narration-chrome .nc-dots span{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.18); }
+  .narration-chrome .nc-dots span{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.14); }
   .narration-chrome .nc-title{
-    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.1em;
-    color:rgba(255,255,255,0.4); text-transform:uppercase;
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.14em;
+    color:rgba(255,255,255,0.5); text-transform:uppercase;
   }
-  .narration{ border:none; background:transparent; color:#D5D5D0; font-family:'IBM Plex Mono', monospace; font-size:13px; padding:18px 22px; max-height:280px; overflow-y:auto; line-height:1.65; }
-  .narration .n-line{ display:grid; grid-template-columns:82px 92px 1fr; gap:14px; padding:3px 0; border-bottom:1px dashed rgba(255,255,255,0.05); }
+  .narration-chrome .nc-live{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'IBM Plex Mono', monospace; font-size:10px;
+    color:#7CC79B; letter-spacing:0.14em;
+  }
+  .narration-chrome .nc-live-dot{
+    width:6px; height:6px; border-radius:50%; background:#7CC79B;
+    box-shadow:0 0 6px rgba(124,199,155,0.85);
+    animation:live-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes live-pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:0.55; transform:scale(0.85); }
+  }
+  .narration-chrome .nc-count{
+    font-family:'IBM Plex Mono', monospace; font-size:10px;
+    color:rgba(255,255,255,0.35); letter-spacing:0.08em;
+  }
+  .narration{
+    position:relative; z-index:1;
+    border:none; background:transparent; color:#D5D5D0;
+    font-family:'IBM Plex Mono', monospace; font-size:13px;
+    padding:14px 22px; max-height:340px; overflow-y:auto; line-height:1.65;
+  }
+  .narration .n-line{
+    display:grid; grid-template-columns:88px 96px 1fr; gap:16px;
+    padding:8px 12px 8px 14px; margin-left:-14px;
+    border-bottom:1px dashed rgba(255,255,255,0.045);
+    border-left:2px solid transparent;
+    transition:background 0.2s ease;
+    animation:n-line-in 0.32s ease-out;
+  }
+  @keyframes n-line-in{
+    from{ opacity:0; transform:translateX(-4px); }
+    to  { opacity:1; transform:translateX(0); }
+  }
   .narration .n-line:last-child{ border-bottom:none; }
-  .narration .n-time{ color:#7C7C74; }
-  .narration .n-tag{ font-size:11px; letter-spacing:0.08em; }
-  .narration .n-tag.info{ color:#84A6E0; }
-  .narration .n-tag.warn{ color:#E5B064; }
-  .narration .n-tag.alert{ color:#E36B62; }
-  .narration .n-tag.ok{ color:#7CC79B; }
+  .narration .n-line:hover{ background:rgba(255,255,255,0.02); }
+  .narration .n-line.tag-alert{ border-left-color:rgba(227,107,98,0.65); }
+  .narration .n-line.tag-warn{  border-left-color:rgba(229,176,100,0.65); }
+  .narration .n-line.tag-ok{    border-left-color:rgba(124,199,155,0.6); }
+  .narration .n-line.tag-info{  border-left-color:rgba(132,166,224,0.6); }
+  .narration .n-time{ color:#7C7C74; font-weight:500; }
+  .narration .n-tag{
+    font-size:10.5px; letter-spacing:0.14em; font-weight:600;
+    display:inline-block; padding:1px 6px; border-radius:2px;
+    background:rgba(255,255,255,0.04);
+  }
+  .narration .n-tag.info { color:#84A6E0; background:rgba(132,166,224,0.10); }
+  .narration .n-tag.warn { color:#E5B064; background:rgba(229,176,100,0.10); }
+  .narration .n-tag.alert{ color:#E36B62; background:rgba(227,107,98,0.10); }
+  .narration .n-tag.ok   { color:#7CC79B; background:rgba(124,199,155,0.10); }
   .narration .n-msg{ color:#D5D5D0; }
   .narration::-webkit-scrollbar{ width:8px; }
   .narration::-webkit-scrollbar-track{ background:transparent; }
   .narration::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.10); border-radius:4px; }
+  .narration::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,0.18); }
 </style>
 </head>
 <body>
@@ -878,20 +1083,36 @@
   <div class="section-label mono">RECOVERY POLICY</div>
 
   <div class="policy">
-    <div class="rule-item auto">
-      <span class="trigger">ON PROCESS FAILURE &mdash; POLICY P-001</span>
-      <span class="flow">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
-        AUTO-RESTART &mdash; NO APPROVAL REQUIRED
+    <article class="policy-card auto">
+      <div class="policy-meta">
+        <span class="policy-badge">Policy P-001</span>
+        <span class="policy-doc-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          Reference
+        </span>
+      </div>
+      <h3 class="policy-trigger">On process failure</h3>
+      <p class="policy-body">Guardian auto-restarts the fraud-api container. Crashes are safe to recover from — a service that isn't answering can't answer <em>wrong</em>. No human sign-off needed.</p>
+      <span class="policy-verdict">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>
+        AUTO-RESTART · IMMEDIATE
       </span>
-    </div>
-    <div class="rule-item manual">
-      <span class="trigger">ON OUTPUT DRIFT &mdash; POLICY P-002</span>
-      <span class="flow">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+    </article>
+    <article class="policy-card manual">
+      <div class="policy-meta">
+        <span class="policy-badge">Policy P-002</span>
+        <span class="policy-doc-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          Reference
+        </span>
+      </div>
+      <h3 class="policy-trigger">On output drift (silent failure)</h3>
+      <p class="policy-body">Guardian holds the incident open and requires a human approver to authorize the rollback. Reason: rolling back a live fraud model is a governed action — there needs to be an accountable person on the record.</p>
+      <span class="policy-verdict">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
         HOLD FOR MANUAL AUTHORIZATION
       </span>
-    </div>
+    </article>
   </div>
 
   <hr class="rule">
@@ -943,26 +1164,53 @@
   <div class="section-label mono">GUARDIAN NARRATION — LIVE DECISION FEED</div>
   <div class="narration-console">
     <div class="narration-chrome">
-      <span class="nc-dots"><span></span><span></span><span></span></span>
-      <span class="nc-title">guardian decision log</span>
+      <div class="nc-left">
+        <span class="nc-dots"><span></span><span></span><span></span></span>
+        <span class="nc-title">guardian.decision.log</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <span class="nc-count" id="nc-count">0 events</span>
+        <span class="nc-live"><span class="nc-live-dot"></span>STREAM · LIVE</span>
+      </div>
     </div>
     <div class="narration" id="narration">
-      <div class="n-line"><span class="n-time">--:--:--</span><span class="n-tag info">STARTUP</span><span class="n-msg">Waiting for Guardian to connect…</span></div>
+      <div class="n-line tag-info"><span class="n-time">--:--:--</span><span class="n-tag info">STARTUP</span><span class="n-msg">Waiting for Guardian to connect…</span></div>
     </div>
   </div>
 
   <hr class="rule">
 
   <div class="report" id="report-panel" style="display:none;">
-    <div class="report-head">
-      <p class="label mono">AUTO-GENERATED INCIDENT REPORT</p>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span class="report-id mono" id="report-id">--</span>
-        <button class="copy-btn" id="btn-copy-report">COPY AS MARKDOWN</button>
-        <button class="print-report-btn" id="btn-print-report">PRINT</button>
+    <div class="report-toolbar">
+      <button class="copy-btn" id="btn-copy-report">COPY AS MARKDOWN</button>
+      <button class="print-report-btn" id="btn-print-report">PRINT</button>
+    </div>
+    <div class="r-letterhead">
+      <div class="r-brand">
+        <div class="r-brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#16211A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/>
+            <path d="M9 12 L11 14 L15.5 9.5"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="r-title">Incident Post-Mortem</h2>
+          <div class="r-subtitle">Auto-generated by GuardianOps · Signal Lab</div>
+        </div>
+      </div>
+      <div class="r-meta">
+        <span class="r-id" id="report-id">Incident #—</span>
+        <span id="report-generated-at">Generated —</span>
       </div>
     </div>
     <dl id="report-fields"></dl>
+    <div class="r-signature">
+      <div class="r-signed-by">
+        <strong id="report-signed-by">GuardianOps · monitor loop</strong>
+        Auto-generated · no human authored this document
+      </div>
+      <div class="r-stamp" id="report-stamp">RESOLVED</div>
+    </div>
   </div>
 
   <hr class="rule">
@@ -1592,24 +1840,40 @@ async function pollReport() {
 function renderReport(reportResp, latest) {
   $('report-panel').style.display = 'block';
   const isCrash = latest.type === 'crash';
-  $('report-id').textContent = fmtId(reportResp.incident_id) + ' · ' +
-    (latest.status || 'resolved').toUpperCase();
-
   const detected = fmtTime(latest.detected_at);
   const resolved = latest.resolved_at ? fmtTime(latest.resolved_at) : '--';
   const cls = isCrash ? 'type-crash' : 'type-drift';
   const what = isCrash ? 'Process termination (health-check failure)' : 'Silent failure — output distribution drift';
   const detBy = isCrash ? 'Consecutive HTTP health-check misses' : 'PSI + Kolmogorov-Smirnov drift check on rolling window';
   const action = (latest.action || '--').replace(/_/g, ' ');
+  const status = (latest.status || 'resolved').toUpperCase().replace(/_/g, ' ');
+
+  $('report-id').textContent = 'Incident ' + fmtId(reportResp.incident_id);
+  $('report-generated-at').textContent = 'Generated ' + fmtClock(new Date());
+  $('report-signed-by').textContent = isCrash ? 'GuardianOps · policy P-001' : 'GuardianOps · policy P-002';
+
+  // Stamp
+  const stamp = $('report-stamp');
+  stamp.className = 'r-stamp';
+  if (latest.status === 'pending_approval') { stamp.classList.add('pending'); stamp.textContent = 'PENDING SIGN-OFF'; }
+  else if (isCrash) { stamp.classList.add('crash'); stamp.textContent = 'AUTO-RESOLVED'; }
+  else { stamp.textContent = latest.action === 'rollback_approved' ? 'APPROVED · ROLLED BACK' : 'RESOLVED'; }
+
+  const reasoning = latest.reasoning
+    ? '<dt>REASONING</dt><dd style="font-family:\'Space Grotesk\', sans-serif; font-size:13px; color:var(--ink-soft); line-height:1.6; font-weight:400;">' +
+      latest.reasoning.replace(/</g, '&lt;') + '</dd>'
+    : '';
 
   $('report-fields').innerHTML =
-    '<dt>WHAT</dt><dd class="' + cls + '">' + what + '</dd>' +
-    '<dt>WHEN</dt><dd>' + detected + ' → ' + resolved + '</dd>' +
-    '<dt>DETECTED BY</dt><dd>' + detBy + '</dd>' +
-    '<dt>ACTION</dt><dd>' + action + '</dd>' +
-    '<dt>BLAST RADIUS</dt><dd>' + (latest.blast_radius || 0) + ' transactions</dd>' +
-    '<dt>TIME TO RECOVERY</dt><dd>' + fmtMttr(latest.mttr_seconds) + '</dd>' +
-    '<dt>POLICY</dt><dd>' + (isCrash ? 'P-001 (auto-restart)' : 'P-002 (manual approval)') + '</dd>';
+    '<dt>Classification</dt><dd class="' + cls + '">' + what + '</dd>' +
+    '<dt>Timeline</dt><dd>' + detected + ' → ' + resolved + '</dd>' +
+    '<dt>Detected by</dt><dd>' + detBy + '</dd>' +
+    '<dt>Action taken</dt><dd>' + action + '</dd>' +
+    '<dt>Blast radius</dt><dd>' + (latest.blast_radius || 0) + ' transactions</dd>' +
+    '<dt>Time to recovery</dt><dd>' + fmtMttr(latest.mttr_seconds) + '</dd>' +
+    '<dt>Governing policy</dt><dd>' + (isCrash ? 'P-001 (auto-restart, no approval required)' : 'P-002 (manual authorization)') + '</dd>' +
+    '<dt>Current status</dt><dd>' + status + '</dd>' +
+    reasoning;
 
   $('btn-copy-report').dataset.markdown = reportResp.markdown || '';
 }
@@ -1725,18 +1989,22 @@ async function pollDistribution() {
 // ==============================================================
 const NARR_MAX = 40;
 const narrPrev = { fraud_up: null, active_incident: null, verdict: null, pending_count: null, resolved_count: null };
+let NARR_COUNT = 0;
 function narrate(tag, msg) {
   const feed = $('narration');
   if (feed.firstElementChild && feed.firstElementChild.querySelector('.n-msg')?.textContent === 'Waiting for Guardian to connect…') {
     feed.innerHTML = '';
   }
   const row = document.createElement('div');
-  row.className = 'n-line';
+  row.className = 'n-line tag-' + tag;
   row.innerHTML = '<span class="n-time">' + fmtClock(new Date()) + '</span>' +
                   '<span class="n-tag ' + tag + '">' + tag.toUpperCase() + '</span>' +
                   '<span class="n-msg">' + msg + '</span>';
   feed.insertBefore(row, feed.firstChild);
   while (feed.children.length > NARR_MAX) feed.removeChild(feed.lastChild);
+  NARR_COUNT++;
+  const cn = document.getElementById('nc-count');
+  if (cn) cn.textContent = NARR_COUNT + (NARR_COUNT === 1 ? ' event' : ' events');
 }
 
 async function pollNarrate() {
