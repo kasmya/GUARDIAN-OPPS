@@ -1,0 +1,91 @@
+services:
+  fraud-api:
+    build: ./services/fraud-api
+    container_name: guardianops-fraud-api
+    ports:
+      - "8001:8000"
+    environment:
+      SERVICE_NAME: fraud-api
+    volumes:
+      - ./shared:/shared
+    restart: on-failure
+
+  guardian:
+    build: ./services/guardian
+    container_name: guardianops-guardian
+    ports:
+      - "8002:8000"
+    environment:
+      FRAUD_API_URL: http://fraud-api:8000
+      CHAOS_URL: http://chaos-injector:8000
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - ./shared:/shared
+      - ./data/guardian:/data
+      - ./data/reports:/reports
+    depends_on:
+      - fraud-api
+    restart: unless-stopped
+
+  chaos-injector:
+    build: ./services/chaos-injector
+    container_name: guardianops-chaos
+    ports:
+      - "8003:8000"
+    environment:
+      FRAUD_API_URL: http://fraud-api:8000
+    depends_on:
+      - fraud-api
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.14.1
+    container_name: guardianops-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data/mlflow:/mlflow
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: guardianops-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: guardianops-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./data/grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:1.27-alpine
+    container_name: guardianops-frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - guardian
+    restart: unless-stopped

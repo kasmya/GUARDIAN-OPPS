@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuardianOps — Instrument Panel</title>
+<meta name="description" content="GuardianOps — self-healing MLOps pipeline monitor for a real-time fraud-detection API. Live health, silent-failure drift detection, and policy-gated recovery."/>
+<meta property="og:title" content="GuardianOps — Instrument Panel"/>
+<meta property="og:description" content="Self-healing pipeline monitoring for real-time fraud detection — crash recovery, drift detection, and governed rollback in one view."/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="GuardianOps — Instrument Panel"/>
+<meta name="twitter:description" content="Self-healing MLOps monitor: live health, drift detection, policy-gated recovery."/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2317191B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z'/%3E%3Cpath d='M9 12 L11 14 L15.5 9.5'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:          #F1F1EF;
+    --paper:       #F7F6F2;
+    --ink:         #17191B;
+    --ink-soft:    #6B6A64;
+    --ink-faint:   #9B988E;
+    --red:         #D6453D;
+    --blue:        #3567C8;
+    --green:       #21865A;
+    --amber:       #C98A22;
+    --line:        #DBD9D1;
+    --line-strong: #B9B6AC;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ background:var(--bg); }
+  body{
+    background:var(--bg);
+    background-image:radial-gradient(circle at 1px 1px, rgba(23,25,27,0.035) 1px, transparent 0);
+    background-size:26px 26px;
+    color:var(--ink);
+    font-family:'Public Sans', sans-serif;
+    font-size:16px; line-height:1.55;
+    -webkit-font-smoothing:antialiased; padding:0;
+  }
+  .mono{ font-family:'Fragment Mono', monospace; }
+  .bezel{ max-width:1600px; margin:0 auto; padding:44px 52px 60px; position:relative; }
+  .bezel::before, .bezel::after,
+  .corner-tl, .corner-tr, .corner-bl, .corner-br{
+    content:''; position:absolute; width:20px; height:20px; border-color:var(--line-strong);
+  }
+  .corner-tl{ top:18px; left:18px; border-top:1px solid var(--line-strong); border-left:1px solid var(--line-strong); }
+  .corner-tr{ top:18px; right:18px; border-top:1px solid var(--line-strong); border-right:1px solid var(--line-strong); }
+  .corner-bl{ bottom:18px; left:18px; border-bottom:1px solid var(--line-strong); border-left:1px solid var(--line-strong); }
+  .corner-br{ bottom:18px; right:18px; border-bottom:1px solid var(--line-strong); border-right:1px solid var(--line-strong); }
+  .cal-strip{ display:flex; justify-content:space-between; padding:0 4px 12px; margin-bottom:22px; }
+  .cal-strip .tick-row{ display:flex; gap:4px; align-items:flex-end; }
+  .cal-strip .tick{ width:1px; height:7px; background:var(--line-strong); }
+  .cal-strip .tick.major{ height:12px; }
+  .cal-strip .id{ font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.08em; color:var(--ink-faint); }
+  header{ display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:18px; }
+  header .title-block{ display:flex; align-items:baseline; gap:16px; }
+  header .mark{
+    width:40px; height:40px; border:2px solid var(--ink);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; top:2px;
+  }
+  header .mark svg{ width:22px; height:22px; }
+  header .title-block h1{ font-size:32px; font-weight:700; letter-spacing:-0.015em; }
+  header .title-block p{ font-family:'Fragment Mono', monospace; font-size:14px; color:var(--ink-soft); margin-top:6px; letter-spacing:0.01em; }
+  header .status-block{ text-align:right; font-family:'Fragment Mono', monospace; }
+  header .clock{ font-size:17px; font-weight:500; display:flex; align-items:center; justify-content:flex-end; gap:12px; }
+  header .clock .sep{ color:var(--line-strong); }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); position:relative; }
+  .dot.pulse::after{ content:''; position:absolute; inset:-5px; border-radius:50%; border:1px solid var(--green); animation:pulse 2.4s ease-out infinite; }
+  @keyframes pulse{ 0%{ transform:scale(0.5); opacity:0.8; } 100%{ transform:scale(2.8); opacity:0; } }
+  header .status-block .active{ color:var(--green); letter-spacing:0.05em; display:inline-flex; align-items:center; gap:6px; }
+  .legend-strip{ display:flex; gap:26px; align-items:center; margin-top:14px; font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.05em; color:var(--ink-soft); }
+  .legend-strip .key{ display:flex; align-items:center; gap:7px; }
+  .legend-strip .swatch-dot{ width:8px; height:8px; border-radius:50%; }
+  .legend-strip .swatch-dot.healthy{ background:var(--green); }
+  .legend-strip .swatch-dot.pending{ background:var(--amber); }
+  .legend-strip .swatch-dot.alert{ background:var(--red); }
+  hr.rule{ border:none; border-top:1px solid var(--line-strong); margin:34px 0; }
+  .section-label{ font-family:'Fragment Mono', monospace; font-size:12.5px; letter-spacing:0.11em; color:var(--ink-faint); text-align:center; margin-bottom:26px; position:relative; }
+  .section-label::before, .section-label::after{ content:''; display:inline-block; width:36px; height:1px; background:var(--line); vertical-align:middle; margin:0 12px 4px; }
+  .panel{ display:grid; grid-template-columns:220px 1fr 240px; gap:36px; align-items:stretch; }
+  .readouts{ display:flex; flex-direction:column; justify-content:center; gap:22px; border-right:1px solid var(--line); padding-right:28px; }
+  .readout .label{ font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.08em; color:var(--ink-faint); }
+  .readout .value{ font-family:'Fragment Mono', monospace; font-size:22px; font-weight:500; margin-top:5px; display:flex; align-items:center; gap:9px; }
+  .readout.healthy .value{ color:var(--green); }
+  .readout.healthy .value::before{ content:''; width:8px; height:8px; border-radius:50%; background:var(--green); }
+  .readout.alert .value{ color:var(--red); }
+  .readout.alert .value::before{ content:''; width:8px; height:8px; border-radius:50%; background:var(--red); }
+  .readout.warn .value{ color:var(--amber); }
+  .readout.warn .value::before{ content:''; width:8px; height:8px; border-radius:50%; background:var(--amber); }
+  .exposure{ display:flex; flex-direction:column; justify-content:center; text-align:right; border-left:1px solid var(--line); padding-left:28px; }
+  .exposure .label{ font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.08em; color:var(--ink-faint); }
+  .exposure .value{ font-family:'Fragment Mono', monospace; font-size:42px; font-weight:700; color:var(--red); letter-spacing:-0.02em; margin-top:10px; line-height:1; }
+  .exposure .value .cents{ font-size:22px; font-weight:500; color:var(--ink-soft); }
+  .exposure .delta{ font-family:'Fragment Mono', monospace; font-size:12.5px; color:var(--red); margin-top:12px; letter-spacing:0.02em; }
+  .exposure.calm .value{ color:var(--ink); }
+  .exposure.calm .delta{ color:var(--ink-faint); }
+  .scope{ position:relative; height:340px; background:var(--paper); border:1px solid var(--line-strong); overflow:hidden; }
+  .scope .grid-lines{ position:absolute; inset:0; background-image:repeating-linear-gradient(to right, var(--line) 0 1px, transparent 1px 12.5%), repeating-linear-gradient(to bottom, var(--line) 0 1px, transparent 1px 25%); opacity:0.55; }
+  .scope .mid-line{ position:absolute; left:0; right:0; top:50%; height:1px; background:var(--line-strong); opacity:0.7; }
+  .scope svg.trace{ position:absolute; inset:0; width:100%; height:100%; }
+  .scope .no-signal{ position:absolute; top:0; bottom:0; left:0; right:0; background:repeating-linear-gradient(135deg, rgba(214,69,61,0.09), rgba(214,69,61,0.09) 3px, transparent 3px, transparent 9px); display:none; align-items:center; justify-content:center; z-index:3; }
+  .scope.down .no-signal{ display:flex; }
+  .scope .no-signal span{ font-family:'Fragment Mono', monospace; font-size:10.5px; letter-spacing:0.1em; color:var(--red); background:var(--paper); padding:6px 12px; border:1px solid var(--red); }
+  .scope .axis-tag{ position:absolute; font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); background:var(--paper); padding:2px 4px; z-index:2; }
+  .scope .legend{ position:absolute; top:14px; right:16px; display:flex; gap:20px; font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-soft); z-index:2; }
+  .scope .legend span{ display:flex; align-items:center; gap:8px; }
+  .swatch{ width:16px; height:2px; background:var(--ink); display:inline-block; }
+  .swatch.dashed{ height:0; border-top:1px dashed var(--ink-soft); }
+  .scope .marker-flag{ position:absolute; font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.04em; color:var(--red); display:none; align-items:center; gap:5px; background:var(--paper); padding:2px 6px; z-index:2; }
+  .scope.drift .marker-flag{ display:flex; }
+  .scope .marker-flag::before{ content:''; width:5px; height:5px; background:var(--red); transform:rotate(45deg); }
+  .actions{ display:grid; grid-template-columns:repeat(3, 1fr); }
+  .action-btn{ background:none; border:none; border-top:1px solid var(--line-strong); border-right:1px solid var(--line); padding:26px 22px 22px; font-family:'Fragment Mono', monospace; cursor:pointer; color:var(--ink); text-align:left; transition:background 0.15s ease, border-top-color 0.15s ease; display:flex; flex-direction:column; gap:12px; }
+  .actions .action-btn:last-child{ border-right:none; }
+  .force-check{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:none; border:1px dashed var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:12.5px; letter-spacing:0.06em; padding:14px; margin-top:18px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  .force-check:hover{ border-color:var(--blue); color:var(--blue); }
+  .force-check svg{ width:15px; height:15px; }
+  .action-btn .icon-row{ display:flex; align-items:center; justify-content:space-between; }
+  .action-btn svg{ width:22px; height:22px; }
+  .action-btn .code{ font-size:11px; color:var(--ink-faint); letter-spacing:0.03em; }
+  .action-btn .name{ font-size:14.5px; letter-spacing:0.05em; font-weight:500; }
+  .action-btn .sub{ font-family:'Public Sans', sans-serif; font-size:13px; color:var(--ink-soft); }
+  .action-btn:hover{ background:rgba(23,25,27,0.028); }
+  .action-btn.terminate:hover{ border-top-color:var(--red); }
+  .action-btn.terminate:hover .name{ color:var(--red); }
+  .action-btn.terminate svg{ stroke:var(--red); }
+  .action-btn.latency:hover{ border-top-color:var(--blue); }
+  .action-btn.latency:hover .name{ color:var(--blue); }
+  .action-btn.latency svg{ stroke:var(--blue); }
+  .action-btn.corrupt:hover{ border-top-color:var(--amber); }
+  .action-btn.corrupt:hover .name{ color:var(--amber); }
+  .action-btn.corrupt svg{ stroke:var(--amber); }
+  .action-btn:active{ transform:translateY(1px); }
+  .action-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .policy{ display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line); }
+  .policy .rule-item{ padding:22px 26px; display:flex; flex-direction:column; gap:8px; }
+  .policy .rule-item:first-child{ border-right:1px solid var(--line); }
+  .policy .rule-item .trigger{ font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.08em; color:var(--ink-faint); }
+  .policy .rule-item .flow{ font-family:'Fragment Mono', monospace; font-size:15.5px; display:flex; align-items:center; gap:10px; }
+  .policy .rule-item .flow svg{ width:16px; height:16px; flex-shrink:0; }
+  .policy .rule-item.auto .flow{ color:var(--green); }
+  .policy .rule-item.manual .flow{ color:var(--amber); }
+  .split{ display:grid; grid-template-columns:1fr 1px 1fr; gap:40px; }
+  .split .divider{ background:var(--line); }
+  .approval-item{ padding:16px 0; border-bottom:1px solid var(--line); }
+  .approval-item:last-of-type{ border-bottom:none; margin-bottom:18px; }
+  .approval-item .detail{ font-family:'Fragment Mono', monospace; font-size:15px; margin-bottom:6px; }
+  .approval-item .detail .num{ color:var(--amber); font-weight:500; }
+  .approval-item .meta{ font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); }
+  .approval-item .reason{ font-family:'Public Sans', sans-serif; font-size:13.5px; color:var(--ink-soft); margin-top:8px; line-height:1.55; }
+  .report{ margin-top:22px; border:1px solid var(--line); background:var(--paper); padding:22px 26px; }
+  .report .report-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+  .report .report-head .label{ font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.09em; color:var(--ink-faint); margin:0; }
+  .report .report-head .report-id{ font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); }
+  .report dl{ font-family:'Fragment Mono', monospace; font-size:14px; display:grid; grid-template-columns:auto 1fr; gap:8px 20px; }
+  .report dt{ color:var(--ink-faint); }
+  .report dd{ color:var(--ink); }
+  .report dd.type-crash{ color:var(--red); }
+  .report dd.type-drift{ color:var(--amber); }
+  .block .label{ font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.09em; margin-bottom:14px; display:flex; align-items:center; gap:9px; }
+  .block.auth{ border-left:2px solid var(--amber); padding-left:22px; margin-left:-24px; }
+  .block.auth .label{ color:var(--amber); }
+  .block.auth .label::before{ content:''; width:8px; height:8px; background:var(--amber); border-radius:50%; }
+  .authorize-btn{ background:none; border:1px solid var(--ink); color:var(--ink); font-family:'Fragment Mono', monospace; font-size:13px; letter-spacing:0.07em; padding:14px 24px; cursor:pointer; transition:background 0.15s ease, color 0.15s ease; display:inline-flex; align-items:center; gap:10px; }
+  .authorize-btn svg{ width:14px; height:14px; }
+  .authorize-btn:hover{ background:var(--ink); color:var(--paper); }
+  .authorize-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .block.incident .label{ color:var(--ink-faint); }
+  .block.incident .label::before{ content:''; width:8px; height:8px; border:1px solid var(--ink-faint); border-radius:50%; }
+  .incident-row{ display:flex; justify-content:space-between; font-family:'Fragment Mono', monospace; font-size:14px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .incident-row:last-child{ border-bottom:none; }
+  .incident-row .k{ color:var(--ink-faint); }
+  .incident-row .v.resolved{ color:var(--green); display:flex; align-items:center; gap:7px; }
+  .incident-row .v.resolved::before{ content:''; width:7px; height:7px; border-radius:50%; background:var(--green); }
+  .incident-row .v.crash{ color:var(--red); }
+  .incident-row .v.drift{ color:var(--amber); }
+  .timeline{ position:relative; height:100px; margin-top:10px; }
+  .timeline .track{ position:absolute; top:50%; left:0; right:0; height:1px; background:var(--line-strong); }
+  .tl-point{ position:absolute; top:50%; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; }
+  .tl-point .dot-marker{ width:12px; height:12px; border-radius:50%; background:var(--paper); border:2px solid var(--ink); z-index:1; }
+  .tl-point.filled .dot-marker{ background:var(--red); border-color:var(--red); }
+  .tl-point.ok .dot-marker{ background:var(--green); border-color:var(--green); }
+  .tl-point.warn .dot-marker{ background:var(--amber); border-color:var(--amber); }
+  .tl-point .tag{ position:absolute; bottom:calc(100% + 10px); font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.06em; font-weight:500; white-space:nowrap; }
+  .tl-point .time{ position:absolute; top:calc(100% + 10px); font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); white-space:nowrap; }
+  footer{ margin-top:50px; display:flex; justify-content:space-between; align-items:center; font-family:'Fragment Mono', monospace; font-size:11.5px; color:var(--ink-faint); letter-spacing:0.05em; flex-wrap:wrap; gap:14px; }
+  footer .pipeline-status{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  footer .pipeline-status .badge{ display:flex; align-items:center; gap:7px; }
+  footer .pipeline-status .badge .dot-marker{ width:7px; height:7px; border-radius:50%; background:var(--green); }
+  footer .pipeline-status .badge.down .dot-marker{ background:var(--red); }
+  footer .reset-btn{ background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.05em; padding:8px 16px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  footer .reset-btn:hover{ border-color:var(--ink); color:var(--ink); }
+  .stamp-updated{ font-family:'Fragment Mono', monospace; font-size:11px; color:var(--ink-faint); margin-top:14px; }
+  .empty-state{ font-family:'Fragment Mono', monospace; font-size:13px; color:var(--ink-faint); padding:14px 0; }
+  .flash-alert{ animation:flashAlert 1.1s ease-in-out 2; }
+  @keyframes flashAlert{ 0%,100%{ background:transparent; } 50%{ background:rgba(214,69,61,0.08); } }
+  .flash-ok{ animation:flashOk 1.1s ease-in-out 2; }
+  @keyframes flashOk{ 0%,100%{ background:transparent; } 50%{ background:rgba(33,134,90,0.08); } }
+  .config-strip{ display:flex; flex-wrap:wrap; gap:28px; align-items:center; font-family:'Fragment Mono', monospace; font-size:12.5px; color:var(--ink-faint); letter-spacing:0.03em; padding:14px 20px; border:1px solid var(--line); background:var(--paper); margin-bottom:28px; }
+  .config-strip .item span{ color:var(--ink-soft); }
+  .config-strip .settings-toggle{ margin-left:auto; background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.05em; padding:6px 12px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  .config-strip .settings-toggle:hover{ border-color:var(--ink); color:var(--ink); }
+  .settings-panel{ display:none; border:1px solid var(--line-strong); background:var(--paper); padding:22px 24px; margin-bottom:28px; }
+  .settings-panel.open{ display:block; }
+  .settings-panel .sp-title{ font-family:'Fragment Mono', monospace; font-size:12px; letter-spacing:0.08em; color:var(--ink-faint); margin-bottom:18px; }
+  .settings-row{ display:grid; grid-template-columns:240px 1fr 90px; align-items:center; gap:18px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .settings-row:last-of-type{ border-bottom:none; }
+  .settings-row label{ font-family:'Fragment Mono', monospace; font-size:14px; }
+  .settings-row input[type="range"]{ width:100%; -webkit-appearance:none; appearance:none; height:1px; background:var(--line-strong); outline:none; cursor:pointer; }
+  .settings-row input[type="range"]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%; background:var(--paper); border:2px solid var(--ink); cursor:pointer; }
+  .settings-row input[type="range"]::-moz-range-thumb{ width:12px; height:12px; border-radius:50%; background:var(--paper); border:2px solid var(--ink); cursor:pointer; }
+  .settings-row input[type="range"]::-moz-range-track{ height:1px; background:var(--line-strong); }
+  .settings-row .sp-value{ font-family:'Fragment Mono', monospace; font-size:12px; text-align:right; }
+  .settings-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:14px; }
+  .settings-save, .settings-cancel{ font-family:'Fragment Mono', monospace; font-size:10px; letter-spacing:0.05em; padding:7px 14px; cursor:pointer; transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
+  .settings-save{ background:var(--ink); color:var(--paper); border:1px solid var(--ink); }
+  .settings-save:hover{ opacity:0.85; }
+  .settings-cancel{ background:none; color:var(--ink-soft); border:1px solid var(--line-strong); }
+  .settings-cancel:hover{ border-color:var(--ink); color:var(--ink); }
+  .settings-note{ font-family:'Public Sans', sans-serif; font-size:10.5px; color:var(--ink-faint); margin-top:12px; }
+  .glossary{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:12px; height:12px; border:1px solid var(--ink-faint); border-radius:50%; font-size:8px; color:var(--ink-faint); cursor:help; margin-left:5px; font-family:'Fragment Mono', monospace; }
+  .glossary .tip{ position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:190px; background:var(--ink); color:var(--paper); font-family:'Public Sans', sans-serif; font-size:11px; line-height:1.4; padding:9px 11px; letter-spacing:0; opacity:0; pointer-events:none; transition:opacity 0.15s ease; z-index:5; }
+  .glossary:hover .tip, .glossary:focus .tip{ opacity:1; }
+  .guardian-strip{ display:flex; align-items:center; gap:12px; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); font-family:'Fragment Mono', monospace; font-size:13.5px; }
+  .guardian-strip .dot-marker{ width:8px; height:8px; border-radius:50%; background:var(--green); }
+  .guardian-strip .g-label{ color:var(--ink-faint); font-size:11.5px; letter-spacing:0.07em; }
+  .confirm-msg{ font-family:'Fragment Mono', monospace; font-size:13px; color:var(--green); margin-top:14px; display:flex; align-items:center; gap:8px; height:18px; opacity:0; transition:opacity 0.2s ease; }
+  .confirm-msg.show{ opacity:1; }
+  .confirm-msg::before{ content:'\2713'; }
+  .copy-btn, .print-report-btn{ background:none; border:1px solid var(--line-strong); color:var(--ink-soft); font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.05em; padding:6px 12px; cursor:pointer; transition:border-color 0.15s ease, color 0.15s ease; }
+  .copy-btn:hover, .print-report-btn:hover{ border-color:var(--ink); color:var(--ink); }
+  .history{ margin-top:18px; max-height:320px; overflow-y:auto; border:1px solid var(--line); }
+  .history-row{ display:grid; grid-template-columns:90px 1fr 220px 140px; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line); font-family:'Fragment Mono', monospace; font-size:13px; align-items:center; }
+  .history-row:last-child{ border-bottom:none; }
+  .history-row .h-id{ color:var(--ink-faint); }
+  .history-row .h-type.crash{ color:var(--red); }
+  .history-row .h-type.drift{ color:var(--amber); }
+  .history-row .h-time{ color:var(--ink-faint); font-size:12px; }
+  .history-row .h-status.resolved{ color:var(--green); }
+  .history-row .h-status.pending_approval{ color:var(--amber); }
+  .history-row .h-status.in_progress{ color:var(--blue); }
+  .approval-history{ margin-top:22px; padding-top:16px; border-top:1px dashed var(--line); }
+  .approval-history .ah-label{ font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.07em; color:var(--ink-faint); margin-bottom:10px; }
+  .ah-row{ display:flex; justify-content:space-between; font-family:'Fragment Mono', monospace; font-size:12.5px; color:var(--ink-soft); padding:6px 0; }
+  .ah-row .ah-who{ color:var(--ink-faint); }
+  .identity-select{ display:flex; align-items:center; gap:10px; font-family:'Fragment Mono', monospace; font-size:12px; color:var(--ink-faint); margin-bottom:18px; }
+  .identity-select select{ font-family:'Fragment Mono', monospace; font-size:13px; background:var(--paper); border:1px solid var(--line-strong); color:var(--ink); padding:7px 32px 7px 12px; cursor:pointer; -webkit-appearance:none; appearance:none; border-radius:0; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6A64' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:13px; }
+  .identity-select select:hover{ border-color:var(--ink); }
+  .identity-select select:focus{ outline:none; border-color:var(--blue); }
+  .conn-badge{ display:inline-flex; align-items:center; gap:7px; font-family:'Fragment Mono', monospace; font-size:11px; padding:5px 10px; border:1px solid var(--line-strong); color:var(--ink-soft); }
+  .conn-badge .cb-dot{ width:7px; height:7px; border-radius:50%; background:var(--ink-faint); }
+  .conn-badge.up .cb-dot{ background:var(--green); }
+  .conn-badge.down .cb-dot{ background:var(--red); }
+  @media (max-width:760px){
+    .bezel{ padding:24px 18px 32px; }
+    .panel{ grid-template-columns:1fr; }
+    .readouts{ flex-direction:row; flex-wrap:wrap; justify-content:space-between; border-right:none; border-bottom:1px solid var(--line); padding:0 0 16px; }
+    .exposure{ text-align:left; border-left:none; border-top:1px solid var(--line); padding:16px 0 0; }
+    .actions{ grid-template-columns:1fr; }
+    .action-btn{ border-right:none; }
+    .split{ grid-template-columns:1fr; }
+    .split .divider{ display:none; }
+    .block.auth{ margin-left:0; }
+    footer{ flex-direction:column; gap:6px; align-items:flex-start; }
+  }
+  :focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){ .dot.pulse::after{ animation:none; } }
+  @media print{
+    body{ background:#fff; padding:0; }
+    body *{ visibility:hidden; }
+    .report, .report *{ visibility:visible; }
+    .report{ position:absolute; top:0; left:0; width:100%; border:none; background:#fff; padding:0; }
+    .report .copy-btn, .report .print-report-btn{ display:none; }
+    .report dl{ font-size:13px; }
+  }
+
+  /* ---------- SESSION LEDGER (new component) ---------- */
+  .ledger{ display:grid; grid-template-columns:repeat(6, 1fr); border:1px solid var(--line); background:var(--paper); margin-bottom:28px; }
+  .ledger-tile{ padding:18px 22px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .ledger-tile:last-child{ border-right:none; }
+  .ledger-tile .l-label{ font-family:'Fragment Mono', monospace; font-size:10.5px; letter-spacing:0.08em; color:var(--ink-faint); text-transform:uppercase; }
+  .ledger-tile .l-value{ font-family:'Fragment Mono', monospace; font-size:24px; font-weight:500; color:var(--ink); line-height:1.1; }
+  .ledger-tile .l-sub{ font-family:'Fragment Mono', monospace; font-size:10.5px; color:var(--ink-soft); }
+  .ledger-tile.accent-red .l-value{ color:var(--red); }
+  .ledger-tile.accent-amber .l-value{ color:var(--amber); }
+  .ledger-tile.accent-green .l-value{ color:var(--green); }
+  @media (max-width:900px){ .ledger{ grid-template-columns:repeat(3, 1fr); } .ledger-tile:nth-child(3n){ border-right:none; } .ledger-tile{ border-bottom:1px solid var(--line); } }
+
+  /* ---------- DISTRIBUTION (new component) ---------- */
+  .distribution{ display:grid; grid-template-columns:1fr 220px; gap:36px; align-items:stretch; }
+  .dist-plot{ position:relative; height:220px; background:var(--paper); border:1px solid var(--line-strong); overflow:hidden; }
+  .dist-plot svg{ position:absolute; inset:0; width:100%; height:100%; }
+  .dist-plot .baseline-band{ fill:rgba(23,25,27,0.10); }
+  .dist-plot .live-band{ fill:rgba(214,69,61,0.28); }
+  .dist-plot .live-band.stable{ fill:rgba(33,134,90,0.28); }
+  .dist-plot .axis-tag{ position:absolute; font-family:'Fragment Mono', monospace; font-size:11px; color:var(--ink-faint); }
+  .dist-plot .axis-tag.left{ left:10px; top:10px; }
+  .dist-plot .axis-tag.right{ right:10px; top:10px; }
+  .dist-plot .axis-tag.bottom-left{ left:10px; bottom:8px; }
+  .dist-plot .axis-tag.bottom-right{ right:10px; bottom:8px; }
+  .dist-plot .axis-tag.bottom-center{ left:50%; transform:translateX(-50%); bottom:8px; }
+  .dist-summary{ display:flex; flex-direction:column; justify-content:center; gap:16px; border-left:1px solid var(--line); padding-left:28px; }
+  .dist-summary .row{ font-family:'Fragment Mono', monospace; font-size:13px; display:flex; justify-content:space-between; gap:16px; padding:6px 0; border-bottom:1px solid var(--line); }
+  .dist-summary .row:last-child{ border-bottom:none; }
+  .dist-summary .k{ color:var(--ink-faint); font-size:11px; letter-spacing:0.06em; }
+  .dist-summary .v{ color:var(--ink); font-weight:500; }
+  .dist-summary .verdict{ font-family:'Fragment Mono', monospace; font-size:15px; padding:12px 14px; border:1px solid var(--line-strong); text-align:center; letter-spacing:0.05em; }
+  .dist-summary .verdict.stable{ color:var(--green); border-color:var(--green); }
+  .dist-summary .verdict.minor{ color:var(--amber); border-color:var(--amber); }
+  .dist-summary .verdict.significant{ color:var(--red); border-color:var(--red); }
+  .dist-legend{ position:absolute; top:14px; right:16px; display:flex; gap:16px; font-family:'Fragment Mono', monospace; font-size:11px; color:var(--ink-soft); }
+  .dist-legend .sw{ display:inline-block; width:12px; height:8px; margin-right:6px; vertical-align:middle; }
+  .dist-legend .sw.base{ background:rgba(23,25,27,0.32); }
+  .dist-legend .sw.live{ background:var(--red); }
+  @media (max-width:760px){ .distribution{ grid-template-columns:1fr; } .dist-summary{ border-left:none; border-top:1px solid var(--line); padding:22px 0 0; } }
+
+  /* ---------- NARRATION FEED (new component) ---------- */
+  .narration{ border:1px solid var(--line-strong); background:#101216; color:#D5D5D0; font-family:'Fragment Mono', monospace; font-size:13px; padding:18px 22px; max-height:280px; overflow-y:auto; line-height:1.65; }
+  .narration .n-line{ display:grid; grid-template-columns:82px 92px 1fr; gap:14px; padding:3px 0; border-bottom:1px dashed rgba(255,255,255,0.05); }
+  .narration .n-line:last-child{ border-bottom:none; }
+  .narration .n-time{ color:#7C7C74; }
+  .narration .n-tag{ font-size:11px; letter-spacing:0.08em; }
+  .narration .n-tag.info{ color:#84A6E0; }
+  .narration .n-tag.warn{ color:#E5B064; }
+  .narration .n-tag.alert{ color:#E36B62; }
+  .narration .n-tag.ok{ color:#7CC79B; }
+  .narration .n-msg{ color:#D5D5D0; }
+  .narration::-webkit-scrollbar{ width:8px; }
+  .narration::-webkit-scrollbar-track{ background:transparent; }
+  .narration::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.10); border-radius:4px; }
+</style>
+</head>
+<body>
+
+<div class="bezel">
+  <div class="corner-tl"></div><div class="corner-tr"></div>
+  <div class="corner-bl"></div><div class="corner-br"></div>
+
+  <div class="cal-strip">
+    <div class="tick-row">
+      <div class="tick major"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+      <div class="tick major"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+      <div class="tick major"></div>
+    </div>
+    <span class="id mono">UNIT 0091 / REV C</span>
+  </div>
+
+  <header>
+    <div class="title-block">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#17191B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 L20 6 V12 C20 17 16.5 20.5 12 22 C7.5 20.5 4 17 4 12 V6 Z"/>
+          <path d="M9 12 L11 14 L15.5 9.5"/>
+        </svg>
+      </div>
+      <div>
+        <h1>GuardianOps</h1>
+        <p>Self-healing pipeline for real-time fraud detection</p>
+      </div>
+    </div>
+    <div class="status-block">
+      <div class="clock mono">
+        <span id="clock">--:--:--</span>
+        <span class="sep">/</span>
+        <span class="active"><span class="dot pulse" id="conn-dot"></span><span id="conn-label">ACTIVE</span></span>
+      </div>
+      <div class="legend-strip">
+        <span class="key"><span class="swatch-dot healthy" id="legend-dot-healthy"></span>HEALTHY</span>
+        <span class="key"><span class="swatch-dot pending"></span>PENDING</span>
+        <span class="key"><span class="swatch-dot alert"></span>ALERT</span>
+      </div>
+    </div>
+  </header>
+
+  <hr class="rule">
+
+  <div class="config-strip">
+    <span class="item">DRIFT THRESHOLD <span id="cfg-threshold-display">0.20</span></span>
+    <span class="item">BASELINE WINDOW <span id="cfg-window-display">60 SAMPLES</span></span>
+    <span class="item">POLL INTERVAL <span id="cfg-poll-display">2s</span></span>
+    <span class="item">DRIFT CHECK CADENCE <span id="cfg-cadence-display">5s</span></span>
+    <span class="conn-badge" id="conn-guardian"><span class="cb-dot"></span>GUARDIAN</span>
+    <span class="conn-badge" id="conn-fraud"><span class="cb-dot"></span>FRAUD-API</span>
+    <span class="conn-badge" id="conn-chaos"><span class="cb-dot"></span>CHAOS</span>
+    <button class="settings-toggle" id="btn-settings-toggle">CONFIGURE &#9881;</button>
+  </div>
+
+  <div class="settings-panel" id="settings-panel">
+    <div class="sp-title mono">GUARDIAN CONFIGURATION</div>
+    <div class="settings-row">
+      <label>Drift threshold (PSI)</label>
+      <input type="range" id="cfg-threshold" min="0.05" max="0.40" step="0.01" value="0.20">
+      <span class="sp-value" id="cfg-threshold-live">0.20</span>
+    </div>
+    <div class="settings-row">
+      <label>Baseline window (samples)</label>
+      <input type="range" id="cfg-window" min="20" max="200" step="10" value="60">
+      <span class="sp-value" id="cfg-window-live">60</span>
+    </div>
+    <div class="settings-row">
+      <label>Poll interval (seconds)</label>
+      <input type="range" id="cfg-poll" min="1" max="10" step="1" value="2">
+      <span class="sp-value" id="cfg-poll-live">2s</span>
+    </div>
+    <div class="settings-row">
+      <label>Drift check cadence (seconds)</label>
+      <input type="range" id="cfg-cadence" min="3" max="60" step="1" value="5">
+      <span class="sp-value" id="cfg-cadence-live">5s</span>
+    </div>
+    <div class="settings-actions">
+      <button class="settings-cancel" id="btn-settings-cancel">CANCEL</button>
+      <button class="settings-save" id="btn-settings-save">SAVE (DISPLAY ONLY)</button>
+    </div>
+    <div class="settings-note">Guardian's runtime constants live in <code>services/guardian/app/config.py</code>. This panel updates the header display only; changing behaviour means editing that file and restarting Guardian.</div>
+  </div>
+
+  <div class="section-label mono">SESSION LEDGER</div>
+  <div class="ledger" id="ledger">
+    <div class="ledger-tile">
+      <div class="l-label">Total Incidents</div>
+      <div class="l-value" id="ldg-total">—</div>
+      <div class="l-sub" id="ldg-total-sub">since Guardian started</div>
+    </div>
+    <div class="ledger-tile accent-red">
+      <div class="l-label">Crashes</div>
+      <div class="l-value" id="ldg-crashes">—</div>
+      <div class="l-sub">auto-restarted</div>
+    </div>
+    <div class="ledger-tile accent-amber">
+      <div class="l-label">Silent Failures</div>
+      <div class="l-value" id="ldg-silents">—</div>
+      <div class="l-sub">approval required</div>
+    </div>
+    <div class="ledger-tile accent-green">
+      <div class="l-label">Avg. MTTR</div>
+      <div class="l-value" id="ldg-mttr">—</div>
+      <div class="l-sub">across resolved</div>
+    </div>
+    <div class="ledger-tile">
+      <div class="l-label">Autonomous Rate</div>
+      <div class="l-value" id="ldg-auto">—</div>
+      <div class="l-sub">handled without a human</div>
+    </div>
+    <div class="ledger-tile">
+      <div class="l-label">Total Blast Radius</div>
+      <div class="l-value" id="ldg-blast">—</div>
+      <div class="l-sub">tx that could have gone wrong</div>
+    </div>
+  </div>
+
+  <div class="section-label mono">FRAUD SCORE — LIVE vs BASELINE</div>
+
+  <div class="panel">
+    <div class="readouts" id="readouts-zone">
+      <div class="readout healthy" id="readout-status">
+        <div class="label">FRAUD API</div>
+        <div class="value" id="readout-status-value">CONNECTING</div>
+      </div>
+      <div class="readout">
+        <div class="label">UPTIME</div>
+        <div class="value" id="readout-uptime">--</div>
+      </div>
+      <div class="readout">
+        <div class="label">LATENCY</div>
+        <div class="value" id="readout-latency">--</div>
+      </div>
+      <div class="readout">
+        <div class="label">CONFIDENCE</div>
+        <div class="value" id="readout-confidence">--</div>
+      </div>
+      <div class="stamp-updated" id="readout-updated">CONNECTING&hellip;</div>
+      <div class="guardian-strip">
+        <span class="dot-marker" id="guardian-dot"></span>
+        <span class="g-label">GUARDIAN</span>
+        <span id="guardian-status">CONNECTING</span>
+      </div>
+    </div>
+
+    <div class="scope" id="scope-panel">
+      <div class="grid-lines"></div>
+      <div class="mid-line"></div>
+      <div class="legend">
+        <span><span class="swatch"></span>LIVE</span>
+        <span><span class="swatch dashed"></span>BASELINE</span>
+      </div>
+      <span class="axis-tag" style="left:8px; top:8px;">1.0</span>
+      <span class="axis-tag" style="left:8px; top:calc(50% - 7px);">0.5</span>
+      <span class="axis-tag" style="left:8px; bottom:24px;">0.0</span>
+      <svg class="trace" id="scope-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <div class="marker-flag" id="drift-flag" style="left:74%; top:24%;">THRESHOLD EXCEEDED</div>
+      <div class="no-signal"><span>NO SIGNAL &mdash; FRAUD-API DOWN</span></div>
+      <span class="axis-tag" id="axis-start" style="left:8px; bottom:6px;">--:--</span>
+      <span class="axis-tag" id="axis-end" style="right:8px; bottom:6px;">--:--</span>
+    </div>
+
+    <div class="exposure calm" id="exposure">
+      <div class="label">ESTIMATED EXPOSURE</div>
+      <div class="value" id="exposure-value">$0<span class="cents">.00</span></div>
+      <div class="delta" id="exposure-delta">NO ACTIVE INCIDENT</div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="actions">
+    <button class="action-btn terminate" id="btn-terminate" data-endpoint="POST http://localhost:8003/crash">
+      <div class="icon-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
+        <span class="code">01</span>
+      </div>
+      <span class="name">TERMINATE PROCESS</span>
+      <span class="sub">Kill fraud-api. Compose restarts it.</span>
+    </button>
+    <button class="action-btn latency" id="btn-latency" data-endpoint="POST http://localhost:8003/slow">
+      <div class="icon-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5 V12 L15 14"/></svg>
+        <span class="code">02</span>
+      </div>
+      <span class="name">INDUCE LATENCY</span>
+      <span class="sub">Add 1.5 s to every /score call.</span>
+    </button>
+    <button class="action-btn corrupt" id="btn-corrupt" data-endpoint="POST http://localhost:8003/corrupt">
+      <div class="icon-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 Q7 6 10 12 T16 12 T20 12"/></svg>
+        <span class="code">03</span>
+      </div>
+      <span class="name">CORRUPT OUTPUT</span>
+      <span class="sub">Silent scoring failure. No crash.</span>
+    </button>
+  </div>
+
+  <button class="force-check" id="btn-force-check" data-endpoint="POST http://localhost:8002/check-now">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>
+    <span id="force-check-label">FORCE DRIFT CHECK NOW</span>
+  </button>
+
+  <hr class="rule">
+
+  <div class="section-label mono">SCORE DISTRIBUTION — BASELINE vs LIVE</div>
+  <div class="distribution">
+    <div class="dist-plot" id="dist-plot">
+      <svg id="dist-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <div class="dist-legend">
+        <span><span class="sw base"></span>BASELINE (frozen)</span>
+        <span><span class="sw live"></span>LIVE (last window)</span>
+      </div>
+      <span class="axis-tag left">density</span>
+      <span class="axis-tag bottom-left">score 0.0</span>
+      <span class="axis-tag bottom-center">0.5</span>
+      <span class="axis-tag bottom-right">1.0</span>
+    </div>
+    <div class="dist-summary">
+      <div class="row"><span class="k">BASELINE μ</span><span class="v" id="dist-base-mean">—</span></div>
+      <div class="row"><span class="k">BASELINE σ</span><span class="v" id="dist-base-std">—</span></div>
+      <div class="row"><span class="k">LIVE μ</span><span class="v" id="dist-live-mean">—</span></div>
+      <div class="row"><span class="k">SAMPLES</span><span class="v" id="dist-live-n">—</span></div>
+      <div class="verdict" id="dist-verdict">AWAITING DATA</div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="section-label mono">RECOVERY POLICY</div>
+
+  <div class="policy">
+    <div class="rule-item auto">
+      <span class="trigger">ON PROCESS FAILURE &mdash; POLICY P-001</span>
+      <span class="flow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+        AUTO-RESTART &mdash; NO APPROVAL REQUIRED
+      </span>
+    </div>
+    <div class="rule-item manual">
+      <span class="trigger">ON OUTPUT DRIFT &mdash; POLICY P-002</span>
+      <span class="flow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+        HOLD FOR MANUAL AUTHORIZATION
+      </span>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="split">
+    <div class="block auth">
+      <div class="label mono" id="approval-count-label">PENDING AUTHORIZATION (0)</div>
+      <div class="identity-select">
+        ACTING AS
+        <select id="identity-picker" aria-label="Acting as (display only, no authentication)">
+          <option value="A. SHARMA">A. SHARMA</option>
+          <option value="R. IYER">R. IYER</option>
+          <option value="K. PATEL">K. PATEL</option>
+        </select>
+        <span title="Display-only. Backend does not check identity — a real deploy would.">(no auth)</span>
+      </div>
+      <div id="approvals-list">
+        <div class="empty-state">No pending approvals &mdash; all clear.</div>
+      </div>
+      <button class="authorize-btn" id="btn-authorize" style="display:none;">
+        AUTHORIZE ROLLBACK
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+      </button>
+      <div class="confirm-msg" id="confirm-msg"></div>
+      <div class="approval-history">
+        <div class="ah-label mono">APPROVAL HISTORY</div>
+        <div id="approval-history-rows"><div class="empty-state">No approvals recorded yet.</div></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="block incident">
+      <div class="label mono" id="latest-incident-label">LATEST INCIDENT &mdash; NONE</div>
+      <div class="incident-row"><span class="k">TYPE</span><span class="v" id="li-type">&mdash;</span></div>
+      <div class="incident-row"><span class="k">WINDOW</span><span class="v" id="li-window">&mdash;</span></div>
+      <div class="incident-row"><span class="k">STATUS</span><span class="v" id="li-status">&mdash;</span></div>
+      <div class="incident-row"><span class="k">BLAST RADIUS</span><span class="v" id="li-blast">0</span></div>
+      <div class="incident-row"><span class="k">REASONING</span></div>
+      <div style="font-family:'Public Sans', sans-serif; font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.55;" id="li-reasoning">Awaiting first incident.</div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="section-label mono">INCIDENT TIMELINE</div>
+  <div class="timeline" id="timeline-strip">
+    <div class="track"></div>
+  </div>
+
+  <div class="section-label mono">GUARDIAN NARRATION — LIVE DECISION FEED</div>
+  <div class="narration" id="narration">
+    <div class="n-line"><span class="n-time">--:--:--</span><span class="n-tag info">STARTUP</span><span class="n-msg">Waiting for Guardian to connect…</span></div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="report" id="report-panel" style="display:none;">
+    <div class="report-head">
+      <p class="label mono">AUTO-GENERATED INCIDENT REPORT</p>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="report-id mono" id="report-id">--</span>
+        <button class="copy-btn" id="btn-copy-report">COPY AS MARKDOWN</button>
+        <button class="print-report-btn" id="btn-print-report">PRINT</button>
+      </div>
+    </div>
+    <dl id="report-fields"></dl>
+  </div>
+
+  <hr class="rule">
+
+  <div class="section-label mono">INCIDENT HISTORY</div>
+  <div class="history" id="incident-history">
+    <div class="empty-state" style="padding:16px 20px;">No incidents recorded yet.</div>
+  </div>
+
+  <footer>
+    <div class="pipeline-status">
+      <span>GUARDIANOPS / SIGNAL LAB</span>
+      <span class="badge" id="badge-guardian"><span class="dot-marker"></span>GUARDIAN CONNECTED</span>
+      <span class="badge" id="badge-mlflow"><span class="dot-marker"></span><a href="http://localhost:5000" target="_blank" style="color:inherit; text-decoration:none;">MLFLOW</a></span>
+      <span class="badge"><span class="dot-marker"></span><a href="http://localhost:3000" target="_blank" style="color:inherit; text-decoration:none;">GRAFANA</a></span>
+      <span class="badge"><span class="dot-marker"></span><a href="http://localhost:8002/docs" target="_blank" style="color:inherit; text-decoration:none;">API DOCS</a></span>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span id="ep-hint">CLICK ANY ELEMENT TO SEE ITS ENDPOINT IN CONSOLE</span>
+      <button class="reset-btn" id="btn-reset">RESET CHAOS STATE</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ==============================================================
+   GuardianOps dashboard — wiring layer
+   ==============================================================
+   Talks to three services:
+     Guardian       http://localhost:8002   (brain — status, incidents, approvals, reports)
+     Fraud API      http://localhost:8001   (subject — /health for mode)
+     Chaos Injector http://localhost:8003   (attack surface — crash / slow / corrupt / reset)
+
+   Every visible UI element is bound to one of these calls. The `data-endpoint`
+   attributes on the buttons are informational only; the actual wiring lives
+   in the event handlers below.
+   ============================================================== */
+
+const GUARDIAN = 'http://localhost:8002';
+const FRAUD    = 'http://localhost:8001';
+const CHAOS    = 'http://localhost:8003';
+const POLL_MS  = 1500;
+
+const $ = (id) => document.getElementById(id);
+
+// ---------- tiny fetch helpers ----------
+async function jget(url) {
+  const r = await fetch(url, { cache: 'no-store' });
+  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  return r.json();
+}
+async function jpost(url) {
+  const r = await fetch(url, { method: 'POST' });
+  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  return r.json();
+}
+
+// ---------- clock + updated-N-ago stamp ----------
+function fmtClock(d) { return d.toLocaleTimeString('en-GB', { hour12: false }); }
+function tickClock() { $('clock').textContent = fmtClock(new Date()); }
+tickClock(); setInterval(tickClock, 1000);
+
+let lastUpdate = 0;
+setInterval(() => {
+  if (!lastUpdate) return;
+  const secs = Math.floor((Date.now() - lastUpdate) / 1000);
+  $('readout-updated').textContent = 'UPDATED ' + (secs < 1 ? '<1s' : secs + 's') + ' AGO';
+}, 500);
+function markUpdated() { lastUpdate = Date.now(); }
+
+// ---------- connection badges ----------
+function setBadge(id, up) {
+  const b = $(id);
+  b.classList.remove('up', 'down');
+  b.classList.add(up ? 'up' : 'down');
+}
+
+// ---------- helpers ----------
+function fmtId(n)    { return '#' + String(n).padStart(4, '0'); }
+function fmtTime(iso){
+  if (!iso) return '--:--:--';
+  const d = new Date(iso);
+  return isNaN(d) ? iso : fmtClock(d);
+}
+function fmtMttr(s) {
+  if (s == null) return '--';
+  if (s < 60)    return s.toFixed(1) + 's';
+  const m = Math.floor(s / 60), r = Math.round(s % 60);
+  return m + 'm ' + r + 's';
+}
+function capitalize(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+
+// ==============================================================
+// POLL 1 — Guardian /status  (fraud-api up/down, confidence, active incident)
+// ==============================================================
+async function pollStatus() {
+  try {
+    const s = await jget(GUARDIAN + '/status');
+    setBadge('conn-guardian', true);
+
+    // Fraud API status card
+    const zone = $('readout-status');
+    const val  = $('readout-status-value');
+    const legend = $('legend-dot-healthy');
+    zone.classList.remove('healthy', 'alert', 'warn');
+
+    if (!s.fraud_api_up) {
+      zone.classList.add('alert');
+      val.textContent = 'DOWN';
+      legend.style.background = 'var(--red)';
+      $('scope-panel').classList.add('down');
+    } else {
+      $('scope-panel').classList.remove('down');
+      if (s.active_incident_type === 'silent_failure') {
+        zone.classList.add('warn');
+        val.textContent = 'DRIFT';
+        legend.style.background = 'var(--amber)';
+      } else {
+        zone.classList.add('healthy');
+        val.textContent = 'HEALTHY';
+        legend.style.background = 'var(--green)';
+      }
+    }
+
+    // Confidence readout (0-100)
+    const conf = Math.round(s.confidence || 0);
+    const confEl = $('readout-confidence');
+    confEl.textContent = conf + '/100';
+    confEl.style.color = conf < 40 ? 'var(--red)' : conf < 70 ? 'var(--amber)' : 'var(--green)';
+
+    // Guardian strip
+    if (s.active_incident_type) {
+      $('guardian-dot').style.background = 'var(--amber)';
+      $('guardian-status').textContent = 'RESPONDING &mdash; ' + s.active_incident_type.toUpperCase().replace('_', ' ');
+    } else {
+      $('guardian-dot').style.background = 'var(--green)';
+      $('guardian-status').textContent = 'WATCHING';
+    }
+
+    // Config strip — refresh from live Guardian values
+    if (s.config) {
+      $('cfg-threshold-display').textContent = s.config.psi_alert.toFixed(2);
+      $('cfg-window-display').textContent    = s.config.window_size + ' SAMPLES';
+      $('cfg-poll-display').textContent      = s.config.poll_interval_s + 's';
+      $('cfg-cadence-display').textContent   = s.config.drift_check_interval_s + 's';
+    }
+
+    // Drift flag on scope
+    if (s.last_drift && s.last_drift.verdict === 'significant') {
+      $('scope-panel').classList.add('drift');
+    } else {
+      $('scope-panel').classList.remove('drift');
+    }
+
+    // Header connection dot
+    $('conn-dot').style.background = 'var(--green)';
+    $('conn-label').textContent = 'ACTIVE';
+
+    markUpdated();
+  } catch (_) {
+    setBadge('conn-guardian', false);
+    $('readout-status').classList.remove('healthy', 'warn');
+    $('readout-status').classList.add('alert');
+    $('readout-status-value').textContent = 'GUARDIAN OFFLINE';
+    $('conn-dot').style.background = 'var(--red)';
+    $('conn-label').textContent = 'OFFLINE';
+    $('guardian-status').textContent = 'UNREACHABLE';
+    $('guardian-dot').style.background = 'var(--red)';
+  }
+}
+
+// ==============================================================
+// POLL 2 — Guardian /live-metrics  (uptime, latency, throughput)
+// ==============================================================
+async function pollLiveMetrics() {
+  try {
+    const m = await jget(GUARDIAN + '/live-metrics');
+    $('readout-uptime').textContent  = m.uptime_pct.toFixed(1) + '%';
+    $('readout-latency').textContent = m.latency_ms_p50 != null ? Math.round(m.latency_ms_p50) + 'ms' : '--';
+  } catch (_) {}
+}
+
+// ==============================================================
+// POLL 3 — Guardian /score-history  (SVG scope trace)
+// ==============================================================
+async function pollScope() {
+  try {
+    const h = await jget(GUARDIAN + '/score-history?limit=80');
+    setBadge('conn-fraud', true);
+    renderScope(h);
+  } catch (_) {
+    setBadge('conn-fraud', false);
+  }
+}
+function renderScope(h) {
+  const svg = $('scope-svg');
+  if (!h.live || h.live.length === 0) { svg.innerHTML = ''; return; }
+  const w = 100, mid = 50, scale = 90;
+  const yFor = (v) => Math.max(4, Math.min(96, mid + (0.5 - v) * scale));
+  const baseY = yFor(h.baseline_mean);
+
+  const pts = h.live.map((s, i) => {
+    const x = (i / Math.max(h.live.length - 1, 1)) * (w - 4) + 2;
+    return x.toFixed(1) + ',' + yFor(s.score).toFixed(1);
+  }).join(' ');
+
+  const alertColor = '#D6453D', okColor = '#17191B';
+  const stroke = h.current_verdict === 'significant' ? alertColor : okColor;
+
+  svg.innerHTML =
+    '<line x1="0" x2="100" y1="' + baseY.toFixed(1) + '" y2="' + baseY.toFixed(1) +
+    '" stroke="#9B988E" stroke-width="0.6" stroke-dasharray="1.6 1.6"/>' +
+    '<polyline points="' + pts + '" fill="none" stroke="' + stroke + '" stroke-width="1.4"/>';
+
+  if (h.live.length) {
+    $('axis-start').textContent = fmtClock(new Date(h.live[0].t * 1000));
+    $('axis-end').textContent   = fmtClock(new Date(h.live[h.live.length - 1].t * 1000));
+  }
+}
+
+// ==============================================================
+// POLL 4 — Guardian /pending-approvals  (approval queue)
+// ==============================================================
+let activeApproval = null;
+
+async function pollApprovals() {
+  try {
+    const { pending } = await jget(GUARDIAN + '/pending-approvals');
+    renderApprovals(pending);
+  } catch (_) {}
+}
+function renderApprovals(pending) {
+  const list = $('approvals-list');
+  const label = $('approval-count-label');
+  const btn = $('btn-authorize');
+  label.textContent = 'PENDING AUTHORIZATION (' + pending.length + ')';
+
+  if (!pending.length) {
+    list.innerHTML = '<div class="empty-state">No pending approvals &mdash; all clear.</div>';
+    btn.style.display = 'none';
+    activeApproval = null;
+    return;
+  }
+
+  activeApproval = pending[0].id;
+  btn.style.display = 'inline-flex';
+  btn.innerHTML = 'AUTHORIZE ROLLBACK &mdash; ' + fmtId(activeApproval) +
+    ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>';
+
+  list.innerHTML = pending.map(p => {
+    const psi = (p.evidence && p.evidence.drift && p.evidence.drift.psi) || 0;
+    const threshold = 0.20;
+    return '<div class="approval-item" id="approval-' + p.id + '">' +
+      '<div class="detail">' + fmtId(p.id) + ' &mdash; PSI <span class="num">' + psi.toFixed(3) +
+        '</span> exceeds threshold <span class="num">' + threshold.toFixed(2) + '</span></div>' +
+      '<div class="meta mono">DETECTED ' + fmtTime(p.detected_at) + ' &middot; PSI + KS DRIFT CHECK' +
+        '<span class="glossary" tabindex="0">?<span class="tip">Population Stability Index on the fraud-score distribution vs. the baseline captured at startup. Above 0.20 means the two distributions no longer match.</span></span>' +
+      '</div>' +
+      (p.reasoning ? '<div class="reason">' + p.reasoning + '</div>' : '') +
+      '</div>';
+  }).join('');
+}
+
+// ---------- Authorize click ----------
+$('btn-authorize').addEventListener('click', async () => {
+  if (activeApproval == null) return;
+  const btn = $('btn-authorize');
+  const id  = activeApproval;
+  btn.disabled = true;
+  const original = btn.innerHTML;
+  btn.textContent = 'ROLLING BACK...';
+  try {
+    await jpost(GUARDIAN + '/approve/' + id);
+    const msg = $('confirm-msg');
+    msg.textContent = 'Rollback authorized for ' + fmtId(id) + ' (as ' + $('identity-picker').value + ')';
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 4000);
+
+    // Optimistically prepend to approval history
+    const rows = $('approval-history-rows');
+    if (rows.querySelector('.empty-state')) rows.innerHTML = '';
+    const row = document.createElement('div');
+    row.className = 'ah-row';
+    row.innerHTML = '<span>' + fmtId(id) + ' &mdash; rollback approved</span>' +
+      '<span class="ah-who mono">' + fmtClock(new Date()) + ' &middot; ' + $('identity-picker').value + '</span>';
+    rows.insertBefore(row, rows.firstChild);
+
+    // Force an immediate refresh so UI catches up
+    await Promise.all([pollApprovals(), pollIncidents(), pollReport()]);
+  } catch (e) {
+    alert('Approve failed: ' + e.message);
+    btn.innerHTML = original;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ==============================================================
+// POLL 5 — Guardian /incidents  (history table, timeline, latest, exposure)
+// ==============================================================
+async function pollIncidents() {
+  try {
+    const { incidents } = await jget(GUARDIAN + '/incidents?limit=30');
+    renderHistory(incidents);
+    renderTimeline(incidents);
+    renderLatest(incidents);
+    updateExposure(incidents);
+    updateFooterStatus(incidents);
+  } catch (_) {}
+}
+
+function renderHistory(list) {
+  const c = $('incident-history');
+  if (!list.length) {
+    c.innerHTML = '<div class="empty-state" style="padding:16px 20px;">No incidents recorded yet.</div>';
+    return;
+  }
+  c.innerHTML = list.map(i => {
+    const isCrash = i.type === 'crash';
+    const cls = isCrash ? 'crash' : 'drift';
+    const typeText = isCrash ? 'PROCESS TERMINATION' : 'OUTPUT DRIFT';
+    const detected = fmtTime(i.detected_at);
+    const resolved = i.resolved_at ? fmtTime(i.resolved_at) : '&middot;&middot;&middot;';
+    const statusText = i.status === 'resolved'
+      ? (isCrash ? 'AUTO-RESOLVED' : 'APPROVED')
+      : i.status.toUpperCase().replace(/_/g, ' ');
+    return '<div class="history-row">' +
+      '<span class="h-id">' + fmtId(i.id) + '</span>' +
+      '<span class="h-type ' + cls + '">' + typeText + '</span>' +
+      '<span class="h-time">' + detected + ' &rarr; ' + resolved + '</span>' +
+      '<span class="h-status ' + i.status + '">' + statusText + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function renderTimeline(list) {
+  const strip = $('timeline-strip');
+  strip.querySelectorAll('.tl-point, .track-fill').forEach(n => n.remove());
+  if (!list.length) return;
+
+  const recent = list.slice(0, 6).reverse();
+  const n = recent.length;
+  const step = n === 1 ? 0 : 88 / (n - 1);
+
+  recent.forEach((i, idx) => {
+    const pos = n === 1 ? 50 : 6 + idx * step;
+    let kind, label, color;
+    if (i.type === 'crash') { kind = 'filled'; label = 'CRASH'; color = 'var(--red)'; }
+    else if (i.status === 'pending_approval') { kind = 'warn'; label = 'DRIFT'; color = 'var(--amber)'; }
+    else if (i.status === 'resolved' && i.action === 'rollback_approved') { kind = 'ok'; label = 'APPROVED'; color = 'var(--green)'; }
+    else if (i.status === 'resolved') { kind = 'ok'; label = 'RECOVERY'; color = 'var(--green)'; }
+    else { kind = ''; label = 'EVENT'; color = 'var(--blue)'; }
+
+    const pt = document.createElement('div');
+    pt.className = 'tl-point ' + kind;
+    pt.style.left = pos + '%';
+    pt.innerHTML =
+      '<span class="tag" style="color:' + color + ';">' + label + '</span>' +
+      '<span class="dot-marker"></span>' +
+      '<span class="time">' + fmtTime(i.detected_at) + '</span>';
+    strip.appendChild(pt);
+  });
+}
+
+function renderLatest(list) {
+  if (!list.length) return;
+  const i = list[0];
+  const isCrash = i.type === 'crash';
+  $('latest-incident-label').textContent = 'LATEST INCIDENT — ' + fmtId(i.id);
+
+  const t = $('li-type');
+  t.className = 'v ' + (isCrash ? 'crash' : 'drift');
+  t.textContent = isCrash ? 'PROCESS TERMINATION' : 'OUTPUT DRIFT (SILENT)';
+
+  const detected = fmtTime(i.detected_at);
+  const resolved = i.resolved_at ? fmtTime(i.resolved_at) : 'ongoing';
+  const mttr = i.mttr_seconds ? ' (' + fmtMttr(i.mttr_seconds) + ')' : '';
+  $('li-window').textContent = detected + ' → ' + resolved + mttr;
+
+  const st = $('li-status');
+  st.className = 'v ' + (i.status === 'resolved' ? 'resolved' : '');
+  st.textContent = i.status.toUpperCase().replace(/_/g, ' ');
+
+  $('li-blast').textContent = (i.blast_radius || 0) + ' tx';
+  $('li-reasoning').textContent = i.reasoning || '(no reasoning captured)';
+}
+
+function updateExposure(list) {
+  const active = list.find(i => i.status !== 'resolved' && i.type === 'silent_failure');
+  const exposure = $('exposure');
+  const val = $('exposure-value');
+  const delta = $('exposure-delta');
+  if (!active) {
+    exposure.classList.add('calm');
+    val.innerHTML = '$0<span class="cents">.00</span>';
+    delta.textContent = 'NO ACTIVE INCIDENT';
+    return;
+  }
+  exposure.classList.remove('calm');
+  const blast = active.blast_radius || 0;
+  // Rough per-transaction estimate. The demo point isn't the exact dollar
+  // amount — it's translating "500 wrong decisions" into money.
+  const amt = blast * 84.72;
+  const dollars = Math.floor(amt);
+  const cents = ((amt - dollars) * 100).toFixed(0).padStart(2, '0');
+  val.innerHTML = '$' + dollars.toLocaleString() + '<span class="cents">.' + cents + '</span>';
+  delta.textContent = '↑ ' + blast + ' TX UNGUARDED';
+}
+
+function updateFooterStatus(list) {
+  $('badge-mlflow').firstElementChild.style.background = 'var(--green)';
+}
+
+// ==============================================================
+// POLL 6 — Guardian /report/latest  (auto-generated markdown)
+// ==============================================================
+async function pollReport() {
+  try {
+    const r = await jget(GUARDIAN + '/report/latest');
+    const { incidents } = await jget(GUARDIAN + '/incidents?limit=1');
+    const latest = incidents[0] || {};
+    renderReport(r, latest);
+  } catch (_) {
+    $('report-panel').style.display = 'none';
+  }
+}
+function renderReport(reportResp, latest) {
+  $('report-panel').style.display = 'block';
+  const isCrash = latest.type === 'crash';
+  $('report-id').textContent = fmtId(reportResp.incident_id) + ' · ' +
+    (latest.status || 'resolved').toUpperCase();
+
+  const detected = fmtTime(latest.detected_at);
+  const resolved = latest.resolved_at ? fmtTime(latest.resolved_at) : '--';
+  const cls = isCrash ? 'type-crash' : 'type-drift';
+  const what = isCrash ? 'Process termination (health-check failure)' : 'Silent failure — output distribution drift';
+  const detBy = isCrash ? 'Consecutive HTTP health-check misses' : 'PSI + Kolmogorov-Smirnov drift check on rolling window';
+  const action = (latest.action || '--').replace(/_/g, ' ');
+
+  $('report-fields').innerHTML =
+    '<dt>WHAT</dt><dd class="' + cls + '">' + what + '</dd>' +
+    '<dt>WHEN</dt><dd>' + detected + ' → ' + resolved + '</dd>' +
+    '<dt>DETECTED BY</dt><dd>' + detBy + '</dd>' +
+    '<dt>ACTION</dt><dd>' + action + '</dd>' +
+    '<dt>BLAST RADIUS</dt><dd>' + (latest.blast_radius || 0) + ' transactions</dd>' +
+    '<dt>TIME TO RECOVERY</dt><dd>' + fmtMttr(latest.mttr_seconds) + '</dd>' +
+    '<dt>POLICY</dt><dd>' + (isCrash ? 'P-001 (auto-restart)' : 'P-002 (manual approval)') + '</dd>';
+
+  $('btn-copy-report').dataset.markdown = reportResp.markdown || '';
+}
+
+// ---------- copy + print ----------
+$('btn-copy-report').addEventListener('click', () => {
+  const md = $('btn-copy-report').dataset.markdown || '';
+  if (md && navigator.clipboard) navigator.clipboard.writeText(md).catch(() => {});
+  const b = $('btn-copy-report'); const o = b.textContent;
+  b.textContent = 'COPIED';
+  setTimeout(() => b.textContent = o, 1400);
+});
+$('btn-print-report').addEventListener('click', () => window.print());
+
+// ==============================================================
+// POLL 7 — Guardian /session-stats  (Session Ledger tiles)
+// ==============================================================
+async function pollSessionStats() {
+  try {
+    const s = await jget(GUARDIAN + '/session-stats');
+    $('ldg-total').textContent   = s.total_incidents;
+    $('ldg-crashes').textContent = s.crashes;
+    $('ldg-silents').textContent = s.silent_failures;
+    $('ldg-mttr').textContent    = s.avg_mttr_seconds != null ? fmtMttr(s.avg_mttr_seconds) : '—';
+    $('ldg-auto').textContent    = s.autonomous_rate != null ? s.autonomous_rate.toFixed(0) + '%' : '—';
+    $('ldg-blast').textContent   = s.total_blast_radius.toLocaleString();
+    $('ldg-total-sub').textContent = s.pending_approvals + ' pending, ' + s.resolved + ' resolved';
+  } catch (_) {}
+}
+
+// ==============================================================
+// POLL 8 — Guardian /baseline  (fetched ONCE, cached)
+// Computes and renders the score distribution histogram client-side.
+// ==============================================================
+let BASELINE_SAMPLES = null;
+
+async function fetchBaselineOnce() {
+  if (BASELINE_SAMPLES) return;
+  try {
+    const b = await jget(GUARDIAN + '/baseline');
+    if (b.samples && b.samples.length) {
+      BASELINE_SAMPLES = b.samples;
+      $('dist-base-mean').textContent = b.mean.toFixed(3);
+      $('dist-base-std').textContent  = b.std.toFixed(3);
+    }
+  } catch (_) {}
+}
+
+function binScores(samples, bins, lo, hi) {
+  const counts = new Array(bins).fill(0);
+  const w = (hi - lo) / bins;
+  for (const v of samples) {
+    if (v < lo || v > hi) continue;
+    const idx = Math.min(bins - 1, Math.max(0, Math.floor((v - lo) / w)));
+    counts[idx]++;
+  }
+  const total = samples.length || 1;
+  return counts.map(c => c / total);
+}
+
+function renderDistribution(baselineSamples, liveSamples, verdict) {
+  const svg = $('dist-svg');
+  const bins = 20;
+  const bBase = binScores(baselineSamples, bins, 0, 1);
+  const bLive = binScores(liveSamples, bins, 0, 1);
+  const maxD = Math.max(...bBase, ...bLive, 0.001);
+  const w = 100, h = 100;
+  const barW = w / bins;
+
+  const areaFor = (bin, cls) => {
+    let d = 'M0,' + h;
+    for (let i = 0; i < bins; i++) {
+      const y = h - (bin[i] / maxD) * (h - 8);
+      d += ' L' + (i * barW).toFixed(2) + ',' + y.toFixed(2);
+      d += ' L' + ((i + 1) * barW).toFixed(2) + ',' + y.toFixed(2);
+    }
+    d += ' L' + w + ',' + h + ' Z';
+    return '<path d="' + d + '" class="' + cls + '"/>';
+  };
+
+  const liveCls = verdict === 'significant' ? 'live-band' : 'live-band stable';
+  svg.innerHTML =
+    (baselineSamples.length ? areaFor(bBase, 'baseline-band') : '') +
+    (liveSamples.length ? areaFor(bLive, liveCls) : '');
+}
+
+async function pollDistribution() {
+  await fetchBaselineOnce();
+  if (!BASELINE_SAMPLES) return;
+  try {
+    const h = await jget(GUARDIAN + '/score-history?limit=80');
+    const live = (h.live || []).filter(s => s.ok !== false).map(s => s.score);
+    if (live.length) {
+      const mean = live.reduce((a, b) => a + b, 0) / live.length;
+      $('dist-live-mean').textContent = mean.toFixed(3);
+    } else {
+      $('dist-live-mean').textContent = '—';
+    }
+    $('dist-live-n').textContent = live.length;
+
+    const v = $('dist-verdict');
+    v.classList.remove('stable', 'minor', 'significant');
+    v.classList.add(h.current_verdict || 'stable');
+    v.textContent =
+      h.current_verdict === 'significant' ? 'DRIFT · SIGNIFICANT'
+      : h.current_verdict === 'minor'     ? 'DRIFT · MINOR'
+                                           : 'DISTRIBUTION STABLE';
+
+    renderDistribution(BASELINE_SAMPLES, live, h.current_verdict);
+  } catch (_) {}
+}
+
+// ==============================================================
+// GUARDIAN NARRATION — client-side state diff → live feed
+// ==============================================================
+const NARR_MAX = 40;
+const narrPrev = { fraud_up: null, active_incident: null, verdict: null, pending_count: null, resolved_count: null };
+function narrate(tag, msg) {
+  const feed = $('narration');
+  if (feed.firstElementChild && feed.firstElementChild.querySelector('.n-msg')?.textContent === 'Waiting for Guardian to connect…') {
+    feed.innerHTML = '';
+  }
+  const row = document.createElement('div');
+  row.className = 'n-line';
+  row.innerHTML = '<span class="n-time">' + fmtClock(new Date()) + '</span>' +
+                  '<span class="n-tag ' + tag + '">' + tag.toUpperCase() + '</span>' +
+                  '<span class="n-msg">' + msg + '</span>';
+  feed.insertBefore(row, feed.firstChild);
+  while (feed.children.length > NARR_MAX) feed.removeChild(feed.lastChild);
+}
+
+async function pollNarrate() {
+  try {
+    const s = await jget(GUARDIAN + '/status');
+    const { incidents } = await jget(GUARDIAN + '/incidents?limit=10');
+    const pending = incidents.filter(i => i.status === 'pending_approval').length;
+    const resolved = incidents.filter(i => i.status === 'resolved').length;
+    const verdict = s.last_drift ? s.last_drift.verdict : null;
+
+    if (narrPrev.fraud_up !== null && narrPrev.fraud_up !== s.fraud_api_up) {
+      if (s.fraud_api_up) narrate('ok', 'fraud-api health check succeeded — service back online');
+      else narrate('alert', 'fraud-api health check FAILED — classifying as crash');
+    }
+    if (narrPrev.active_incident !== s.active_incident_id && s.active_incident_id) {
+      narrate('warn', 'incident #' + String(s.active_incident_id).padStart(4, '0') +
+                       ' opened (' + s.active_incident_type + ')');
+    }
+    if (narrPrev.verdict !== verdict && verdict) {
+      if (verdict === 'significant') narrate('alert', 'PSI drift significant — approval will be required');
+      else if (verdict === 'minor')  narrate('warn', 'PSI drift minor — watching');
+      else if (narrPrev.verdict === 'significant' || narrPrev.verdict === 'minor')
+        narrate('ok', 'PSI drift returned to stable');
+    }
+    if (narrPrev.pending_count !== null && pending > narrPrev.pending_count) {
+      narrate('warn', 'new approval added to queue (' + pending + ' pending)');
+    }
+    if (narrPrev.resolved_count !== null && resolved > narrPrev.resolved_count) {
+      const last = incidents.find(i => i.status === 'resolved');
+      if (last) narrate('ok', 'incident #' + String(last.id).padStart(4, '0') + ' resolved via ' + (last.action || 'action'));
+    }
+
+    if (narrPrev.fraud_up === null && s.fraud_api_up) narrate('ok', 'Guardian connected — polling fraud-api every ' + (s.config?.poll_interval_s || 2) + 's');
+    if (narrPrev.fraud_up === null && !s.fraud_api_up) narrate('alert', 'Guardian connected but fraud-api unreachable');
+
+    Object.assign(narrPrev, { fraud_up: s.fraud_api_up, active_incident: s.active_incident_id, verdict, pending_count: pending, resolved_count: resolved });
+  } catch (_) {}
+}
+
+// ==============================================================
+// POLL 9 — Fraud-API /health  (mode display) + Chaos-Injector /health
+// ==============================================================
+async function pollAncillary() {
+  try { await jget(FRAUD + '/health'); setBadge('conn-fraud', true); }
+  catch (_) { setBadge('conn-fraud', false); }
+  try { await jget(CHAOS + '/health'); setBadge('conn-chaos', true); }
+  catch (_) { setBadge('conn-chaos', false); }
+}
+
+// ==============================================================
+// CHAOS BUTTONS  →  POST http://localhost:8003/{crash|slow|corrupt|reset}
+// ==============================================================
+async function chaos(kind, params) {
+  const btns = document.querySelectorAll('.action-btn, #btn-reset');
+  btns.forEach(b => b.disabled = true);
+  try {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    const r = await jpost(CHAOS + '/' + kind + qs);
+    console.info('[chaos]', kind, r);
+  } catch (e) {
+    alert('Chaos ' + kind + ' failed: ' + e.message);
+  } finally {
+    setTimeout(() => btns.forEach(b => b.disabled = false), 800);
+    await Promise.all([pollStatus(), pollIncidents()]);
+  }
+}
+$('btn-terminate').addEventListener('click', () => chaos('crash'));
+$('btn-latency').addEventListener('click',   () => chaos('slow', { ms: 1500 }));
+$('btn-corrupt').addEventListener('click',   () => chaos('corrupt'));
+$('btn-reset').addEventListener('click',     () => chaos('reset'));
+
+// ==============================================================
+// FORCE CHECK  →  POST http://localhost:8002/check-now
+// ==============================================================
+$('btn-force-check').addEventListener('click', async () => {
+  const btn = $('btn-force-check');
+  const lbl = $('force-check-label');
+  const orig = lbl.textContent;
+  btn.disabled = true;
+  try {
+    const r = await jpost(GUARDIAN + '/check-now');
+    if (r.verdict === 'insufficient_data') {
+      lbl.textContent = 'INSUFFICIENT DATA (' + r.n_current + ' SAMPLES SO FAR)';
+    } else {
+      const psi = (r.psi != null ? r.psi.toFixed(3) : '?');
+      const verdictTxt =
+        r.verdict === 'significant' ? 'DRIFT DETECTED' :
+        r.verdict === 'minor'       ? 'MINOR DRIFT' :
+                                      'STABLE';
+      lbl.textContent = 'CHECK COMPLETE — ' + verdictTxt + ' (PSI ' + psi + ')';
+    }
+  } catch (e) {
+    lbl.textContent = 'CHECK FAILED — ' + e.message;
+  } finally {
+    setTimeout(() => { lbl.textContent = orig; btn.disabled = false; }, 3000);
+    await Promise.all([pollStatus(), pollScope()]);
+  }
+});
+
+// ==============================================================
+// SETTINGS PANEL  (display-only — see the note in the panel body)
+// ==============================================================
+const settingsPanel = $('settings-panel');
+$('btn-settings-toggle').addEventListener('click', () => settingsPanel.classList.toggle('open'));
+$('btn-settings-cancel').addEventListener('click', () => settingsPanel.classList.remove('open'));
+$('btn-settings-save').addEventListener('click', () => {
+  $('cfg-threshold-display').textContent = parseFloat($('cfg-threshold').value).toFixed(2);
+  $('cfg-window-display').textContent    = $('cfg-window').value + ' SAMPLES';
+  $('cfg-poll-display').textContent      = $('cfg-poll').value + 's';
+  $('cfg-cadence-display').textContent   = $('cfg-cadence').value + 's';
+  settingsPanel.classList.remove('open');
+});
+['threshold', 'window', 'poll', 'cadence'].forEach(k => {
+  const inp = $('cfg-' + k), live = $('cfg-' + k + '-live');
+  inp.addEventListener('input', () => {
+    if (k === 'threshold')      live.textContent = parseFloat(inp.value).toFixed(2);
+    else if (k === 'window')    live.textContent = inp.value;
+    else                        live.textContent = inp.value + 's';
+  });
+});
+
+// ==============================================================
+// Endpoint logger — every button announces its target on click
+// ==============================================================
+document.querySelectorAll('[data-endpoint]').forEach(el => {
+  el.addEventListener('click', () => console.log('[wire]', el.dataset.endpoint));
+});
+
+// ==============================================================
+// Main polling loop
+// ==============================================================
+async function pollAll() {
+  await Promise.all([
+    pollStatus(),
+    pollLiveMetrics(),
+    pollScope(),
+    pollApprovals(),
+    pollIncidents(),
+    pollReport(),
+    pollSessionStats(),
+    pollDistribution(),
+    pollNarrate(),
+    pollAncillary(),
+  ]);
+}
+pollAll();
+setInterval(pollAll, POLL_MS);
+</script>
+</body>
+</html>

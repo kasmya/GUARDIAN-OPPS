@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-fraud-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r services/fraud-api/requirements.txt pytest
+      - name: pytest fraud-api
+        working-directory: services/fraud-api
+        run: pytest -q
+
+  test-guardian:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r services/guardian/requirements.txt pytest
+      - name: pytest guardian
+        working-directory: services/guardian
+        run: pytest -q
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test-fraud-api, test-guardian]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build fraud-api image
+        run: docker build -t guardianops-fraud-api services/fraud-api
+      - name: Build guardian image
+        run: docker build -t guardianops-guardian services/guardian
+      - name: Build chaos-injector image
+        run: docker build -t guardianops-chaos services/chaos-injector

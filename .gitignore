@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
+.pytest_cache/
+**/.pytest_cache/
+data/mlflow/
+data/guardian/
+data/grafana/
+data/reports/
+!data/reports/.gitkeep

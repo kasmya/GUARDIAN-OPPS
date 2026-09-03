@@ -1,0 +1,58 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1700000000000,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Fraud API — Mode (0 normal, 1 slow, 2 corrupt)",
+      "gridPos": {"h": 4, "w": 8, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [{"expr": "fraud_api_mode", "refId": "A"}],
+      "fieldConfig": {"defaults": {"mappings": [
+        {"type": "value", "options": {"0": {"text": "NORMAL", "color": "green"}}},
+        {"type": "value", "options": {"1": {"text": "SLOW", "color": "yellow"}}},
+        {"type": "value", "options": {"2": {"text": "CORRUPT", "color": "red"}}}
+      ], "color": {"mode": "thresholds"}}},
+      "options": {"colorMode": "background"}
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests / sec by outcome",
+      "gridPos": {"h": 8, "w": 16, "x": 8, "y": 0},
+      "id": 2,
+      "targets": [{"expr": "sum by (outcome) (rate(fraud_api_requests_total[1m]))", "legendFormat": "{{outcome}}", "refId": "A"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "p95 latency (s)",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(fraud_api_latency_seconds_bucket[1m])))", "refId": "A"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Guardian — Confidence Score (0-100)",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "targets": [{"expr": "guardian_confidence_score", "refId": "A"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Guardian — Drift PSI",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+      "id": 5,
+      "targets": [{"expr": "guardian_drift_psi", "refId": "A"}]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["guardianops"],
+  "time": {"from": "now-15m", "to": "now"},
+  "title": "GuardianOps — Live",
+  "uid": "guardianops-live",
+  "version": 1
+}
