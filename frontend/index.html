@@ -539,9 +539,9 @@
     </div>
     <div class="settings-actions">
       <button class="settings-cancel" id="btn-settings-cancel">CANCEL</button>
-      <button class="settings-save" id="btn-settings-save">SAVE (DISPLAY ONLY)</button>
+      <button class="settings-save" id="btn-settings-save">SAVE &amp; APPLY LIVE</button>
     </div>
-    <div class="settings-note">Guardian's runtime constants live in <code>services/guardian/app/config.py</code>. This panel updates the header display only; changing behaviour means editing that file and restarting Guardian.</div>
+    <div class="settings-note" id="settings-note">Threshold, poll interval and drift check cadence apply live on Guardian's next monitor loop cycle — no restart required. Baseline window size is fixed at container startup (it sizes the internal ring buffer); to change it, edit <code>services/guardian/app/config.py</code> and restart the guardian container.</div>
   </div>
 
   <div class="section-label mono">SESSION LEDGER</div>
@@ -1736,14 +1736,71 @@ $('btn-force-check').addEventListener('click', async () => {
 // SETTINGS PANEL  (display-only — see the note in the panel body)
 // ==============================================================
 const settingsPanel = $('settings-panel');
-$('btn-settings-toggle').addEventListener('click', () => settingsPanel.classList.toggle('open'));
+$('btn-settings-toggle').addEventListener('click', async () => {
+  settingsPanel.classList.toggle('open');
+  // On open, hydrate the sliders from Guardian's current live config so
+  // they reflect what's actually running (not the HTML defaults).
+  if (settingsPanel.classList.contains('open')) {
+    try {
+      const c = await jget(GUARDIAN + '/config');
+      $('cfg-threshold').value = c.mutable.psi_alert;
+      $('cfg-threshold-live').textContent = c.mutable.psi_alert.toFixed(2);
+      $('cfg-poll').value = c.mutable.poll_interval_s;
+      $('cfg-poll-live').textContent = c.mutable.poll_interval_s + 's';
+      $('cfg-cadence').value = c.mutable.drift_check_interval_s;
+      $('cfg-cadence-live').textContent = c.mutable.drift_check_interval_s + 's';
+      $('cfg-window').value = c.fixed.window_size;
+      $('cfg-window').disabled = true;   // fixed at startup
+      $('cfg-window-live').textContent = c.fixed.window_size + ' (fixed)';
+    } catch (_) {}
+  }
+});
 $('btn-settings-cancel').addEventListener('click', () => settingsPanel.classList.remove('open'));
-$('btn-settings-save').addEventListener('click', () => {
-  $('cfg-threshold-display').textContent = parseFloat($('cfg-threshold').value).toFixed(2);
-  $('cfg-window-display').textContent    = $('cfg-window').value + ' SAMPLES';
-  $('cfg-poll-display').textContent      = $('cfg-poll').value + 's';
-  $('cfg-cadence-display').textContent   = $('cfg-cadence').value + 's';
-  settingsPanel.classList.remove('open');
+$('btn-settings-save').addEventListener('click', async () => {
+  const btn = $('btn-settings-save');
+  const note = $('settings-note');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'APPLYING…';
+  try {
+    const patch = {
+      psi_alert: parseFloat($('cfg-threshold').value),
+      poll_interval_s: parseInt($('cfg-poll').value, 10),
+      drift_check_interval_s: parseInt($('cfg-cadence').value, 10),
+    };
+    const r = await fetch(GUARDIAN + '/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+    const conf = await r.json();
+    // update the header strip immediately
+    $('cfg-threshold-display').textContent = conf.mutable.psi_alert.toFixed(2);
+    $('cfg-poll-display').textContent      = conf.mutable.poll_interval_s + 's';
+    $('cfg-cadence-display').textContent   = conf.mutable.drift_check_interval_s + 's';
+    // baseline window is fixed — refresh from the fixed side
+    $('cfg-window-display').textContent    = conf.fixed.window_size + ' SAMPLES';
+    btn.textContent = 'SAVED ✓';
+    note.style.color = 'var(--green)';
+    note.textContent = 'Applied. Guardian will use the new values on its next monitor cycle. Poll ' +
+      conf.mutable.poll_interval_s + 's · drift check every ' +
+      conf.mutable.drift_check_interval_s + 's · PSI threshold ' +
+      conf.mutable.psi_alert.toFixed(2) + '.';
+    setTimeout(() => {
+      btn.textContent = originalText;
+      note.style.color = '';
+      note.textContent = 'Threshold, poll interval and drift check cadence apply live on Guardian\'s next monitor loop cycle — no restart required. Baseline window size is fixed at container startup.';
+      settingsPanel.classList.remove('open');
+    }, 2500);
+  } catch (e) {
+    btn.textContent = 'FAILED — RETRY';
+    note.style.color = 'var(--red)';
+    note.textContent = 'POST /config failed: ' + e.message;
+    setTimeout(() => { btn.textContent = originalText; note.style.color = ''; }, 3000);
+  } finally {
+    btn.disabled = false;
+  }
 });
 ['threshold', 'window', 'poll', 'cadence'].forEach(k => {
   const inp = $('cfg-' + k), live = $('cfg-' + k + '-live');

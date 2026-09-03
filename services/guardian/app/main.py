@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
+from . import config as cfg
 from . import monitor, recovery, store
 from .config import POLICY_ID, POLICY_TEXT, REPORTS_DIR
 
@@ -144,6 +145,70 @@ def get_report(name: str) -> dict:
     if not path.exists() or ".." in name:
         raise HTTPException(404, "not found")
     return {"name": name, "markdown": path.read_text(encoding="utf-8")}
+
+
+@app.get("/config")
+def get_config() -> dict:
+    """Return the runtime-mutable subset of Guardian's config plus the
+    fixed-at-startup values (window sizes) for reference."""
+    return {
+        "mutable": {
+            "psi_alert": cfg.PSI_ALERT,
+            "psi_warn": cfg.PSI_WARN,
+            "poll_interval_s": cfg.POLL_INTERVAL_S,
+            "drift_check_interval_s": cfg.DRIFT_CHECK_INTERVAL_S,
+            "consecutive_alerts_for_incident": cfg.CONSECUTIVE_ALERTS_FOR_INCIDENT,
+        },
+        "fixed": {
+            "window_size": cfg.WINDOW_SIZE,
+            "baseline_size": cfg.BASELINE_SIZE,
+            "crash_health_misses": cfg.CRASH_HEALTH_MISSES,
+        },
+    }
+
+
+class ConfigPatch(dict):
+    pass
+
+
+@app.post("/config")
+async def post_config(patch: dict) -> dict:
+    """Update Guardian's runtime-mutable config. Values take effect on the
+    monitor loop's next iteration — no restart required.
+
+    Silently ignores unknown keys and out-of-range values. Returns the full
+    current config (post-update) so the dashboard can show what actually
+    stuck. See GET /config for the shape and for which keys are mutable."""
+    log.info("config patch requested: %s", patch)
+
+    def _clamp(v, lo, hi):
+        try:
+            return max(lo, min(hi, float(v)))
+        except (TypeError, ValueError):
+            return None
+
+    if "psi_alert" in patch:
+        v = _clamp(patch["psi_alert"], 0.02, 1.0)
+        if v is not None:
+            cfg.PSI_ALERT = round(v, 3)
+    if "psi_warn" in patch:
+        v = _clamp(patch["psi_warn"], 0.01, cfg.PSI_ALERT)
+        if v is not None:
+            cfg.PSI_WARN = round(v, 3)
+    if "poll_interval_s" in patch:
+        v = _clamp(patch["poll_interval_s"], 0.5, 60.0)
+        if v is not None:
+            cfg.POLL_INTERVAL_S = round(v, 2)
+    if "drift_check_interval_s" in patch:
+        v = _clamp(patch["drift_check_interval_s"], 1.0, 600.0)
+        if v is not None:
+            cfg.DRIFT_CHECK_INTERVAL_S = round(v, 2)
+    if "consecutive_alerts_for_incident" in patch:
+        v = _clamp(patch["consecutive_alerts_for_incident"], 1, 10)
+        if v is not None:
+            cfg.CONSECUTIVE_ALERTS_FOR_INCIDENT = int(v)
+
+    return get_config()
 
 
 @app.get("/metrics")

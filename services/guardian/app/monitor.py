@@ -23,16 +23,12 @@ import httpx
 import numpy as np
 from prometheus_client import Gauge
 
+from . import config as cfg
 from .config import (
     BASELINE_SIZE,
-    CONSECUTIVE_ALERTS_FOR_INCIDENT,
     CRASH_HEALTH_MISSES,
-    DRIFT_CHECK_INTERVAL_S,
     FRAUD_API_URL,
-    POLL_INTERVAL_S,
-    PSI_ALERT,
-    PSI_WARN,
-    WINDOW_SIZE,
+    WINDOW_SIZE,  # deque maxlen is baked at instantiation; stays a constant
 )
 from .drift import compute_drift, confidence_from_psi
 
@@ -74,12 +70,13 @@ class MonitorState:
             "active_incident_type": self.active_incident_type,
             "blast_radius_current": self.transactions_seen_since_incident,
             "config": {
-                "poll_interval_s": POLL_INTERVAL_S,
-                "drift_check_interval_s": DRIFT_CHECK_INTERVAL_S,
+                "poll_interval_s": cfg.POLL_INTERVAL_S,
+                "drift_check_interval_s": cfg.DRIFT_CHECK_INTERVAL_S,
                 "window_size": WINDOW_SIZE,
                 "baseline_size": BASELINE_SIZE,
-                "psi_alert": PSI_ALERT,
-                "psi_warn": PSI_WARN,
+                "psi_alert": cfg.PSI_ALERT,
+                "psi_warn": cfg.PSI_WARN,
+                "consecutive_alerts_for_incident": cfg.CONSECUTIVE_ALERTS_FOR_INCIDENT,
             },
         }
 
@@ -158,7 +155,7 @@ async def monitor_loop(on_crash, on_silent_failure) -> None:
                     STATE.samples.append((time.time(), 0.0, latency, False))
 
                 now = time.monotonic()
-                if now - last_drift_check >= DRIFT_CHECK_INTERVAL_S:
+                if now - last_drift_check >= cfg.DRIFT_CHECK_INTERVAL_S:
                     last_drift_check = now
                     d = _run_drift_check()
                     if d and d["verdict"] == "significant":
@@ -168,12 +165,12 @@ async def monitor_loop(on_crash, on_silent_failure) -> None:
 
                     if (
                         STATE.consecutive_drift_alerts
-                        >= CONSECUTIVE_ALERTS_FOR_INCIDENT
+                        >= cfg.CONSECUTIVE_ALERTS_FOR_INCIDENT
                         and STATE.active_incident_type != "silent_failure"
                     ):
                         await on_silent_failure(STATE, STATE.last_drift or {})
 
-            await asyncio.sleep(POLL_INTERVAL_S)
+            await asyncio.sleep(cfg.POLL_INTERVAL_S)
 
 
 def _run_drift_check() -> dict | None:
@@ -184,7 +181,7 @@ def _run_drift_check() -> dict | None:
         return None
     d = compute_drift(STATE.baseline, list(STATE.window))
     STATE.last_drift = d.as_dict()
-    STATE.confidence = confidence_from_psi(d.psi, PSI_ALERT)
+    STATE.confidence = confidence_from_psi(d.psi, cfg.PSI_ALERT)
     CONFIDENCE.set(STATE.confidence)
     DRIFT_PSI.set(d.psi)
     return STATE.last_drift
