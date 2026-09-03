@@ -19,6 +19,14 @@ from .state import read_state, reset_state, write_state
 
 app = FastAPI(title="fraud-api", version="1.0.0")
 
+
+@app.on_event("startup")
+def _reset_state_on_startup() -> None:
+    """Always boot in normal mode. Prevents a corrupt/slow flag left in the
+    shared state file from a previous run silently poisoning Guardian's
+    baseline capture."""
+    reset_state()
+
 REQUESTS = Counter("fraud_api_requests_total", "Requests to /score", ["outcome"])
 LATENCY = Histogram(
     "fraud_api_latency_seconds",
