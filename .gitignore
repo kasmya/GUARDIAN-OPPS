@@ -1,13 +1,92 @@
+# --- Python ---------------------------------------------------------------
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.egg-info/
+.eggs/
+build/
+dist/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Virtual environments ------------------------------------------------
 .venv/
+venv/
+env/
+ENV/
+
+# --- Env files -----------------------------------------------------------
 .env
+.env.*
+!.env.example
+
+# --- Test / coverage -----------------------------------------------------
 .pytest_cache/
 **/.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# --- Runtime data volumes (grow with every run; not for git) ------------
 data/mlflow/
 data/guardian/
 data/grafana/
 data/reports/
 !data/reports/.gitkeep
+mlruns/
+
+# --- Docker Compose local overrides -------------------------------------
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.dev.yml
+
+# --- IDE / editor state -------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.project
+.pydevproject
+.settings/
+
+# --- OS junk ------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+
+# --- Node (in case any tooling gets added) ------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Logs + temp --------------------------------------------------------
+*.log
+*.bak
+*.tmp
+.tmp/
+tmp/
+
+# --- Personal scratch (Ashwarya only — never commit) --------------------
+# Anything under these paths is local-only: notes, screenshots, drafts,
+# demo recordings, local audit dumps, TODOs. Create freely.
+personal/
+scratch/
+scratchpad/
+_local/
+NOTES.md
+SCRATCH.md
+TODO.local.md
+audit-*.txt
+audit-*.log
+demo-*.mp4
+demo-*.gif
+*.local.*
