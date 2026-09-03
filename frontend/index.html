@@ -411,8 +411,63 @@
   .modal .m-close:hover{ border-color:var(--ink); color:var(--ink); }
   .modal .m-summary{
     display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
-    gap:0; border:1px solid var(--line); margin-bottom:18px;
+    gap:0; border:1px solid var(--line); margin-bottom:22px;
   }
+  .modal .m-block-title{
+    font-family:'Fragment Mono', monospace; font-size:11px; letter-spacing:0.1em;
+    color:var(--ink-faint); text-transform:uppercase; margin:22px 0 10px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .modal .m-block-title::after{ content:''; flex:1; height:1px; background:var(--line); }
+  .modal .m-metrics{
+    display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:14px;
+  }
+  .modal .confusion{
+    display:grid; grid-template-columns:auto auto auto;
+    gap:1px; background:var(--line); border:1px solid var(--line);
+  }
+  .modal .confusion > div{
+    background:var(--paper); padding:12px 14px; font-family:'Fragment Mono', monospace;
+    font-size:12.5px; min-width:110px;
+  }
+  .modal .confusion .ch{
+    color:var(--ink-faint); font-size:10.5px; letter-spacing:0.06em;
+    text-transform:uppercase;
+  }
+  .modal .confusion .cell{ font-size:22px; }
+  .modal .confusion .cell.good{ color:var(--green); }
+  .modal .confusion .cell.bad{ color:var(--red); }
+  .modal .metric-tiles{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); }
+  .modal .metric-tile{
+    background:var(--paper); padding:12px 14px;
+  }
+  .modal .metric-tile .mk{
+    font-family:'Fragment Mono', monospace; font-size:10.5px;
+    letter-spacing:0.06em; color:var(--ink-faint); text-transform:uppercase;
+  }
+  .modal .metric-tile .mv{
+    font-family:'Fragment Mono', monospace; font-size:24px; margin-top:4px;
+  }
+  .modal .metric-tile .mx{
+    font-family:'Public Sans', sans-serif; font-size:11px; color:var(--ink-faint); margin-top:4px;
+  }
+  .modal tr.tp td.verd{ color:var(--green); }
+  .modal tr.fp td.verd{ color:var(--red); }
+  .modal tr.tn td.verd{ color:var(--ink-soft); }
+  .modal tr.fn td.verd{ color:var(--red); font-weight:600; }
+  .modal .segmented-tabs{
+    display:flex; border:1px solid var(--line); margin-bottom:12px;
+  }
+  .modal .segmented-tabs button{
+    flex:1; background:none; border:none; padding:9px 14px;
+    font-family:'Fragment Mono', monospace; font-size:11.5px; letter-spacing:0.04em;
+    color:var(--ink-soft); cursor:pointer; border-right:1px solid var(--line);
+    text-transform:uppercase;
+  }
+  .modal .segmented-tabs button:last-child{ border-right:none; }
+  .modal .segmented-tabs button.active{ background:var(--ink); color:var(--paper); }
+  .modal .segmented-tabs button:hover{ color:var(--ink); }
+  .modal .segmented-tabs button.active:hover{ color:var(--paper); }
   .modal .m-summary .st{
     padding:14px 18px; border-right:1px solid var(--line);
   }
@@ -869,11 +924,28 @@
       <button class="m-close" id="replay-close">CLOSE</button>
     </div>
     <div class="m-summary" id="replay-summary"></div>
+
+    <div class="m-metrics">
+      <div>
+        <div class="m-block-title">Confusion matrix vs. ground truth</div>
+        <div class="confusion" id="replay-confusion"></div>
+      </div>
+      <div>
+        <div class="m-block-title">Model quality metrics</div>
+        <div class="metric-tiles" id="replay-metrics"></div>
+      </div>
+    </div>
+
+    <div class="m-block-title">Rows</div>
+    <div class="segmented-tabs" id="replay-tabs">
+      <button data-tab="all"    class="active">All scored</button>
+      <button data-tab="missed">Missed fraud (false negatives)</button>
+    </div>
     <table>
-      <thead><tr><th>#</th><th>Amount</th><th>Category</th><th>Hour</th><th>Score</th><th>Label</th></tr></thead>
+      <thead><tr><th>TX ID</th><th>Amount</th><th>Merchant</th><th>Hour</th><th>Country risk</th><th>Score</th><th>Model</th><th>Truth</th><th>Verdict</th></tr></thead>
       <tbody id="replay-table"></tbody>
     </table>
-    <div class="m-note">Every one of these rows went through <code>fraud-api /score</code> via the same code path a single request uses. The scores + labels above are the actual output. This is what proves the pipeline handles real transaction shapes — not just the random samples Guardian generates when it polls.</div>
+    <div class="m-note">Every row went through <code>fraud-api /score</code> via the same code path a single live request uses. Ground-truth labels are baked into the CSV so we can compute a real confusion matrix. The rule-based scorer has high <em>precision</em> (few false alarms) but low <em>recall</em> (misses subtle fraud) — a great baseline that a real scikit-learn model would beat on recall while Guardian's drift-detection layer stays identical.</div>
   </div>
 </div>
 
@@ -1965,7 +2037,10 @@ $('replay-modal').addEventListener('click', (e) => {
   if (e.target.id === 'replay-modal') $('replay-modal').classList.remove('open');
 });
 
+let LAST_REPLAY = null;
+
 function renderReplay(r) {
+  LAST_REPLAY = r;
   const summary = $('replay-summary');
   summary.innerHTML =
     tile('SCORED',         r.scored) +
@@ -1974,21 +2049,81 @@ function renderReplay(r) {
     tile('FLAGGED FRAUD',  r.flagged_fraud,  'var(--red)') +
     tile('FLAGGED REVIEW', r.flagged_review, 'var(--amber)') +
     tile('MARKED OK',      r.flagged_ok,     'var(--green)');
+
+  // Confusion matrix in a 3×3 grid
+  const cm = r.confusion_matrix;
+  const conf = $('replay-confusion');
+  conf.innerHTML =
+    `<div></div>
+     <div class="ch">Predicted fraud/review</div>
+     <div class="ch">Predicted ok</div>
+
+     <div class="ch">Actual fraud</div>
+     <div class="cell good">${cm.true_positive}</div>
+     <div class="cell bad">${cm.false_negative}</div>
+
+     <div class="ch">Actual legit</div>
+     <div class="cell bad">${cm.false_positive}</div>
+     <div class="cell good">${cm.true_negative}</div>`;
+
+  // Metric tiles
+  const m = r.metrics;
+  const mm = $('replay-metrics');
+  const fmtPct = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
+  mm.innerHTML =
+    metricTile('Precision', fmtPct(m.precision),
+               'Of flagged rows, how many were actually fraud') +
+    metricTile('Recall',    fmtPct(m.recall),
+               'Of real fraud rows, how many we caught') +
+    metricTile('F1 score',  m.f1 == null ? '—' : m.f1.toFixed(3),
+               'Harmonic mean of precision + recall') +
+    metricTile('Accuracy',  fmtPct(m.accuracy),
+               'Overall correct predictions');
+
+  // Table — default view
+  renderReplayRows('all');
+
+  // Tab switching
+  document.querySelectorAll('#replay-tabs button').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#replay-tabs button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderReplayRows(btn.dataset.tab);
+    };
+  });
+}
+
+function renderReplayRows(tab) {
+  if (!LAST_REPLAY) return;
+  const src = tab === 'missed' ? LAST_REPLAY.misclassified : LAST_REPLAY.first_20;
   const tb = $('replay-table');
-  tb.innerHTML = r.first_20.map((row, i) =>
-    '<tr>' +
-    '<td>' + (i + 1) + '</td>' +
-    '<td>$' + row.amount.toFixed(2) + '</td>' +
-    '<td>' + row.category + '</td>' +
-    '<td>' + String(row.hour).padStart(2, '0') + ':00</td>' +
-    '<td>' + row.score.toFixed(3) + '</td>' +
-    '<td class="lbl-' + row.label + '">' + row.label.toUpperCase() + '</td>' +
-    '</tr>'
+  if (!src || src.length === 0) {
+    tb.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--ink-faint); padding:20px;">No rows in this view.</td></tr>';
+    return;
+  }
+  const short = { true_positive: 'TP', false_positive: 'FP', true_negative: 'TN', false_negative: 'FN' };
+  const cls   = { true_positive: 'tp', false_positive: 'fp', true_negative: 'tn', false_negative: 'fn' };
+  tb.innerHTML = src.map(row =>
+    `<tr class="${cls[row.verdict]}">
+       <td>${row.tx_id || '—'}</td>
+       <td>$${row.amount.toFixed(2)}</td>
+       <td>${row.merchant || row.category}</td>
+       <td>${String(row.hour).padStart(2, '0')}:00</td>
+       <td>${row.country_risk != null ? row.country_risk.toFixed(2) : '—'}</td>
+       <td>${row.score.toFixed(3)}</td>
+       <td class="lbl-${row.label}">${row.label.toUpperCase()}</td>
+       <td>${row.is_fraud_truth ? 'FRAUD' : 'legit'}</td>
+       <td class="verd">${short[row.verdict]}</td>
+     </tr>`
   ).join('');
 }
+
 function tile(k, v, colour) {
   return '<div class="st"><div class="stk">' + k + '</div>' +
     '<div class="stv"' + (colour ? ' style="color:' + colour + '"' : '') + '>' + v + '</div></div>';
+}
+function metricTile(k, v, hint) {
+  return `<div class="metric-tile"><div class="mk">${k}</div><div class="mv">${v}</div><div class="mx">${hint}</div></div>`;
 }
 
 // ==============================================================

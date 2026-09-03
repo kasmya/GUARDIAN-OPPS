@@ -161,10 +161,11 @@ def replay_info() -> dict:
 
 
 @app.post("/replay")
-def replay(limit: int = 200) -> dict:
+def replay(limit: int = 500) -> dict:
     """Score the first `limit` rows of the bundled real-transactions CSV.
     Every row goes through score_normal() — the exact same code /score uses
-    for a single request. Returns a summary the dashboard can display."""
+    for a single request. Returns a full evaluation vs. ground-truth labels:
+    confusion matrix + precision / recall / F1."""
     p = _find_replay_csv()
     if not p:
         return {"error": "replay CSV not found", "candidates": [str(x) for x in _REPLAY_CSV_CANDIDATES]}
@@ -174,6 +175,10 @@ def replay(limit: int = 200) -> dict:
     scored = []
     total_amount = 0.0
     fraud = review = ok = 0
+    # Confusion matrix — a prediction is positive if the label is 'fraud'
+    # or 'review' (both mean "block/investigate"); ground truth is is_fraud.
+    tp = fp = tn = fn = 0
+
     with p.open() as f:
         reader = csv.DictReader(f)
         for i, row in enumerate(reader):
@@ -188,8 +193,34 @@ def replay(limit: int = 200) -> dict:
             s = score_normal(txn)
             label = "fraud" if s > 0.7 else "review" if s > 0.4 else "ok"
             REQUESTS.labels(outcome=label).inc()
-            scored.append({"amount": txn.amount, "category": txn.merchant_category,
-                           "hour": txn.hour, "score": s, "label": label})
+
+            is_fraud_truth = row.get("is_fraud", "0") == "1"
+            predicted_positive = label in ("fraud", "review")
+            if is_fraud_truth and predicted_positive:
+                tp += 1
+                verdict = "true_positive"
+            elif is_fraud_truth and not predicted_positive:
+                fn += 1
+                verdict = "false_negative"
+            elif not is_fraud_truth and predicted_positive:
+                fp += 1
+                verdict = "false_positive"
+            else:
+                tn += 1
+                verdict = "true_negative"
+
+            scored.append({
+                "tx_id": row.get("tx_id", ""),
+                "amount": txn.amount,
+                "category": txn.merchant_category,
+                "merchant": row.get("merchant_name", ""),
+                "hour": txn.hour,
+                "country_risk": txn.country_risk,
+                "score": s,
+                "label": label,
+                "is_fraud_truth": is_fraud_truth,
+                "verdict": verdict,
+            })
             total_amount += txn.amount
             if label == "fraud":
                 fraud += 1
@@ -200,6 +231,13 @@ def replay(limit: int = 200) -> dict:
 
     n = len(scored)
     mean_score = sum(s["score"] for s in scored) / n if n else 0.0
+    precision = tp / (tp + fp) if (tp + fp) else None
+    recall = tp / (tp + fn) if (tp + fn) else None
+    f1 = (2 * precision * recall / (precision + recall)) if (precision and recall) else None
+    accuracy = (tp + tn) / n if n else None
+
+    misclassified = [s for s in scored if s["verdict"] in ("false_negative", "false_positive")]
+
     return {
         "scored": n,
         "mean_amount": round(total_amount / n, 2) if n else 0.0,
@@ -207,5 +245,19 @@ def replay(limit: int = 200) -> dict:
         "flagged_fraud": fraud,
         "flagged_review": review,
         "flagged_ok": ok,
+        "ground_truth": {"actual_fraud": tp + fn, "actual_legit": tn + fp},
+        "confusion_matrix": {
+            "true_positive":  tp,
+            "false_positive": fp,
+            "true_negative":  tn,
+            "false_negative": fn,
+        },
+        "metrics": {
+            "precision": round(precision, 4) if precision is not None else None,
+            "recall":    round(recall,    4) if recall    is not None else None,
+            "f1":        round(f1,        4) if f1        is not None else None,
+            "accuracy":  round(accuracy,  4) if accuracy  is not None else None,
+        },
         "first_20": scored[:20],
+        "misclassified": misclassified[:20],
     }
