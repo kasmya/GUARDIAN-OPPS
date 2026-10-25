@@ -1,0 +1,15 @@
+GuardianOps — demo video / walkthrough link
+=============================================
+
+[PLACEHOLDER: paste your YouTube / Google Drive / Loom link here once recorded]
+
+Suggested recording script (matches screenshots/05_demo_walkthrough.md):
+  1. start-guardianops.bat, wait for baseline capture (~45s)
+  2. Click TERMINATE PROCESS -> show auto-recovery (~20s)
+  3. Click CORRUPT OUTPUT -> show the drift banner + pending-approval card (~30s)
+  4. Click AUTHORIZE ROLLBACK -> show the incident resolving (~10s)
+  5. Click REPLAY REAL DATASET -> show the confusion matrix (~15s)
+  6. Scroll to the auto-generated incident report, click PRINT to show the
+     print-ready layout (~10s)
+
+Total runtime target: 2-3 minutes.

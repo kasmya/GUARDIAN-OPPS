@@ -138,7 +138,24 @@ Every incident gets:
 
 ## Quick start
 
-### Option A — Docker (recommended, gets you the whole stack)
+### Option A — One-click batch file (Windows, fastest, no Docker)
+
+From the repo root, double-click (or run) `start-guardianops.bat`. It will:
+
+1. Install each service's Python dependencies (`pip install -r requirements.txt`, safe to re-run)
+2. Reset the shared state file to normal mode
+3. Launch `fraud-api`, `guardian`, `chaos-injector`, and the frontend static server, each in its own terminal window
+4. Wait ~15 seconds, then auto-open the dashboard at `http://127.0.0.1:8080` in your default browser
+
+```bat
+start-guardianops.bat
+```
+
+Give it another 30–60 seconds after the page loads for Guardian to capture its baseline (see "First-time boot expectations" below). When you're done, run `stop-guardianops.bat` to close all four service windows — it only targets windows titled `GuardianOps: ...`, so it won't touch anything else you have open.
+
+This path skips Prometheus / Grafana / MLflow (Docker-only) — see Option B if you need those.
+
+### Option B — Docker (recommended if you want the full observability stack)
 
 ```bash
 docker compose up --build
@@ -155,7 +172,7 @@ Wait ~30 seconds for images to build and ~60 seconds after that for Guardian to 
 | <http://localhost:5000> | MLflow incident ledger |
 | <http://localhost:9090> | Prometheus |
 
-### Option B — Local Python (no Docker)
+### Option C — Local Python, manual (no Docker, no batch file)
 
 Requires Python 3.11. From the repo root:
 
@@ -329,9 +346,22 @@ mlops-project/
 ├── ROADMAP.md             ← presentation script + resume bullets + ranked stretch features
 ├── AUDIT.md               ← per-UI-element pass/fail with backing call for every widget
 ├── audit.sh               ← reproducible endpoint probe (21 checks)
+├── start-guardianops.bat  ← one-click Windows launcher (installs deps, starts all 4 services)
+├── stop-guardianops.bat   ← stops only the GuardianOps service windows
 ├── docker-compose.yml     ← 7-service stack (3 apps + Prom + Grafana + MLflow + nginx)
 ├── .github/workflows/
 │   └── ci.yml             ← 3-job pipeline: test-fraud-api, test-guardian, build
+├── report/                ← academic report deliverable
+│   ├── GuardianOps_Report.md ← full report, all 10 sections, real metrics
+│   ├── README.md          ← what's left to fill in before submission
+│   └── figures/           ← report screenshots (dashboard, crash, incident report)
+├── screenshots/
+│   ├── 01_dashboard_healthy.jpg
+│   ├── 02_crash_detected.jpg
+│   ├── 03_incident_report_narration.jpg
+│   └── 05_demo_walkthrough.md ← exact click sequence + captions for every screenshot
+├── demo/
+│   └── demo_video_link.txt ← placeholder for a recorded walkthrough link
 ├── services/
 │   ├── fraud-api/         ← the "production" system + /replay evaluator
 │   │   ├── app/           ← main.py, scoring.py, state.py
@@ -387,6 +417,8 @@ Every one of these was a deliberate scope decision. If a professor or interviewe
 - [`DIARY.md`](DIARY.md) — plain-language stage-by-stage walk-through, with a "quick-reference: what to say when a professor asks…" table
 - [`ROADMAP.md`](ROADMAP.md) — presentation script + copy-paste resume bullets + Tier 1/2/3 stretch features ranked by impressiveness ÷ effort
 - [`AUDIT.md`](AUDIT.md) — every dashboard element's backing endpoint, with the last audit's observed values
+- [`report/GuardianOps_Report.md`](report/GuardianOps_Report.md) — the full academic report (title page → references), with every §7 metric captured from a real run; see [`report/README.md`](report/README.md) for what's left to fill in before submission
+- [`screenshots/05_demo_walkthrough.md`](screenshots/05_demo_walkthrough.md) — exact click sequence + captions for every report screenshot
 
 ---
 
