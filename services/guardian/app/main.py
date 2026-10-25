@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Response
@@ -114,6 +115,8 @@ async def approve(incident_id: int) -> dict:
         return await recovery.approve_incident(incident_id)
     except ValueError as e:
         raise HTTPException(400, str(e)) from e
+    except recovery.UpstreamUnavailable as e:
+        raise HTTPException(502, str(e)) from e
 
 
 @app.get("/report/latest")
@@ -131,6 +134,9 @@ def latest_report() -> dict:
     }
 
 
+_REPORT_NAME = re.compile(r"incident-\d{4,}-\d{8}-\d{6}\.md")
+
+
 @app.get("/reports")
 def list_reports() -> dict:
     if not REPORTS_DIR.exists():
@@ -141,8 +147,10 @@ def list_reports() -> dict:
 
 @app.get("/reports/{name}")
 def get_report(name: str) -> dict:
+    if not _REPORT_NAME.fullmatch(name):
+        raise HTTPException(404, "not found")
     path = REPORTS_DIR / name
-    if not path.exists() or ".." in name:
+    if not path.is_file():
         raise HTTPException(404, "not found")
     return {"name": name, "markdown": path.read_text(encoding="utf-8")}
 
@@ -167,10 +175,6 @@ def get_config() -> dict:
     }
 
 
-class ConfigPatch(dict):
-    pass
-
-
 @app.post("/config")
 async def post_config(patch: dict) -> dict:
     """Update Guardian's runtime-mutable config. Values take effect on the
@@ -191,6 +195,7 @@ async def post_config(patch: dict) -> dict:
         v = _clamp(patch["psi_alert"], 0.02, 1.0)
         if v is not None:
             cfg.PSI_ALERT = round(v, 3)
+            cfg.PSI_WARN = min(cfg.PSI_WARN, cfg.PSI_ALERT)
     if "psi_warn" in patch:
         v = _clamp(patch["psi_warn"], 0.01, cfg.PSI_ALERT)
         if v is not None:

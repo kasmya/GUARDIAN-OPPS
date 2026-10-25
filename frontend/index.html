@@ -362,10 +362,8 @@
     border:1px solid var(--line-strong); pointer-events:none;
   }
   .report-toolbar{
-    position:absolute; top:-1px; right:-1px;
-    display:flex; gap:6px; padding:8px 12px;
-    background:var(--paper); border:1px solid var(--ink); border-top:none; border-right:none;
-    z-index:2;
+    position:relative; z-index:2;
+    display:flex; justify-content:flex-end; gap:6px; padding:0 0 18px;
   }
   .r-letterhead{
     position:relative; z-index:1;
@@ -925,7 +923,7 @@
   <div class="settings-panel" id="settings-panel">
     <div class="sp-title mono">GUARDIAN CONFIGURATION</div>
     <div class="settings-row">
-      <label>Drift threshold (PSI)</label>
+      <label>PSI alert threshold</label>
       <input type="range" id="cfg-threshold" min="0.05" max="0.40" step="0.01" value="0.20">
       <span class="sp-value" id="cfg-threshold-live">0.20</span>
     </div>
@@ -1075,7 +1073,7 @@
 
   <button class="replay-btn" id="btn-replay" data-endpoint="POST http://localhost:8001/replay">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l14 8-14 8V4z"/></svg>
-    <span id="replay-label">REPLAY REAL DATASET</span>
+    <span id="replay-label">REPLAY LABELLED DATASET</span>
     <span class="rb-caption">— score 500 realistic transactions with ground-truth labels; get precision/recall/F1 back</span>
   </button>
 
@@ -1264,7 +1262,7 @@
   <div class="modal">
     <div class="m-head">
       <div>
-        <div class="m-title">Replay · Real Credit-Card Transactions</div>
+        <div class="m-title">Replay · Labelled Card Transactions (synthetic, seeded)</div>
         <div style="font-size:11px; color:var(--ink-faint); margin-top:4px; font-family:'IBM Plex Mono', monospace;" id="replay-source">source: data/replay/transactions.csv · 500 rows · ~4% ground-truth fraud</div>
       </div>
       <button class="m-close" id="replay-close">CLOSE</button>
@@ -1766,8 +1764,8 @@ function renderApprovals(pending) {
     const nCur = drift.n_current;
     const threshold = (LAST_STATUS.config && LAST_STATUS.config.psi_alert) || 0.20;
     const blastLive = LAST_STATUS.blast_radius_current || 0;
-    const severity = psi > 0.40 ? 'red' : 'amber';
-    const severityWord = psi > 0.40 ? 'severe' : psi > 0.20 ? 'significant' : 'minor';
+    const severity = psi > 2 * threshold ? 'red' : 'amber';
+    const severityWord = psi > 2 * threshold ? 'severe' : 'significant';
     const psiPctOverThreshold = threshold > 0 ? Math.round((psi / threshold) * 100) : 0;
 
     return `
@@ -1795,13 +1793,13 @@ function renderApprovals(pending) {
             <summary>See the numbers</summary>
             <div class="ap-body">
               <dl class="kv">
-                <dt>PSI</dt><dd>${psi.toFixed(3)} &nbsp;<span style="color:var(--ink-faint)">(threshold ${threshold.toFixed(2)} — currently ${psiPctOverThreshold}% of threshold)</span></dd>
+                <dt>PSI</dt><dd>${psi.toFixed(3)} &nbsp;<span style="color:var(--ink-faint)">(alert threshold ${threshold.toFixed(2)}; ${psiPctOverThreshold}% of it)</span></dd>
                 <dt>KS p-value</dt><dd>${ksP != null ? ksP.toExponential(2) : 'n/a'}</dd>
                 <dt>Baseline window</dt><dd>${nRef || '—'} samples (frozen at startup)</dd>
                 <dt>Live window</dt><dd>${nCur || '—'} samples (rolling)</dd>
               </dl>
               <div style="margin-top:10px; font-size:12.5px;">
-                PSI (Population Stability Index) is the drift metric bank risk teams use. <code>0 – 0.10</code> = stable, <code>0.10 – 0.20</code> = minor drift worth watching, <code>&gt; 0.20</code> = significant drift, roll-back candidate.
+                <strong>Rule used:</strong> an incident opens only when the Kolmogorov-Smirnov test rejects &ldquo;same distribution as the baseline&rdquo; (<code>p &lt; ${(LAST_STATUS.config && LAST_STATUS.config.ks_p_significant) || 1e-4}</code>) <em>and</em> the PSI (Population Stability Index, the drift size measure bank risk teams use) is at least the threshold, on <code>${(LAST_STATUS.config && LAST_STATUS.config.consecutive_alerts_for_incident) || 3}</code> consecutive checks. The KS test guards against false alarms; PSI says how large the shift is.
               </div>
             </div>
           </details>
@@ -1984,7 +1982,7 @@ function renderReport(reportResp, latest) {
   const resolved = latest.resolved_at ? fmtTime(latest.resolved_at) : '--';
   const cls = isCrash ? 'type-crash' : 'type-drift';
   const what = isCrash ? 'Process termination (health-check failure)' : 'Silent failure — output distribution drift';
-  const detBy = isCrash ? 'Consecutive HTTP health-check misses' : 'PSI + Kolmogorov-Smirnov drift check on rolling window';
+  const detBy = isCrash ? 'Consecutive HTTP health-check misses' : 'Kolmogorov-Smirnov test + PSI on the rolling window';
   const action = (latest.action || '--').replace(/_/g, ' ');
   const status = (latest.status || 'resolved').toUpperCase().replace(/_/g, ' ');
 
@@ -2164,10 +2162,10 @@ async function pollNarrate() {
                        ' opened (' + s.active_incident_type + ')');
     }
     if (narrPrev.verdict !== verdict && verdict) {
-      if (verdict === 'significant') narrate('alert', 'PSI drift significant — approval will be required');
-      else if (verdict === 'minor')  narrate('warn', 'PSI drift minor — watching');
+      if (verdict === 'significant') narrate('alert', 'drift check significant (KS test rejects, PSI above threshold) — incident after consecutive confirmations');
+      else if (verdict === 'minor')  narrate('warn', 'drift check minor — watching');
       else if (narrPrev.verdict === 'significant' || narrPrev.verdict === 'minor')
-        narrate('ok', 'PSI drift returned to stable');
+        narrate('ok', 'drift check back to stable');
     }
     if (narrPrev.pending_count !== null && pending > narrPrev.pending_count) {
       narrate('warn', 'new approval added to queue (' + pending + ' pending)');
@@ -2330,7 +2328,7 @@ $('btn-replay').addEventListener('click', async () => {
   const lbl = $('replay-label');
   const orig = lbl.textContent;
   btn.disabled = true;
-  lbl.textContent = 'STREAMING 500 REAL TRANSACTIONS…';
+  lbl.textContent = 'STREAMING 500 LABELLED TRANSACTIONS…';
   try {
     const r = await jpost(FRAUD + '/replay?limit=500');
     if (r.error) throw new Error(r.error);

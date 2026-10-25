@@ -1,0 +1,89 @@
+{
+  "config": {
+    "poll_s": 2.0,
+    "check_s": 5.0,
+    "window": 60,
+    "baseline": 200,
+    "healthy_hours_per_rule": 200,
+    "power_runs": 100
+  },
+  "rules": {
+    "legacy (PSI>=0.20 or KS p<0.001, 2 checks)": {
+      "false_alarm_hours": 200,
+      "hours": 200,
+      "false_alarm_pct": 100.0,
+      "detection": {
+        "severe corruption (Beta(9,1.4))": {
+          "detected_pct": 100.0,
+          "median_seconds": 12.0,
+          "p90_seconds": 36.60000000000005
+        },
+        "score offset +0.20": {
+          "detected_pct": 100.0,
+          "median_seconds": 24.0,
+          "p90_seconds": 54.0
+        },
+        "score offset +0.15": {
+          "detected_pct": 100.0,
+          "median_seconds": 24.0,
+          "p90_seconds": 60.0
+        },
+        "score offset +0.10": {
+          "detected_pct": 100.0,
+          "median_seconds": 24.0,
+          "p90_seconds": 66.60000000000005
+        },
+        "score offset +0.05": {
+          "detected_pct": 100.0,
+          "median_seconds": 24.0,
+          "p90_seconds": 96.0
+        }
+      }
+    },
+    "current (KS p<1e-4 and PSI>=0.20, 3 checks)": {
+      "false_alarm_hours": 2,
+      "hours": 200,
+      "false_alarm_pct": 1.0,
+      "detection": {
+        "severe corruption (Beta(9,1.4))": {
+          "detected_pct": 100.0,
+          "median_seconds": 54.0,
+          "p90_seconds": 54.0
+        },
+        "score offset +0.20": {
+          "detected_pct": 100.0,
+          "median_seconds": 72.0,
+          "p90_seconds": 90.0
+        },
+        "score offset +0.15": {
+          "detected_pct": 100.0,
+          "median_seconds": 90.0,
+          "p90_seconds": 108.0
+        },
+        "score offset +0.10": {
+          "detected_pct": 99.0,
+          "median_seconds": 126.0,
+          "p90_seconds": 229.20000000000002
+        },
+        "score offset +0.05": {
+          "detected_pct": 21.0,
+          "median_seconds": 282.0,
+          "p90_seconds": 438.0
+        }
+      }
+    }
+  },
+  "confidence_gauge": {
+    "healthy": {
+      "median": 94.7,
+      "p05": 77.81500000000001,
+      "min": 56.5
+    },
+    "corrupt": {
+      "median": 0.0,
+      "p95": 0.0,
+      "max": 0.0
+    }
+  },
+  "runtime_seconds": 62.2
+}

@@ -1,6 +1,6 @@
 import random
 
-from app.drift import compute_drift, confidence_from_psi, population_stability_index
+from app.drift import compute_drift, confidence_from_ks, population_stability_index
 
 
 def test_psi_zero_on_identical_distributions():
@@ -30,7 +30,8 @@ def test_compute_drift_verdicts():
 
 
 def test_confidence_score_monotone():
-    assert confidence_from_psi(0.0) == 100.0
-    assert confidence_from_psi(0.05) > confidence_from_psi(0.15)
-    assert confidence_from_psi(0.40) < confidence_from_psi(0.10)
-    assert confidence_from_psi(1.0) <= 20.0
+    assert confidence_from_ks(1.0) == 100.0
+    assert confidence_from_ks(0.5) > confidence_from_ks(0.05) > confidence_from_ks(0.001)
+    assert confidence_from_ks(1e-4) == 0.0
+    assert confidence_from_ks(1e-30) == 0.0
+    assert confidence_from_ks(0.0) == 0.0

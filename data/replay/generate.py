@@ -19,7 +19,10 @@ card-payment data:
 
 Reproducible via a fixed random seed.
 
-  python data/replay/generate.py 500 > data/replay/transactions.csv
+  python data/replay/generate.py 500 --out data/replay/transactions.csv
+
+The file is written directly (not through a shell redirect) with LF line
+endings; redirecting stdout on Windows turns each LF into CR CR LF.
 """
 from __future__ import annotations
 
@@ -167,23 +170,37 @@ FRAUD_PATTERNS = [
 ]
 
 
-def main(n: int = 500, fraud_rate: float = 0.04) -> None:
+LF = chr(10)  # explicit line terminator: the file must not depend on the OS
+
+
+def main(n: int = 500, fraud_rate: float = 0.04, out: str | None = None) -> None:
     n_fraud = max(1, int(n * fraud_rate))
     n_normal = n - n_fraud
     rows = [sample_normal_row() for _ in range(n_normal)]
     rows += [random.choice(FRAUD_PATTERNS)() for _ in range(n_fraud)]
     random.shuffle(rows)
 
-    w = csv.DictWriter(
-        sys.stdout,
-        fieldnames=["tx_id", "amount", "merchant_category", "merchant_name",
-                    "hour", "country_risk", "is_fraud"],
-    )
-    w.writeheader()
-    for r in rows:
-        w.writerow(r)
+    stream = open(out, "w", newline="", encoding="utf-8") if out else sys.stdout
+    try:
+        w = csv.DictWriter(
+            stream,
+            fieldnames=["tx_id", "amount", "merchant_category", "merchant_name",
+                        "hour", "country_risk", "is_fraud"],
+            lineterminator=LF,
+        )
+        w.writeheader()
+        for r in rows:
+            w.writerow(r)
+    finally:
+        if out:
+            stream.close()
 
 
 if __name__ == "__main__":
-    n = int(sys.argv[1]) if len(sys.argv) > 1 else 500
-    main(n)
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("n", nargs="?", type=int, default=500, help="number of rows")
+    ap.add_argument("--out", help="output file (default: stdout)")
+    args = ap.parse_args()
+    main(args.n, out=args.out)

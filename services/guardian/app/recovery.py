@@ -16,12 +16,18 @@ from datetime import datetime, timezone
 
 import httpx
 
+from . import config as cfg
 from . import monitor, store
 from .config import FRAUD_API_URL, POLICY_ID
+from .drift import KS_P_SIGNIFICANT
 from .mlflow_logger import log_incident
 from .reports import write_report
 
 log = logging.getLogger(__name__)
+
+
+class UpstreamUnavailable(RuntimeError):
+    """fraud-api could not be reached, so the rollback was not applied."""
 
 
 def _reasoning_crash(state: monitor.MonitorState) -> str:
@@ -35,12 +41,13 @@ def _reasoning_crash(state: monitor.MonitorState) -> str:
 
 def _reasoning_silent(drift: dict) -> str:
     return (
-        f"Population Stability Index on fraud-score distribution rose to "
-        f"{drift['psi']:.3f} (alert threshold 0.20). Kolmogorov-Smirnov "
-        f"p={drift['ks_pvalue']:.2e}. No crash, no latency spike — the "
-        f"service is up but returning a shifted distribution. Auto-restart "
-        f"withheld pending human sign-off per policy {POLICY_ID} "
-        f"(silent-failure class)."
+        f"The Kolmogorov-Smirnov test rejects 'same distribution as the baseline' "
+        f"(p={drift['ks_pvalue']:.2e}, limit {KS_P_SIGNIFICANT:.0e}) and the "
+        f"Population Stability Index is {drift['psi']:.3f} (alert threshold "
+        f"{cfg.PSI_ALERT:.2f}) on {cfg.CONSECUTIVE_ALERTS_FOR_INCIDENT} consecutive "
+        f"drift checks. No crash and no latency spike: the service is up but "
+        f"returning a shifted score distribution. Rollback withheld pending "
+        f"human sign-off per policy {POLICY_ID} (silent-failure class)."
     )
 
 
@@ -111,7 +118,7 @@ async def watch_for_crash_recovery() -> None:
 
 async def on_silent_failure(state: monitor.MonitorState, drift: dict) -> None:
     reasoning = _reasoning_silent(drift)
-    evidence = {"drift": drift, "policy": POLICY_ID}
+    evidence = {"drift": drift, "policy": POLICY_ID, "psi_alert": cfg.PSI_ALERT}
     inc_id = store.create_incident(
         type_="silent_failure",
         status="pending_approval",
@@ -133,8 +140,16 @@ async def approve_incident(incident_id: int) -> dict:
     if not inc or inc["status"] != "pending_approval":
         raise ValueError(f"incident {incident_id} not pending approval")
 
-    async with httpx.AsyncClient() as client:
-        await client.post(f"{FRAUD_API_URL}/admin/reset", timeout=3.0)
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.post(f"{FRAUD_API_URL}/admin/reset", timeout=3.0)
+            r.raise_for_status()
+    except httpx.HTTPError as e:
+        # Nothing has been changed yet: the incident stays pending_approval.
+        raise UpstreamUnavailable(
+            f"fraud-api did not accept the rollback ({e.__class__.__name__}); "
+            "incident left pending, try again once the service is reachable"
+        ) from e
 
     # Clear the rolling window and drift counters so the residual corrupted
     # scores don't re-trigger the same incident before they age out naturally.
@@ -150,6 +165,7 @@ async def approve_incident(incident_id: int) -> dict:
             "mttr_seconds": mttr,
             "blast_radius": blast,
             "status": "resolved",
+            "resolved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         }
     )
     report_path = write_report(inc)

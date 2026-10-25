@@ -155,9 +155,9 @@ def replay_info() -> dict:
     p = _find_replay_csv()
     if not p:
         return {"available": False, "path": None, "rows": 0}
-    with p.open() as f:
-        rows = sum(1 for _ in f) - 1  # minus header
-    return {"available": True, "path": str(p), "rows": max(rows, 0)}
+    with p.open(newline="") as f:
+        rows = sum(1 for _ in csv.DictReader(f))
+    return {"available": True, "path": str(p), "rows": rows}
 
 
 @app.post("/replay")
@@ -179,7 +179,7 @@ def replay(limit: int = 500) -> dict:
     # or 'review' (both mean "block/investigate"); ground truth is is_fraud.
     tp = fp = tn = fn = 0
 
-    with p.open() as f:
+    with p.open(newline="") as f:
         reader = csv.DictReader(f)
         for i, row in enumerate(reader):
             if i >= limit:

@@ -30,7 +30,7 @@ from .config import (
     FRAUD_API_URL,
     WINDOW_SIZE,  # deque maxlen is baked at instantiation; stays a constant
 )
-from .drift import compute_drift, confidence_from_psi
+from .drift import KS_P_SIGNIFICANT, compute_drift, confidence_from_ks
 
 log = logging.getLogger(__name__)
 
@@ -77,6 +77,7 @@ class MonitorState:
                 "psi_alert": cfg.PSI_ALERT,
                 "psi_warn": cfg.PSI_WARN,
                 "consecutive_alerts_for_incident": cfg.CONSECUTIVE_ALERTS_FOR_INCIDENT,
+                "ks_p_significant": KS_P_SIGNIFICANT,
             },
         }
 
@@ -179,9 +180,14 @@ def _run_drift_check() -> dict | None:
     # during Guardian's first ~2 minutes.
     if not STATE.baseline or len(STATE.window) < WINDOW_SIZE:
         return None
-    d = compute_drift(STATE.baseline, list(STATE.window))
+    d = compute_drift(
+        STATE.baseline,
+        list(STATE.window),
+        psi_alert=cfg.PSI_ALERT,
+        psi_warn=cfg.PSI_WARN,
+    )
     STATE.last_drift = d.as_dict()
-    STATE.confidence = confidence_from_psi(d.psi, cfg.PSI_ALERT)
+    STATE.confidence = confidence_from_ks(d.ks_pvalue)
     CONFIDENCE.set(STATE.confidence)
     DRIFT_PSI.set(d.psi)
     return STATE.last_drift

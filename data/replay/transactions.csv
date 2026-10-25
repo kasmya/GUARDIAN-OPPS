@@ -1,501 +1,501 @@
-tx_id,amount,merchant_category,merchant_name,hour,country_risk,is_fraud
-T-97B59AF831,698.35,travel,Uber,13,0.409,0
-T-E6BD64AEDE,87.81,online,Steam,15,0.289,0
-T-576FB122C9,108.29,electronics,Newegg,20,0.088,0
-T-5C48962183,72.16,online,Etsy,17,0.063,0
-T-A2D766D8B2,1616.94,online,eBay,4,0.628,1
-T-ED928903EC,14.5,online,Amazon,12,0.086,0
-T-222D301493,22.74,grocery,Kroger,21,0.119,0
-T-5CB17DF761,179.69,online,AppStore,10,0.028,0
-T-479FC8BB43,475.3,electronics,Newegg,4,0.034,0
-T-7B6ECA67B5,42.47,online,AppStore,3,0.071,0
-T-8C7C3A9BA9,56.11,atm,SBI ATM,15,0.023,0
-T-7B428EEAD9,157.81,electronics,B&H Photo,15,0.078,0
-T-06E994F6F1,16.69,online,Bandcamp,16,0.044,0
-T-3007605EFD,28.4,grocery,Trader Joe's,19,0.069,0
-T-39E34F568C,3024.14,travel,Marriott,10,0.062,0
-T-949979112F,36.43,online,Bandcamp,21,0.11,0
-T-8EF9CD5A09,30.68,grocery,Sainsbury's,4,0.038,0
-T-B7C66AAC4B,35.25,grocery,Aldi,11,0.411,0
-T-EAC644A3FA,610.44,travel,Marriott,11,0.1,0
-T-265A66F3C0,67.03,atm,HDFC ATM,19,0.097,0
-T-85F4E8ABF3,36.11,online,Steam,1,0.285,0
-T-5379E7C3E2,33.77,online,Steam,18,0.056,0
-T-9097A9D79D,22.09,grocery,Kroger,13,0.039,0
-T-E54B9D998D,19.06,online,AppStore,14,0.023,0
-T-B4685297B9,10.33,grocery,Sainsbury's,9,0.036,0
-T-06310008E0,738.77,travel,Airbnb,14,0.069,0
-T-CFA648DCE9,53.78,grocery,Reliance Fresh,22,0.057,0
-T-DC00564AC2,189.12,travel,Emirates,14,0.057,0
-T-B5E170711E,35.6,online,eBay,8,0.066,0
-T-ACC38F241B,50.38,online,Bandcamp,18,0.112,0
-T-06135AABCF,102.55,travel,Airbnb,10,0.084,0
-T-FEAA68C266,42.02,atm,Chase ATM,12,0.089,0
-T-37CAEF80DE,23.45,grocery,Aldi,10,0.047,0
-T-B7A59F4BEE,335.71,electronics,B&H Photo,8,0.052,0
-T-CD590B649C,127.86,atm,Chase ATM,20,0.053,0
-T-0B8157C89B,110.43,electronics,Reliance Digital,22,0.113,0
-T-347E3BC02A,15.26,grocery,Big Bazaar,13,0.059,0
-T-40D1AD9CA8,284.61,electronics,Currys,6,0.074,0
-T-9925EDC3E4,45.97,grocery,Whole Foods,17,0.048,0
-T-8F8DB069CD,82.94,atm,SBI ATM,22,0.101,0
-T-26859A7E84,32.5,grocery,Aldi,14,0.055,0
-T-05B45489CB,87.9,online,Amazon,17,0.054,0
-T-2103EE3FF3,375.45,electronics,Best Buy,10,0.074,0
-T-5E81FB0C58,299.16,electronics,Best Buy,14,0.038,0
-T-EC2366E544,568.19,electronics,Reliance Digital,18,0.055,0
-T-8D5D6BC44B,66.42,online,Amazon,9,0.031,0
-T-FCE15DF0F1,9.39,grocery,Reliance Fresh,9,0.087,0
-T-EBD67861B9,23.42,grocery,Sainsbury's,11,0.065,0
-T-19C5241DCB,111.8,atm,Halifax ATM,11,0.079,0
-T-80DDCDAC39,63.28,online,Etsy,19,0.065,0
-T-F171BAB54B,40.29,grocery,Trader Joe's,20,0.023,0
-T-5D8F9774F7,31.46,online,eBay,13,0.029,0
-T-6032914323,143.72,electronics,Newegg,17,0.481,0
-T-130B484FED,150.1,electronics,Best Buy,11,0.103,0
-T-5167572A1D,17.99,online,AppStore,1,0.109,0
-T-DD10B1F108,28.18,grocery,Sainsbury's,7,0.032,0
-T-35AD8D16AD,60.18,atm,Halifax ATM,16,0.081,0
-T-E65A598485,4.85,grocery,Reliance Fresh,11,0.08,0
-T-56A5492EF8,228.43,electronics,Croma,13,0.069,0
-T-8D7C620C16,25.67,online,Amazon,11,0.383,0
-T-2074E7CA96,296.44,travel,British Airways,14,0.11,0
-T-7A9216019E,18.68,grocery,Sainsbury's,17,0.108,0
-T-F61C4D2F5E,251.46,atm,Halifax ATM,5,0.758,1
-T-F39588E7FB,155.06,electronics,Newegg,14,0.036,0
-T-67A78E850C,43.31,grocery,Sainsbury's,10,0.089,0
-T-DBD002C485,11.3,grocery,Sainsbury's,16,0.04,0
-T-C5FE71FD17,9.4,grocery,Kroger,5,0.066,0
-T-F8CABC06D7,67.18,atm,HDFC ATM,21,0.033,0
-T-407C7C4B37,286.04,electronics,Newegg,13,0.065,0
-T-1AF635BF58,68.84,online,Etsy,16,0.102,0
-T-789354CDEB,24.5,grocery,Trader Joe's,7,0.058,0
-T-F4BBC1D908,1688.47,online,Steam,4,0.417,1
-T-88E81A2BA3,12.66,grocery,Trader Joe's,20,0.09,0
-T-699C7E33EC,261.92,electronics,Currys,11,0.262,0
-T-F230BC0CD4,52.66,online,AppStore,12,0.045,0
-T-85D282C278,105.9,electronics,B&H Photo,20,0.078,0
-T-06D37FB4C1,99.44,online,Etsy,13,0.105,0
-T-F1A78E2C46,2912.61,travel,Emirates,8,0.113,0
-T-BBA3170569,78.01,atm,Chase ATM,8,0.495,0
-T-3C8F99E44B,93.85,online,Etsy,9,0.045,0
-T-EC6DFD990A,20.63,online,Amazon,14,0.111,0
-T-842C575FA3,123.34,online,Bandcamp,19,0.103,0
-T-934BED073F,64.88,atm,SBI ATM,20,0.264,0
-T-FC1C4C04C9,144.24,atm,SBI ATM,11,0.107,0
-T-93AA54ED02,117.28,travel,British Airways,21,0.524,0
-T-5359B54F71,122.82,atm,Halifax ATM,14,0.074,0
-T-3AA367D7A7,244.11,online,Shopify Store,23,0.06,0
-T-62F0633E14,48.63,atm,Halifax ATM,18,0.028,0
-T-63AD512E41,43.15,grocery,Reliance Fresh,19,0.02,0
-T-C54E0192AA,53.16,online,Shopify Store,14,0.098,0
-T-D8B1FB816E,27.51,grocery,Aldi,16,0.406,0
-T-83C59794B6,12.4,grocery,Big Bazaar,20,0.093,0
-T-62E5EB6CB1,1320.48,travel,Emirates,20,0.088,0
-T-655C6D91F3,74.07,electronics,Newegg,10,0.047,0
-T-2234C85043,28.28,grocery,Whole Foods,6,0.428,0
-T-3FCA42B017,491.45,online,eBay,22,0.111,0
-T-6B6315D2F2,113.92,atm,Barclays ATM,16,0.062,0
-T-BD2DB118C4,15.9,online,AppStore,22,0.052,0
-T-E0A4910644,1295.24,travel,Booking.com,20,0.029,0
-T-BDC855136C,51.77,online,Amazon,17,0.08,0
-T-623BCAC861,171.35,electronics,B&H Photo,5,0.036,0
-T-DC180D9B26,29.37,grocery,Aldi,8,0.113,0
-T-5F082C4E4E,87.79,atm,HDFC ATM,20,0.026,0
-T-B790E3DE45,169.48,electronics,Croma,23,0.026,0
-T-0D697E9BA5,137.82,grocery,Sainsbury's,19,0.099,0
-T-114953BB16,15.08,grocery,Whole Foods,14,0.104,0
-T-5B5F803A75,83.03,online,Etsy,11,0.051,0
-T-E7B02F0034,105.94,atm,Halifax ATM,12,0.462,0
-T-834572A925,277.84,online,eBay,13,0.1,0
-T-D18376E2CB,221.81,electronics,Newegg,10,0.11,0
-T-7A8BA42E9B,39.76,atm,Halifax ATM,19,0.085,0
-T-8EE63C1626,103.7,atm,SBI ATM,19,0.252,0
-T-0A9EABC92D,15.93,grocery,Big Bazaar,15,0.096,0
-T-6BC48678F4,353.66,travel,Emirates,8,0.074,0
-T-FE31059F6F,50.23,online,Shopify Store,13,0.113,0
-T-6AD238E5A4,28.66,online,Bandcamp,18,0.118,0
-T-662FB71F12,13.93,grocery,Reliance Fresh,12,0.309,0
-T-7B7115BC55,19.21,grocery,Sainsbury's,11,0.109,0
-T-AF9DE4F31F,31.94,grocery,Whole Foods,17,0.373,0
-T-331D2AEB1C,52.97,online,Amazon,12,0.399,0
-T-9C00AAC0BC,1665.04,travel,Airbnb,12,0.106,0
-T-AABB535E92,258.81,travel,Uber,12,0.259,0
-T-801464A9B4,16.54,grocery,Aldi,10,0.083,0
-T-83E6A6EFDC,12.2,grocery,Aldi,7,0.108,0
-T-E9B063E1D9,4.71,grocery,Trader Joe's,16,0.482,0
-T-B2276D7982,203.07,electronics,Reliance Digital,22,0.102,0
-T-5A53D37BCB,82.97,online,Shopify Store,7,0.024,0
-T-67CC1C844D,14.78,grocery,Sainsbury's,13,0.068,0
-T-45A359D021,66.94,online,eBay,10,0.06,0
-T-3CC7F90FD0,341.64,electronics,Croma,5,0.025,0
-T-2A8C270A90,88.22,atm,SBI ATM,9,0.544,0
-T-D2EFF388B3,2964.52,online,eBay,3,0.569,1
-T-1F07F76431,18.27,grocery,Sainsbury's,6,0.111,0
-T-CAF6F9DA39,36.43,online,Shopify Store,18,0.026,0
-T-420AD7E97D,26.2,grocery,Kroger,13,0.033,0
-T-F5ACEB1719,462.5,electronics,B&H Photo,15,0.387,0
-T-696A64D129,23.08,online,Steam,7,0.421,0
-T-00E325B21F,24.71,online,Etsy,11,0.068,0
-T-A1FE6E7B59,26.97,grocery,Aldi,15,0.117,0
-T-5B66A3E44B,28.84,online,eBay,14,0.058,0
-T-89058C6FBA,32.88,online,Steam,15,0.104,0
-T-2F9FCBCD1B,30.3,grocery,Kroger,13,0.117,0
-T-C380354886,468.03,electronics,Best Buy,12,0.063,0
-T-5D933F164E,301.57,electronics,Currys,13,0.098,0
-T-E01783B2B2,34.85,online,Bandcamp,20,0.1,0
-T-B8A2637C66,28.1,atm,Chase ATM,13,0.057,0
-T-CBD2E01312,74.56,atm,SBI ATM,17,0.071,0
-T-3C4E907CF3,36.82,online,AppStore,14,0.349,0
-T-21CDFA7C7D,11.26,grocery,Whole Foods,10,0.047,0
-T-5D993B2B7B,9.54,grocery,Trader Joe's,23,0.036,0
-T-FFF099C5A6,310.58,travel,Uber,22,0.061,0
-T-A414716452,163.43,electronics,Reliance Digital,11,0.096,0
-T-E7BC006E9F,1980.48,travel,British Airways,9,0.045,0
-T-36F075411A,31.08,online,Etsy,12,0.057,0
-T-A055D131AA,21.08,online,eBay,21,0.069,0
-T-1CBF9FDFEA,53.4,atm,HDFC ATM,9,0.077,0
-T-4E628AE9CC,189.18,online,AppStore,10,0.042,0
-T-5B71F588CB,155.92,atm,Barclays ATM,10,0.06,0
-T-7EFF95151B,4.81,online,AppStore,23,0.759,1
-T-CA3865FD85,38.73,online,Shopify Store,15,0.025,0
-T-798AE96018,257.04,travel,Booking.com,12,0.089,0
-T-95212150D3,25.1,grocery,Sainsbury's,11,0.095,0
-T-8A353E3B61,77.25,atm,Halifax ATM,14,0.12,0
-T-E2E3CEF078,31.66,online,Shopify Store,21,0.085,0
-T-05BDCC5DE8,94.12,online,Shopify Store,14,0.052,0
-T-DE307F5198,237.77,travel,Uber,9,0.082,0
-T-5C91C1D738,163.31,online,Shopify Store,16,0.062,0
-T-08EC46FC84,11.21,online,eBay,20,0.085,0
-T-2A62672F8A,113.36,atm,Chase ATM,13,0.037,0
-T-6366B90F51,240.64,electronics,Reliance Digital,11,0.081,0
-T-65470E2B3F,331.22,atm,Chase ATM,2,0.835,1
-T-90200082F9,73.37,atm,Chase ATM,16,0.096,0
-T-A9912CEF5A,90.09,electronics,Best Buy,11,0.082,0
-T-475BED7825,37.76,atm,Chase ATM,11,0.043,0
-T-D8626E6FE1,366.42,travel,Airbnb,21,0.082,0
-T-FB7923706F,44.27,grocery,Whole Foods,22,0.078,0
-T-C839CE7CDC,37.94,grocery,Aldi,9,0.035,0
-T-466A8AC943,78.26,travel,Airbnb,19,0.075,0
-T-92318C9494,70.47,online,Bandcamp,22,0.095,0
-T-B9E08B14A2,48.54,grocery,Aldi,22,0.03,0
-T-0821D1BA29,332.82,travel,Emirates,20,0.036,0
-T-21FBD2958B,579.68,electronics,Reliance Digital,11,0.09,0
-T-53FE7BB875,19.4,grocery,Trader Joe's,22,0.02,0
-T-6F17F9A4FF,8.12,grocery,Kroger,19,0.055,0
-T-A04B773B17,21.8,grocery,Sainsbury's,12,0.12,0
-T-6F1C7DA6E0,4.03,online,Shopify Store,9,0.871,1
-T-44AE5E3910,109.4,atm,Halifax ATM,22,0.113,0
-T-0E8D1FB78B,19.6,grocery,Whole Foods,5,0.114,0
-T-880DADF51B,192.25,electronics,Best Buy,0,0.03,0
-T-3CE32FB581,40.44,online,Bandcamp,8,0.283,0
-T-3338637225,128.1,online,AppStore,10,0.071,0
-T-1C8CF9F6E6,32.38,grocery,Kroger,8,0.116,0
-T-62334CB210,34.24,grocery,Trader Joe's,12,0.032,0
-T-B11938C6B9,47.62,online,eBay,9,0.04,0
-T-9A4DDFE234,17.23,grocery,Aldi,5,0.082,0
-T-6D613FE656,472.14,electronics,Croma,21,0.101,0
-T-7D59EDFFD7,985.21,travel,Marriott,19,0.05,0
-T-D74261C8E6,65.01,atm,Barclays ATM,0,0.089,0
-T-4AC8C8B414,21.14,grocery,Reliance Fresh,10,0.077,0
-T-3402C55181,275.99,electronics,Currys,12,0.053,0
-T-A59DE02AE6,373.46,travel,Uber,16,0.063,0
-T-D7F627D9D8,414.06,travel,Emirates,12,0.113,0
-T-106B9DB503,44.89,online,eBay,9,0.111,0
-T-AEE5637CAD,767.87,travel,Marriott,17,0.096,0
-T-03A9A29748,10.78,online,eBay,9,0.279,0
-T-DB321A9F91,15.59,grocery,Trader Joe's,7,0.102,0
-T-302153F3C1,19.91,grocery,Kroger,18,0.088,0
-T-6459883F9C,17.28,online,Steam,15,0.1,0
-T-86009FA1FD,30.17,online,Shopify Store,23,0.342,0
-T-DC13D53F4B,29.28,electronics,Best Buy,12,0.031,0
-T-AAC54931EF,59.37,atm,Chase ATM,16,0.074,0
-T-966520BA8A,6.59,online,Bandcamp,12,0.109,0
-T-0D233BEA90,174.94,travel,Marriott,22,0.081,0
-T-E4ADE17385,8.42,grocery,Whole Foods,12,0.389,0
-T-7AF0F1BF8D,837.84,atm,HDFC ATM,4,0.813,1
-T-8912FD0322,208.11,travel,Airbnb,17,0.056,0
-T-69547B822A,166.39,electronics,Reliance Digital,20,0.337,0
-T-5BBEC014D8,111.78,atm,Halifax ATM,0,0.087,0
-T-4CC4203353,20.8,grocery,Trader Joe's,8,0.12,0
-T-CD2CC3E0B9,174.5,online,AppStore,7,0.117,0
-T-0D986C2028,35.07,grocery,Aldi,21,0.1,0
-T-331060DD0A,35.21,online,Amazon,13,0.049,0
-T-0F06F70B27,333.21,travel,Booking.com,8,0.094,0
-T-F1CE95B173,8.59,grocery,Trader Joe's,7,0.098,0
-T-F782BAABD4,71.97,online,Bandcamp,18,0.103,0
-T-E3877C2739,72.91,online,AppStore,19,0.031,0
-T-706D35EAB3,181.67,atm,Halifax ATM,23,0.104,0
-T-570F5DB541,949.34,electronics,Newegg,9,0.097,0
-T-AD2FA11593,27.12,grocery,Kroger,7,0.041,0
-T-513A9E314E,95.58,atm,SBI ATM,11,0.066,0
-T-38EFE8496C,9.3,grocery,Reliance Fresh,17,0.036,0
-T-EAF47EA9D0,225.54,electronics,Newegg,20,0.038,0
-T-5425D25BBF,115.48,electronics,Best Buy,15,0.08,0
-T-A6E189E3D2,23.4,online,Steam,8,0.067,0
-T-299C0B1966,32.95,grocery,Sainsbury's,15,0.065,0
-T-0A0333EE14,152.59,atm,Chase ATM,8,0.08,0
-T-6B1810FE3E,66.16,atm,Halifax ATM,6,0.024,0
-T-9D0B26A156,39.88,online,AppStore,13,0.114,0
-T-8422547697,232.02,atm,Halifax ATM,19,0.061,0
-T-30F0319F3D,47.1,atm,SBI ATM,17,0.097,0
-T-F3405BB9CF,4549.53,online,eBay,3,0.421,1
-T-D6D8829B94,23.02,grocery,Big Bazaar,7,0.068,0
-T-30336BEF95,1129.94,travel,Marriott,16,0.083,0
-T-78E159E9D0,8.24,online,Etsy,20,0.056,0
-T-FF79BDE82F,12.81,online,Amazon,20,0.366,0
-T-9615B08ED7,307.36,travel,Emirates,11,0.386,0
-T-67F87678B1,84.24,atm,Barclays ATM,14,0.119,0
-T-CAE96C64F4,88.1,atm,Barclays ATM,14,0.109,0
-T-DF29EB309A,3244.75,online,Steam,4,0.651,1
-T-533EA08D39,85.52,online,eBay,17,0.117,0
-T-59FE8A4DDD,69.71,atm,Chase ATM,23,0.256,0
-T-DF3196AB71,31.37,grocery,Reliance Fresh,16,0.11,0
-T-F34BD61AF4,68.1,electronics,Newegg,9,0.039,0
-T-3AE317340C,25.16,grocery,Kroger,6,0.455,0
-T-7A88AF0A27,37.25,online,Bandcamp,10,0.091,0
-T-95634DB83F,3436.42,travel,Uber,4,0.652,1
-T-0982D4BEE2,110.13,atm,HDFC ATM,7,0.082,0
-T-C2EA5342EB,175.01,travel,Uber,11,0.077,0
-T-617BF80880,35.7,grocery,Whole Foods,11,0.035,0
-T-F593B6B0B8,346.69,electronics,Reliance Digital,22,0.345,0
-T-3EDB3582CA,58.24,online,Shopify Store,9,0.071,0
-T-87CBBC8F3D,14.22,grocery,Big Bazaar,14,0.044,0
-T-0647E7A285,179.69,electronics,Reliance Digital,14,0.099,0
-T-F519F0C467,60.92,travel,Airbnb,13,0.069,0
-T-A9168A46C5,29.4,grocery,Big Bazaar,13,0.104,0
-T-5420697B1A,10.77,grocery,Aldi,8,0.107,0
-T-E7A27908EA,1.34,online,Etsy,16,0.918,1
-T-010B3E9CE1,17.71,grocery,Trader Joe's,12,0.105,0
-T-5AC7D14837,22.55,online,Amazon,3,0.08,0
-T-64D9A447EC,428.1,atm,Chase ATM,0,0.653,1
-T-CA619C59D7,310.41,electronics,B&H Photo,14,0.04,0
-T-5CF9A2400D,17.9,online,Etsy,16,0.035,0
-T-A5CA063564,50.4,grocery,Kroger,18,0.351,0
-T-881F2F9010,153.88,online,Etsy,13,0.112,0
-T-91EC58B394,80.54,atm,Chase ATM,14,0.489,0
-T-CCBD882078,28.37,grocery,Sainsbury's,7,0.08,0
-T-616C816C87,98.12,atm,Halifax ATM,11,0.078,0
-T-7DA956763D,25.05,online,Amazon,18,0.041,0
-T-88F101B0DE,115.81,electronics,Croma,18,0.041,0
-T-FB75436704,15.61,online,Etsy,8,0.092,0
-T-0C3FF08540,717.24,electronics,Newegg,21,0.109,0
-T-C860A50831,203.39,travel,Uber,12,0.083,0
-T-C071CE29FB,36.59,grocery,Reliance Fresh,13,0.032,0
-T-F0712EF012,138.48,travel,Uber,20,0.064,0
-T-AE064C3CF4,42.47,online,Etsy,14,0.115,0
-T-65435432C2,62.78,atm,Halifax ATM,19,0.074,0
-T-6B0EF7AA2E,67.67,online,AppStore,13,0.096,0
-T-E70397981C,70.8,atm,HDFC ATM,18,0.07,0
-T-AAF94693F5,106.05,electronics,Best Buy,8,0.07,0
-T-B27CDE0210,26.33,grocery,Sainsbury's,0,0.545,0
-T-33467D15AD,104.62,grocery,Aldi,10,0.029,0
-T-FC65FA2EC3,82.81,online,Etsy,13,0.106,0
-T-0B9DB74A15,15.7,grocery,Kroger,6,0.041,0
-T-EBA152A7F2,230.19,travel,Marriott,11,0.052,0
-T-1359001BC6,124.87,atm,HDFC ATM,17,0.03,0
-T-D73F7B8EDE,14.45,grocery,Whole Foods,20,0.089,0
-T-832F65B056,1821.95,travel,British Airways,10,0.107,0
-T-308D1531B4,27.04,online,Amazon,13,0.108,0
-T-3D661390BD,638.93,electronics,Newegg,19,0.064,0
-T-F33E0155A5,73.85,online,AppStore,10,0.067,0
-T-934A515624,25.57,grocery,Big Bazaar,14,0.107,0
-T-1A41695C7E,418.19,electronics,Croma,13,0.025,0
-T-A75ACDA874,23.43,atm,Barclays ATM,5,0.407,0
-T-DA61D99AE9,32.91,grocery,Aldi,9,0.083,0
-T-BE3AE16892,74.27,online,Bandcamp,21,0.074,0
-T-79ECDF8DF4,40.3,online,Shopify Store,10,0.294,0
-T-4A94EBFEF8,677.12,travel,British Airways,4,0.024,0
-T-C34DF78364,20.87,grocery,Kroger,1,0.533,0
-T-1BE15EF4D4,88.8,atm,HDFC ATM,12,0.027,0
-T-EF39579DB7,59.19,online,Shopify Store,4,0.075,0
-T-9C567C46C0,1441.17,travel,Marriott,20,0.088,0
-T-1C13EFABB7,179.7,travel,Uber,17,0.039,0
-T-038C2A58DF,27.91,grocery,Reliance Fresh,14,0.104,0
-T-FE784A868E,87.37,online,AppStore,21,0.092,0
-T-1F9F4E55B1,54.04,grocery,Kroger,17,0.349,0
-T-C01D2AE9A6,39.25,electronics,Currys,15,0.104,0
-T-4496648EA6,1550.09,travel,Uber,23,0.063,0
-T-544290B74D,90.68,atm,HDFC ATM,16,0.326,0
-T-4D7DBE0DB1,26.44,grocery,Sainsbury's,8,0.049,0
-T-9B9DCFFF32,36.78,electronics,Reliance Digital,9,0.025,0
-T-0AD14BC0BF,26.01,grocery,Kroger,10,0.297,0
-T-A1E9FAA27D,13.63,grocery,Big Bazaar,12,0.086,0
-T-1CE45FE2C6,73.45,online,Etsy,22,0.043,0
-T-CA277BE922,447.77,electronics,Currys,16,0.101,0
-T-F09037C88E,100.9,atm,Barclays ATM,15,0.087,0
-T-3A9A23A2AC,48.92,grocery,Trader Joe's,12,0.103,0
-T-A0D2C4E1A8,20.16,atm,Barclays ATM,9,0.119,0
-T-5ED4458B87,80.22,online,Bandcamp,10,0.277,0
-T-9146EEC5A2,33.91,grocery,Aldi,7,0.091,0
-T-33FDF81B55,329.71,travel,Uber,7,0.05,0
-T-4E5A62E3F5,11.7,grocery,Whole Foods,7,0.1,0
-T-788A690379,59.5,online,eBay,15,0.382,0
-T-D5C83DDD1E,159.09,electronics,Reliance Digital,22,0.038,0
-T-0A30A28371,1353.46,travel,Airbnb,11,0.115,0
-T-21033A68A9,45.26,grocery,Sainsbury's,9,0.033,0
-T-9F870CADC9,63.64,travel,Uber,21,0.071,0
-T-A01DC4D6A9,182.77,travel,Marriott,12,0.325,0
-T-C13FE8B60D,25.15,online,AppStore,5,0.11,0
-T-661AF68D29,705.2,travel,Booking.com,14,0.102,0
-T-E521386DD1,45.2,grocery,Kroger,12,0.095,0
-T-1A75E42270,161.19,electronics,Newegg,9,0.054,0
-T-C37A2A1D21,34.61,grocery,Reliance Fresh,18,0.099,0
-T-2B07219F20,11.7,online,Etsy,9,0.049,0
-T-81E585307D,33.21,online,eBay,12,0.092,0
-T-C610D9E850,41.94,online,Shopify Store,15,0.082,0
-T-28701C317A,93.65,electronics,Newegg,15,0.067,0
-T-246A78EA04,32.61,online,Shopify Store,19,0.116,0
-T-DFA108DB94,21.54,grocery,Sainsbury's,16,0.049,0
-T-A092C130F5,263.35,electronics,B&H Photo,14,0.037,0
-T-ADB6457CE6,11.15,grocery,Sainsbury's,16,0.035,0
-T-5BFED9D434,43.99,grocery,Kroger,2,0.395,0
-T-785218AA46,46.43,electronics,Best Buy,22,0.095,0
-T-25E914FE72,8161.83,electronics,Reliance Digital,5,0.722,1
-T-C4BAF551E9,189.03,online,Etsy,15,0.044,0
-T-D4D2418C27,470.94,atm,SBI ATM,6,0.827,1
-T-B81F065FEA,14.2,grocery,Aldi,19,0.046,0
-T-BFE12FED93,15.02,online,Amazon,5,0.058,0
-T-1790130980,92.64,online,Shopify Store,20,0.035,0
-T-AC953DECE5,465.92,travel,Uber,16,0.114,0
-T-59D4B74390,113.44,travel,Airbnb,6,0.09,0
-T-53F6D588B0,14.28,online,AppStore,20,0.447,0
-T-B80E0749CF,32.86,online,Amazon,20,0.441,0
-T-3DE7D2E029,5.66,grocery,Sainsbury's,6,0.067,0
-T-35E1C6FE3D,428.79,travel,Emirates,13,0.072,0
-T-E7D7372C2B,839.68,travel,Booking.com,18,0.076,0
-T-A603EB7F45,51.51,atm,SBI ATM,13,0.02,0
-T-00E7552BEC,45.73,grocery,Trader Joe's,12,0.02,0
-T-F643251F87,570.47,electronics,Reliance Digital,13,0.059,0
-T-0A963E6D1D,276.25,electronics,Best Buy,12,0.095,0
-T-20CE147275,36.57,grocery,Trader Joe's,7,0.106,0
-T-D7275E9830,268.51,travel,British Airways,16,0.036,0
-T-82D0B71A99,420.47,electronics,Newegg,17,0.053,0
-T-D9B44FC423,200.2,online,Etsy,16,0.102,0
-T-81F178CFBF,5255.44,online,Etsy,3,0.508,1
-T-DE9BC5F9FB,35.66,grocery,Aldi,9,0.063,0
-T-C2C2EF8388,454.74,online,Bandcamp,1,0.055,0
-T-CDD23622E7,61.08,grocery,Whole Foods,18,0.081,0
-T-F00DCB91D0,71.64,online,Etsy,10,0.05,0
-T-3E3DD65B41,81.49,atm,HDFC ATM,20,0.037,0
-T-7570D61788,52.08,online,Amazon,12,0.033,0
-T-3749A3D557,110.53,electronics,B&H Photo,14,0.29,0
-T-16FAC0F517,92.99,atm,Barclays ATM,16,0.087,0
-T-CB9324AD9B,2.05,online,Etsy,8,0.783,1
-T-6D6842D195,11.66,grocery,Sainsbury's,22,0.024,0
-T-22B002370E,21.45,online,Shopify Store,7,0.061,0
-T-7A38F79FDB,73.39,online,Amazon,17,0.06,0
-T-7757E18FA2,115.62,atm,Barclays ATM,12,0.08,0
-T-48A9EC1881,8.3,grocery,Sainsbury's,14,0.116,0
-T-FC0A3E81F3,16.21,grocery,Kroger,10,0.08,0
-T-FDFD0D619E,241.06,electronics,Newegg,11,0.07,0
-T-1FCEFA4E99,737.75,atm,Barclays ATM,6,0.711,1
-T-EDDD74338C,38.1,grocery,Sainsbury's,11,0.363,0
-T-EB166CE8CF,6.07,grocery,Big Bazaar,0,0.059,0
-T-52B0D6452A,16.16,grocery,Trader Joe's,17,0.117,0
-T-04F3C46380,83.98,atm,Barclays ATM,11,0.375,0
-T-29E4A6069A,79.77,online,eBay,9,0.05,0
-T-86FDCD5720,12.03,grocery,Reliance Fresh,13,0.032,0
-T-B054016D49,43.06,electronics,Reliance Digital,9,0.346,0
-T-5E45D5A6F4,29.22,grocery,Whole Foods,19,0.098,0
-T-47246C39EF,87.59,online,Bandcamp,22,0.036,0
-T-8158DC8604,35.48,online,Bandcamp,18,0.393,0
-T-07ACDF52DB,19.36,grocery,Big Bazaar,7,0.085,0
-T-841D5697CB,513.69,travel,Booking.com,16,0.098,0
-T-D3E5558867,5.24,online,Etsy,5,0.063,0
-T-D76DF8228B,234.08,travel,Uber,4,0.067,0
-T-D5BF6E0029,24.41,grocery,Aldi,14,0.118,0
-T-3128364F11,14.54,grocery,Aldi,20,0.098,0
-T-E99073ED82,10.56,grocery,Aldi,11,0.101,0
-T-798FD0EBE9,136.96,electronics,Best Buy,7,0.066,0
-T-AD124420BD,117.7,atm,Barclays ATM,20,0.536,0
-T-7597C3EE6D,64.29,online,eBay,17,0.056,0
-T-33C61D149E,46.48,grocery,Reliance Fresh,19,0.346,0
-T-BED1F8B978,527.86,travel,Airbnb,0,0.026,0
-T-10DF816EC6,154.48,travel,British Airways,3,0.041,0
-T-DC6BE062DB,610.52,electronics,Newegg,21,0.257,0
-T-5284904A94,44.02,electronics,Croma,11,0.079,0
-T-95DB862060,24.33,grocery,Kroger,23,0.044,0
-T-6E0270F63B,28.17,online,Etsy,8,0.092,0
-T-6E5ADF515A,346.4,travel,Marriott,9,0.098,0
-T-E622FA4BD4,547.08,travel,Airbnb,18,0.284,0
-T-DC09370525,16.85,grocery,Whole Foods,9,0.117,0
-T-391BA9717F,147.8,electronics,Currys,18,0.061,0
-T-3A97623C00,11.84,grocery,Aldi,14,0.054,0
-T-6B041B3AD3,27.37,grocery,Reliance Fresh,11,0.06,0
-T-FD2BEFAAC8,32.82,online,eBay,20,0.111,0
-T-38C1773481,148.74,atm,Chase ATM,13,0.086,0
-T-E4D7EC1E62,12.76,grocery,Kroger,22,0.118,0
-T-F6D08AECCC,13.2,online,AppStore,9,0.034,0
-T-DDB38A0E79,35.03,grocery,Reliance Fresh,21,0.042,0
-T-A5EB33BF8F,154.46,online,Steam,23,0.032,0
-T-410316CE79,47.36,grocery,Whole Foods,8,0.091,0
-T-60BB15E275,56.71,online,Shopify Store,9,0.042,0
-T-619A906F45,58.38,atm,Chase ATM,14,0.067,0
-T-5A388FCD17,59.42,atm,Barclays ATM,21,0.04,0
-T-2DE24B4C5A,102.98,electronics,Newegg,7,0.021,0
-T-D900F2F44F,3344.62,electronics,Newegg,5,0.709,1
-T-AD83E58A16,34.08,grocery,Sainsbury's,18,0.112,0
-T-EE8FB9FDB6,74.32,electronics,Currys,16,0.098,0
-T-6E447C791F,19.39,grocery,Whole Foods,16,0.075,0
-T-E622E065DA,77.44,atm,Halifax ATM,18,0.072,0
-T-CA7386E1A0,5.69,grocery,Reliance Fresh,16,0.074,0
-T-7F5BB7DAAB,35.0,online,Amazon,17,0.283,0
-T-6ACA4E8DD5,41.31,grocery,Sainsbury's,0,0.11,0
-T-1253AFB17A,299.46,electronics,Croma,9,0.254,0
-T-0509023D3D,68.75,online,Shopify Store,13,0.068,0
-T-7AE4CC818B,17.95,online,AppStore,14,0.031,0
-T-25913EFAFD,19.29,grocery,Big Bazaar,16,0.048,0
-T-3C6D100E05,1514.32,travel,Airbnb,16,0.044,0
-T-7D63721382,268.82,travel,Airbnb,18,0.089,0
-T-22D7819031,57.89,electronics,Best Buy,7,0.418,0
-T-0D9AB8A94C,87.3,atm,Halifax ATM,17,0.109,0
-T-C977EBEAD7,372.04,travel,British Airways,16,0.036,0
-T-2C1A8C80C6,45.5,online,Bandcamp,21,0.026,0
-T-83C0564B40,31.56,grocery,Trader Joe's,12,0.096,0
-T-294B22C9CC,124.55,atm,Halifax ATM,11,0.344,0
-T-744FE4DD63,63.36,atm,HDFC ATM,6,0.085,0
-T-2DA10C2D8E,50.85,online,eBay,22,0.297,0
-T-4662C739F2,39.13,atm,Chase ATM,20,0.082,0
-T-9AAAA2F4CC,296.62,travel,Marriott,17,0.097,0
-T-AF5AE444F5,13.52,grocery,Big Bazaar,12,0.061,0
-T-4DBDF7644B,401.94,online,eBay,21,0.042,0
-T-7E6FE0EE42,31.78,grocery,Aldi,12,0.085,0
-T-0B3BC3ED83,9.94,grocery,Sainsbury's,21,0.027,0
-T-B97C8B3892,291.28,online,Bandcamp,13,0.042,0
-T-FB72AA94F8,553.5,electronics,Croma,14,0.031,0
-T-B43248C61D,580.24,electronics,B&H Photo,12,0.076,0
-T-D3932024E8,42.31,travel,Uber,12,0.065,0
-T-EB2729FE2D,51.51,online,AppStore,20,0.077,0
-T-81582955AB,7192.48,online,AppStore,3,0.807,1
-T-D201B0298B,52.79,grocery,Whole Foods,17,0.067,0
-T-5141C875A6,70.38,atm,SBI ATM,5,0.103,0
-T-102A889A15,12.07,online,Etsy,13,0.53,0
-T-DF137C0CE0,191.89,electronics,Newegg,8,0.103,0
-T-EFF13A74EB,188.4,online,eBay,8,0.047,0
-T-37656E4F3F,86.0,atm,Halifax ATM,19,0.034,0
-T-A096429A63,6.38,online,eBay,7,0.12,0
-T-8D647EC094,80.09,atm,Barclays ATM,15,0.053,0
-T-FA5ADF9945,52.65,online,Shopify Store,8,0.057,0
-T-06CCE6B3EB,316.88,travel,Emirates,7,0.034,0
-T-B2B8713DFF,20.62,grocery,Aldi,21,0.031,0
-T-7413B507B0,83.33,atm,Chase ATM,21,0.079,0
-T-E8D0833945,67.9,atm,Barclays ATM,22,0.072,0
-T-52BAF2F104,718.12,travel,British Airways,0,0.045,0
-T-5A338A9C6A,36.85,online,AppStore,21,0.095,0
-T-9CA6644622,32.19,online,AppStore,22,0.04,0
-T-8A58EAA0BE,17.03,grocery,Aldi,18,0.481,0
-T-AB2367F474,787.27,travel,Emirates,13,0.062,0
-T-5BD0D41F32,12.5,electronics,B&H Photo,10,0.024,0
-T-979512DD9F,45.68,online,Bandcamp,11,0.081,0
-T-7B885D49BA,138.94,atm,Barclays ATM,10,0.108,0
-T-49DF1E0475,52.86,atm,SBI ATM,7,0.034,0
-T-CF47691F66,60.97,online,Etsy,20,0.077,0
-T-06D4185974,57.42,atm,SBI ATM,15,0.052,0
-T-88D53ED060,17.14,online,Bandcamp,8,0.408,0
-T-5051C48547,14.08,grocery,Big Bazaar,18,0.029,0
-T-723B4FCBCE,36.4,grocery,Big Bazaar,10,0.066,0
-T-52C6007C14,27.49,grocery,Reliance Fresh,4,0.109,0
-T-4CFD656657,158.5,online,Bandcamp,12,0.119,0
-T-D682FC3296,17.68,grocery,Sainsbury's,8,0.067,0
-T-EE7D618E86,295.86,electronics,Croma,17,0.048,0
+tx_id,amount,merchant_category,merchant_name,hour,country_risk,is_fraud
+T-97B59AF831,698.35,travel,Uber,13,0.409,0
+T-E6BD64AEDE,87.81,online,Steam,15,0.289,0
+T-576FB122C9,108.29,electronics,Newegg,20,0.088,0
+T-5C48962183,72.16,online,Etsy,17,0.063,0
+T-A2D766D8B2,1616.94,online,eBay,4,0.628,1
+T-ED928903EC,14.5,online,Amazon,12,0.086,0
+T-222D301493,22.74,grocery,Kroger,21,0.119,0
+T-5CB17DF761,179.69,online,AppStore,10,0.028,0
+T-479FC8BB43,475.3,electronics,Newegg,4,0.034,0
+T-7B6ECA67B5,42.47,online,AppStore,3,0.071,0
+T-8C7C3A9BA9,56.11,atm,SBI ATM,15,0.023,0
+T-7B428EEAD9,157.81,electronics,B&H Photo,15,0.078,0
+T-06E994F6F1,16.69,online,Bandcamp,16,0.044,0
+T-3007605EFD,28.4,grocery,Trader Joe's,19,0.069,0
+T-39E34F568C,3024.14,travel,Marriott,10,0.062,0
+T-949979112F,36.43,online,Bandcamp,21,0.11,0
+T-8EF9CD5A09,30.68,grocery,Sainsbury's,4,0.038,0
+T-B7C66AAC4B,35.25,grocery,Aldi,11,0.411,0
+T-EAC644A3FA,610.44,travel,Marriott,11,0.1,0
+T-265A66F3C0,67.03,atm,HDFC ATM,19,0.097,0
+T-85F4E8ABF3,36.11,online,Steam,1,0.285,0
+T-5379E7C3E2,33.77,online,Steam,18,0.056,0
+T-9097A9D79D,22.09,grocery,Kroger,13,0.039,0
+T-E54B9D998D,19.06,online,AppStore,14,0.023,0
+T-B4685297B9,10.33,grocery,Sainsbury's,9,0.036,0
+T-06310008E0,738.77,travel,Airbnb,14,0.069,0
+T-CFA648DCE9,53.78,grocery,Reliance Fresh,22,0.057,0
+T-DC00564AC2,189.12,travel,Emirates,14,0.057,0
+T-B5E170711E,35.6,online,eBay,8,0.066,0
+T-ACC38F241B,50.38,online,Bandcamp,18,0.112,0
+T-06135AABCF,102.55,travel,Airbnb,10,0.084,0
+T-FEAA68C266,42.02,atm,Chase ATM,12,0.089,0
+T-37CAEF80DE,23.45,grocery,Aldi,10,0.047,0
+T-B7A59F4BEE,335.71,electronics,B&H Photo,8,0.052,0
+T-CD590B649C,127.86,atm,Chase ATM,20,0.053,0
+T-0B8157C89B,110.43,electronics,Reliance Digital,22,0.113,0
+T-347E3BC02A,15.26,grocery,Big Bazaar,13,0.059,0
+T-40D1AD9CA8,284.61,electronics,Currys,6,0.074,0
+T-9925EDC3E4,45.97,grocery,Whole Foods,17,0.048,0
+T-8F8DB069CD,82.94,atm,SBI ATM,22,0.101,0
+T-26859A7E84,32.5,grocery,Aldi,14,0.055,0
+T-05B45489CB,87.9,online,Amazon,17,0.054,0
+T-2103EE3FF3,375.45,electronics,Best Buy,10,0.074,0
+T-5E81FB0C58,299.16,electronics,Best Buy,14,0.038,0
+T-EC2366E544,568.19,electronics,Reliance Digital,18,0.055,0
+T-8D5D6BC44B,66.42,online,Amazon,9,0.031,0
+T-FCE15DF0F1,9.39,grocery,Reliance Fresh,9,0.087,0
+T-EBD67861B9,23.42,grocery,Sainsbury's,11,0.065,0
+T-19C5241DCB,111.8,atm,Halifax ATM,11,0.079,0
+T-80DDCDAC39,63.28,online,Etsy,19,0.065,0
+T-F171BAB54B,40.29,grocery,Trader Joe's,20,0.023,0
+T-5D8F9774F7,31.46,online,eBay,13,0.029,0
+T-6032914323,143.72,electronics,Newegg,17,0.481,0
+T-130B484FED,150.1,electronics,Best Buy,11,0.103,0
+T-5167572A1D,17.99,online,AppStore,1,0.109,0
+T-DD10B1F108,28.18,grocery,Sainsbury's,7,0.032,0
+T-35AD8D16AD,60.18,atm,Halifax ATM,16,0.081,0
+T-E65A598485,4.85,grocery,Reliance Fresh,11,0.08,0
+T-56A5492EF8,228.43,electronics,Croma,13,0.069,0
+T-8D7C620C16,25.67,online,Amazon,11,0.383,0
+T-2074E7CA96,296.44,travel,British Airways,14,0.11,0
+T-7A9216019E,18.68,grocery,Sainsbury's,17,0.108,0
+T-F61C4D2F5E,251.46,atm,Halifax ATM,5,0.758,1
+T-F39588E7FB,155.06,electronics,Newegg,14,0.036,0
+T-67A78E850C,43.31,grocery,Sainsbury's,10,0.089,0
+T-DBD002C485,11.3,grocery,Sainsbury's,16,0.04,0
+T-C5FE71FD17,9.4,grocery,Kroger,5,0.066,0
+T-F8CABC06D7,67.18,atm,HDFC ATM,21,0.033,0
+T-407C7C4B37,286.04,electronics,Newegg,13,0.065,0
+T-1AF635BF58,68.84,online,Etsy,16,0.102,0
+T-789354CDEB,24.5,grocery,Trader Joe's,7,0.058,0
+T-F4BBC1D908,1688.47,online,Steam,4,0.417,1
+T-88E81A2BA3,12.66,grocery,Trader Joe's,20,0.09,0
+T-699C7E33EC,261.92,electronics,Currys,11,0.262,0
+T-F230BC0CD4,52.66,online,AppStore,12,0.045,0
+T-85D282C278,105.9,electronics,B&H Photo,20,0.078,0
+T-06D37FB4C1,99.44,online,Etsy,13,0.105,0
+T-F1A78E2C46,2912.61,travel,Emirates,8,0.113,0
+T-BBA3170569,78.01,atm,Chase ATM,8,0.495,0
+T-3C8F99E44B,93.85,online,Etsy,9,0.045,0
+T-EC6DFD990A,20.63,online,Amazon,14,0.111,0
+T-842C575FA3,123.34,online,Bandcamp,19,0.103,0
+T-934BED073F,64.88,atm,SBI ATM,20,0.264,0
+T-FC1C4C04C9,144.24,atm,SBI ATM,11,0.107,0
+T-93AA54ED02,117.28,travel,British Airways,21,0.524,0
+T-5359B54F71,122.82,atm,Halifax ATM,14,0.074,0
+T-3AA367D7A7,244.11,online,Shopify Store,23,0.06,0
+T-62F0633E14,48.63,atm,Halifax ATM,18,0.028,0
+T-63AD512E41,43.15,grocery,Reliance Fresh,19,0.02,0
+T-C54E0192AA,53.16,online,Shopify Store,14,0.098,0
+T-D8B1FB816E,27.51,grocery,Aldi,16,0.406,0
+T-83C59794B6,12.4,grocery,Big Bazaar,20,0.093,0
+T-62E5EB6CB1,1320.48,travel,Emirates,20,0.088,0
+T-655C6D91F3,74.07,electronics,Newegg,10,0.047,0
+T-2234C85043,28.28,grocery,Whole Foods,6,0.428,0
+T-3FCA42B017,491.45,online,eBay,22,0.111,0
+T-6B6315D2F2,113.92,atm,Barclays ATM,16,0.062,0
+T-BD2DB118C4,15.9,online,AppStore,22,0.052,0
+T-E0A4910644,1295.24,travel,Booking.com,20,0.029,0
+T-BDC855136C,51.77,online,Amazon,17,0.08,0
+T-623BCAC861,171.35,electronics,B&H Photo,5,0.036,0
+T-DC180D9B26,29.37,grocery,Aldi,8,0.113,0
+T-5F082C4E4E,87.79,atm,HDFC ATM,20,0.026,0
+T-B790E3DE45,169.48,electronics,Croma,23,0.026,0
+T-0D697E9BA5,137.82,grocery,Sainsbury's,19,0.099,0
+T-114953BB16,15.08,grocery,Whole Foods,14,0.104,0
+T-5B5F803A75,83.03,online,Etsy,11,0.051,0
+T-E7B02F0034,105.94,atm,Halifax ATM,12,0.462,0
+T-834572A925,277.84,online,eBay,13,0.1,0
+T-D18376E2CB,221.81,electronics,Newegg,10,0.11,0
+T-7A8BA42E9B,39.76,atm,Halifax ATM,19,0.085,0
+T-8EE63C1626,103.7,atm,SBI ATM,19,0.252,0
+T-0A9EABC92D,15.93,grocery,Big Bazaar,15,0.096,0
+T-6BC48678F4,353.66,travel,Emirates,8,0.074,0
+T-FE31059F6F,50.23,online,Shopify Store,13,0.113,0
+T-6AD238E5A4,28.66,online,Bandcamp,18,0.118,0
+T-662FB71F12,13.93,grocery,Reliance Fresh,12,0.309,0
+T-7B7115BC55,19.21,grocery,Sainsbury's,11,0.109,0
+T-AF9DE4F31F,31.94,grocery,Whole Foods,17,0.373,0
+T-331D2AEB1C,52.97,online,Amazon,12,0.399,0
+T-9C00AAC0BC,1665.04,travel,Airbnb,12,0.106,0
+T-AABB535E92,258.81,travel,Uber,12,0.259,0
+T-801464A9B4,16.54,grocery,Aldi,10,0.083,0
+T-83E6A6EFDC,12.2,grocery,Aldi,7,0.108,0
+T-E9B063E1D9,4.71,grocery,Trader Joe's,16,0.482,0
+T-B2276D7982,203.07,electronics,Reliance Digital,22,0.102,0
+T-5A53D37BCB,82.97,online,Shopify Store,7,0.024,0
+T-67CC1C844D,14.78,grocery,Sainsbury's,13,0.068,0
+T-45A359D021,66.94,online,eBay,10,0.06,0
+T-3CC7F90FD0,341.64,electronics,Croma,5,0.025,0
+T-2A8C270A90,88.22,atm,SBI ATM,9,0.544,0
+T-D2EFF388B3,2964.52,online,eBay,3,0.569,1
+T-1F07F76431,18.27,grocery,Sainsbury's,6,0.111,0
+T-CAF6F9DA39,36.43,online,Shopify Store,18,0.026,0
+T-420AD7E97D,26.2,grocery,Kroger,13,0.033,0
+T-F5ACEB1719,462.5,electronics,B&H Photo,15,0.387,0
+T-696A64D129,23.08,online,Steam,7,0.421,0
+T-00E325B21F,24.71,online,Etsy,11,0.068,0
+T-A1FE6E7B59,26.97,grocery,Aldi,15,0.117,0
+T-5B66A3E44B,28.84,online,eBay,14,0.058,0
+T-89058C6FBA,32.88,online,Steam,15,0.104,0
+T-2F9FCBCD1B,30.3,grocery,Kroger,13,0.117,0
+T-C380354886,468.03,electronics,Best Buy,12,0.063,0
+T-5D933F164E,301.57,electronics,Currys,13,0.098,0
+T-E01783B2B2,34.85,online,Bandcamp,20,0.1,0
+T-B8A2637C66,28.1,atm,Chase ATM,13,0.057,0
+T-CBD2E01312,74.56,atm,SBI ATM,17,0.071,0
+T-3C4E907CF3,36.82,online,AppStore,14,0.349,0
+T-21CDFA7C7D,11.26,grocery,Whole Foods,10,0.047,0
+T-5D993B2B7B,9.54,grocery,Trader Joe's,23,0.036,0
+T-FFF099C5A6,310.58,travel,Uber,22,0.061,0
+T-A414716452,163.43,electronics,Reliance Digital,11,0.096,0
+T-E7BC006E9F,1980.48,travel,British Airways,9,0.045,0
+T-36F075411A,31.08,online,Etsy,12,0.057,0
+T-A055D131AA,21.08,online,eBay,21,0.069,0
+T-1CBF9FDFEA,53.4,atm,HDFC ATM,9,0.077,0
+T-4E628AE9CC,189.18,online,AppStore,10,0.042,0
+T-5B71F588CB,155.92,atm,Barclays ATM,10,0.06,0
+T-7EFF95151B,4.81,online,AppStore,23,0.759,1
+T-CA3865FD85,38.73,online,Shopify Store,15,0.025,0
+T-798AE96018,257.04,travel,Booking.com,12,0.089,0
+T-95212150D3,25.1,grocery,Sainsbury's,11,0.095,0
+T-8A353E3B61,77.25,atm,Halifax ATM,14,0.12,0
+T-E2E3CEF078,31.66,online,Shopify Store,21,0.085,0
+T-05BDCC5DE8,94.12,online,Shopify Store,14,0.052,0
+T-DE307F5198,237.77,travel,Uber,9,0.082,0
+T-5C91C1D738,163.31,online,Shopify Store,16,0.062,0
+T-08EC46FC84,11.21,online,eBay,20,0.085,0
+T-2A62672F8A,113.36,atm,Chase ATM,13,0.037,0
+T-6366B90F51,240.64,electronics,Reliance Digital,11,0.081,0
+T-65470E2B3F,331.22,atm,Chase ATM,2,0.835,1
+T-90200082F9,73.37,atm,Chase ATM,16,0.096,0
+T-A9912CEF5A,90.09,electronics,Best Buy,11,0.082,0
+T-475BED7825,37.76,atm,Chase ATM,11,0.043,0
+T-D8626E6FE1,366.42,travel,Airbnb,21,0.082,0
+T-FB7923706F,44.27,grocery,Whole Foods,22,0.078,0
+T-C839CE7CDC,37.94,grocery,Aldi,9,0.035,0
+T-466A8AC943,78.26,travel,Airbnb,19,0.075,0
+T-92318C9494,70.47,online,Bandcamp,22,0.095,0
+T-B9E08B14A2,48.54,grocery,Aldi,22,0.03,0
+T-0821D1BA29,332.82,travel,Emirates,20,0.036,0
+T-21FBD2958B,579.68,electronics,Reliance Digital,11,0.09,0
+T-53FE7BB875,19.4,grocery,Trader Joe's,22,0.02,0
+T-6F17F9A4FF,8.12,grocery,Kroger,19,0.055,0
+T-A04B773B17,21.8,grocery,Sainsbury's,12,0.12,0
+T-6F1C7DA6E0,4.03,online,Shopify Store,9,0.871,1
+T-44AE5E3910,109.4,atm,Halifax ATM,22,0.113,0
+T-0E8D1FB78B,19.6,grocery,Whole Foods,5,0.114,0
+T-880DADF51B,192.25,electronics,Best Buy,0,0.03,0
+T-3CE32FB581,40.44,online,Bandcamp,8,0.283,0
+T-3338637225,128.1,online,AppStore,10,0.071,0
+T-1C8CF9F6E6,32.38,grocery,Kroger,8,0.116,0
+T-62334CB210,34.24,grocery,Trader Joe's,12,0.032,0
+T-B11938C6B9,47.62,online,eBay,9,0.04,0
+T-9A4DDFE234,17.23,grocery,Aldi,5,0.082,0
+T-6D613FE656,472.14,electronics,Croma,21,0.101,0
+T-7D59EDFFD7,985.21,travel,Marriott,19,0.05,0
+T-D74261C8E6,65.01,atm,Barclays ATM,0,0.089,0
+T-4AC8C8B414,21.14,grocery,Reliance Fresh,10,0.077,0
+T-3402C55181,275.99,electronics,Currys,12,0.053,0
+T-A59DE02AE6,373.46,travel,Uber,16,0.063,0
+T-D7F627D9D8,414.06,travel,Emirates,12,0.113,0
+T-106B9DB503,44.89,online,eBay,9,0.111,0
+T-AEE5637CAD,767.87,travel,Marriott,17,0.096,0
+T-03A9A29748,10.78,online,eBay,9,0.279,0
+T-DB321A9F91,15.59,grocery,Trader Joe's,7,0.102,0
+T-302153F3C1,19.91,grocery,Kroger,18,0.088,0
+T-6459883F9C,17.28,online,Steam,15,0.1,0
+T-86009FA1FD,30.17,online,Shopify Store,23,0.342,0
+T-DC13D53F4B,29.28,electronics,Best Buy,12,0.031,0
+T-AAC54931EF,59.37,atm,Chase ATM,16,0.074,0
+T-966520BA8A,6.59,online,Bandcamp,12,0.109,0
+T-0D233BEA90,174.94,travel,Marriott,22,0.081,0
+T-E4ADE17385,8.42,grocery,Whole Foods,12,0.389,0
+T-7AF0F1BF8D,837.84,atm,HDFC ATM,4,0.813,1
+T-8912FD0322,208.11,travel,Airbnb,17,0.056,0
+T-69547B822A,166.39,electronics,Reliance Digital,20,0.337,0
+T-5BBEC014D8,111.78,atm,Halifax ATM,0,0.087,0
+T-4CC4203353,20.8,grocery,Trader Joe's,8,0.12,0
+T-CD2CC3E0B9,174.5,online,AppStore,7,0.117,0
+T-0D986C2028,35.07,grocery,Aldi,21,0.1,0
+T-331060DD0A,35.21,online,Amazon,13,0.049,0
+T-0F06F70B27,333.21,travel,Booking.com,8,0.094,0
+T-F1CE95B173,8.59,grocery,Trader Joe's,7,0.098,0
+T-F782BAABD4,71.97,online,Bandcamp,18,0.103,0
+T-E3877C2739,72.91,online,AppStore,19,0.031,0
+T-706D35EAB3,181.67,atm,Halifax ATM,23,0.104,0
+T-570F5DB541,949.34,electronics,Newegg,9,0.097,0
+T-AD2FA11593,27.12,grocery,Kroger,7,0.041,0
+T-513A9E314E,95.58,atm,SBI ATM,11,0.066,0
+T-38EFE8496C,9.3,grocery,Reliance Fresh,17,0.036,0
+T-EAF47EA9D0,225.54,electronics,Newegg,20,0.038,0
+T-5425D25BBF,115.48,electronics,Best Buy,15,0.08,0
+T-A6E189E3D2,23.4,online,Steam,8,0.067,0
+T-299C0B1966,32.95,grocery,Sainsbury's,15,0.065,0
+T-0A0333EE14,152.59,atm,Chase ATM,8,0.08,0
+T-6B1810FE3E,66.16,atm,Halifax ATM,6,0.024,0
+T-9D0B26A156,39.88,online,AppStore,13,0.114,0
+T-8422547697,232.02,atm,Halifax ATM,19,0.061,0
+T-30F0319F3D,47.1,atm,SBI ATM,17,0.097,0
+T-F3405BB9CF,4549.53,online,eBay,3,0.421,1
+T-D6D8829B94,23.02,grocery,Big Bazaar,7,0.068,0
+T-30336BEF95,1129.94,travel,Marriott,16,0.083,0
+T-78E159E9D0,8.24,online,Etsy,20,0.056,0
+T-FF79BDE82F,12.81,online,Amazon,20,0.366,0
+T-9615B08ED7,307.36,travel,Emirates,11,0.386,0
+T-67F87678B1,84.24,atm,Barclays ATM,14,0.119,0
+T-CAE96C64F4,88.1,atm,Barclays ATM,14,0.109,0
+T-DF29EB309A,3244.75,online,Steam,4,0.651,1
+T-533EA08D39,85.52,online,eBay,17,0.117,0
+T-59FE8A4DDD,69.71,atm,Chase ATM,23,0.256,0
+T-DF3196AB71,31.37,grocery,Reliance Fresh,16,0.11,0
+T-F34BD61AF4,68.1,electronics,Newegg,9,0.039,0
+T-3AE317340C,25.16,grocery,Kroger,6,0.455,0
+T-7A88AF0A27,37.25,online,Bandcamp,10,0.091,0
+T-95634DB83F,3436.42,travel,Uber,4,0.652,1
+T-0982D4BEE2,110.13,atm,HDFC ATM,7,0.082,0
+T-C2EA5342EB,175.01,travel,Uber,11,0.077,0
+T-617BF80880,35.7,grocery,Whole Foods,11,0.035,0
+T-F593B6B0B8,346.69,electronics,Reliance Digital,22,0.345,0
+T-3EDB3582CA,58.24,online,Shopify Store,9,0.071,0
+T-87CBBC8F3D,14.22,grocery,Big Bazaar,14,0.044,0
+T-0647E7A285,179.69,electronics,Reliance Digital,14,0.099,0
+T-F519F0C467,60.92,travel,Airbnb,13,0.069,0
+T-A9168A46C5,29.4,grocery,Big Bazaar,13,0.104,0
+T-5420697B1A,10.77,grocery,Aldi,8,0.107,0
+T-E7A27908EA,1.34,online,Etsy,16,0.918,1
+T-010B3E9CE1,17.71,grocery,Trader Joe's,12,0.105,0
+T-5AC7D14837,22.55,online,Amazon,3,0.08,0
+T-64D9A447EC,428.1,atm,Chase ATM,0,0.653,1
+T-CA619C59D7,310.41,electronics,B&H Photo,14,0.04,0
+T-5CF9A2400D,17.9,online,Etsy,16,0.035,0
+T-A5CA063564,50.4,grocery,Kroger,18,0.351,0
+T-881F2F9010,153.88,online,Etsy,13,0.112,0
+T-91EC58B394,80.54,atm,Chase ATM,14,0.489,0
+T-CCBD882078,28.37,grocery,Sainsbury's,7,0.08,0
+T-616C816C87,98.12,atm,Halifax ATM,11,0.078,0
+T-7DA956763D,25.05,online,Amazon,18,0.041,0
+T-88F101B0DE,115.81,electronics,Croma,18,0.041,0
+T-FB75436704,15.61,online,Etsy,8,0.092,0
+T-0C3FF08540,717.24,electronics,Newegg,21,0.109,0
+T-C860A50831,203.39,travel,Uber,12,0.083,0
+T-C071CE29FB,36.59,grocery,Reliance Fresh,13,0.032,0
+T-F0712EF012,138.48,travel,Uber,20,0.064,0
+T-AE064C3CF4,42.47,online,Etsy,14,0.115,0
+T-65435432C2,62.78,atm,Halifax ATM,19,0.074,0
+T-6B0EF7AA2E,67.67,online,AppStore,13,0.096,0
+T-E70397981C,70.8,atm,HDFC ATM,18,0.07,0
+T-AAF94693F5,106.05,electronics,Best Buy,8,0.07,0
+T-B27CDE0210,26.33,grocery,Sainsbury's,0,0.545,0
+T-33467D15AD,104.62,grocery,Aldi,10,0.029,0
+T-FC65FA2EC3,82.81,online,Etsy,13,0.106,0
+T-0B9DB74A15,15.7,grocery,Kroger,6,0.041,0
+T-EBA152A7F2,230.19,travel,Marriott,11,0.052,0
+T-1359001BC6,124.87,atm,HDFC ATM,17,0.03,0
+T-D73F7B8EDE,14.45,grocery,Whole Foods,20,0.089,0
+T-832F65B056,1821.95,travel,British Airways,10,0.107,0
+T-308D1531B4,27.04,online,Amazon,13,0.108,0
+T-3D661390BD,638.93,electronics,Newegg,19,0.064,0
+T-F33E0155A5,73.85,online,AppStore,10,0.067,0
+T-934A515624,25.57,grocery,Big Bazaar,14,0.107,0
+T-1A41695C7E,418.19,electronics,Croma,13,0.025,0
+T-A75ACDA874,23.43,atm,Barclays ATM,5,0.407,0
+T-DA61D99AE9,32.91,grocery,Aldi,9,0.083,0
+T-BE3AE16892,74.27,online,Bandcamp,21,0.074,0
+T-79ECDF8DF4,40.3,online,Shopify Store,10,0.294,0
+T-4A94EBFEF8,677.12,travel,British Airways,4,0.024,0
+T-C34DF78364,20.87,grocery,Kroger,1,0.533,0
+T-1BE15EF4D4,88.8,atm,HDFC ATM,12,0.027,0
+T-EF39579DB7,59.19,online,Shopify Store,4,0.075,0
+T-9C567C46C0,1441.17,travel,Marriott,20,0.088,0
+T-1C13EFABB7,179.7,travel,Uber,17,0.039,0
+T-038C2A58DF,27.91,grocery,Reliance Fresh,14,0.104,0
+T-FE784A868E,87.37,online,AppStore,21,0.092,0
+T-1F9F4E55B1,54.04,grocery,Kroger,17,0.349,0
+T-C01D2AE9A6,39.25,electronics,Currys,15,0.104,0
+T-4496648EA6,1550.09,travel,Uber,23,0.063,0
+T-544290B74D,90.68,atm,HDFC ATM,16,0.326,0
+T-4D7DBE0DB1,26.44,grocery,Sainsbury's,8,0.049,0
+T-9B9DCFFF32,36.78,electronics,Reliance Digital,9,0.025,0
+T-0AD14BC0BF,26.01,grocery,Kroger,10,0.297,0
+T-A1E9FAA27D,13.63,grocery,Big Bazaar,12,0.086,0
+T-1CE45FE2C6,73.45,online,Etsy,22,0.043,0
+T-CA277BE922,447.77,electronics,Currys,16,0.101,0
+T-F09037C88E,100.9,atm,Barclays ATM,15,0.087,0
+T-3A9A23A2AC,48.92,grocery,Trader Joe's,12,0.103,0
+T-A0D2C4E1A8,20.16,atm,Barclays ATM,9,0.119,0
+T-5ED4458B87,80.22,online,Bandcamp,10,0.277,0
+T-9146EEC5A2,33.91,grocery,Aldi,7,0.091,0
+T-33FDF81B55,329.71,travel,Uber,7,0.05,0
+T-4E5A62E3F5,11.7,grocery,Whole Foods,7,0.1,0
+T-788A690379,59.5,online,eBay,15,0.382,0
+T-D5C83DDD1E,159.09,electronics,Reliance Digital,22,0.038,0
+T-0A30A28371,1353.46,travel,Airbnb,11,0.115,0
+T-21033A68A9,45.26,grocery,Sainsbury's,9,0.033,0
+T-9F870CADC9,63.64,travel,Uber,21,0.071,0
+T-A01DC4D6A9,182.77,travel,Marriott,12,0.325,0
+T-C13FE8B60D,25.15,online,AppStore,5,0.11,0
+T-661AF68D29,705.2,travel,Booking.com,14,0.102,0
+T-E521386DD1,45.2,grocery,Kroger,12,0.095,0
+T-1A75E42270,161.19,electronics,Newegg,9,0.054,0
+T-C37A2A1D21,34.61,grocery,Reliance Fresh,18,0.099,0
+T-2B07219F20,11.7,online,Etsy,9,0.049,0
+T-81E585307D,33.21,online,eBay,12,0.092,0
+T-C610D9E850,41.94,online,Shopify Store,15,0.082,0
+T-28701C317A,93.65,electronics,Newegg,15,0.067,0
+T-246A78EA04,32.61,online,Shopify Store,19,0.116,0
+T-DFA108DB94,21.54,grocery,Sainsbury's,16,0.049,0
+T-A092C130F5,263.35,electronics,B&H Photo,14,0.037,0
+T-ADB6457CE6,11.15,grocery,Sainsbury's,16,0.035,0
+T-5BFED9D434,43.99,grocery,Kroger,2,0.395,0
+T-785218AA46,46.43,electronics,Best Buy,22,0.095,0
+T-25E914FE72,8161.83,electronics,Reliance Digital,5,0.722,1
+T-C4BAF551E9,189.03,online,Etsy,15,0.044,0
+T-D4D2418C27,470.94,atm,SBI ATM,6,0.827,1
+T-B81F065FEA,14.2,grocery,Aldi,19,0.046,0
+T-BFE12FED93,15.02,online,Amazon,5,0.058,0
+T-1790130980,92.64,online,Shopify Store,20,0.035,0
+T-AC953DECE5,465.92,travel,Uber,16,0.114,0
+T-59D4B74390,113.44,travel,Airbnb,6,0.09,0
+T-53F6D588B0,14.28,online,AppStore,20,0.447,0
+T-B80E0749CF,32.86,online,Amazon,20,0.441,0
+T-3DE7D2E029,5.66,grocery,Sainsbury's,6,0.067,0
+T-35E1C6FE3D,428.79,travel,Emirates,13,0.072,0
+T-E7D7372C2B,839.68,travel,Booking.com,18,0.076,0
+T-A603EB7F45,51.51,atm,SBI ATM,13,0.02,0
+T-00E7552BEC,45.73,grocery,Trader Joe's,12,0.02,0
+T-F643251F87,570.47,electronics,Reliance Digital,13,0.059,0
+T-0A963E6D1D,276.25,electronics,Best Buy,12,0.095,0
+T-20CE147275,36.57,grocery,Trader Joe's,7,0.106,0
+T-D7275E9830,268.51,travel,British Airways,16,0.036,0
+T-82D0B71A99,420.47,electronics,Newegg,17,0.053,0
+T-D9B44FC423,200.2,online,Etsy,16,0.102,0
+T-81F178CFBF,5255.44,online,Etsy,3,0.508,1
+T-DE9BC5F9FB,35.66,grocery,Aldi,9,0.063,0
+T-C2C2EF8388,454.74,online,Bandcamp,1,0.055,0
+T-CDD23622E7,61.08,grocery,Whole Foods,18,0.081,0
+T-F00DCB91D0,71.64,online,Etsy,10,0.05,0
+T-3E3DD65B41,81.49,atm,HDFC ATM,20,0.037,0
+T-7570D61788,52.08,online,Amazon,12,0.033,0
+T-3749A3D557,110.53,electronics,B&H Photo,14,0.29,0
+T-16FAC0F517,92.99,atm,Barclays ATM,16,0.087,0
+T-CB9324AD9B,2.05,online,Etsy,8,0.783,1
+T-6D6842D195,11.66,grocery,Sainsbury's,22,0.024,0
+T-22B002370E,21.45,online,Shopify Store,7,0.061,0
+T-7A38F79FDB,73.39,online,Amazon,17,0.06,0
+T-7757E18FA2,115.62,atm,Barclays ATM,12,0.08,0
+T-48A9EC1881,8.3,grocery,Sainsbury's,14,0.116,0
+T-FC0A3E81F3,16.21,grocery,Kroger,10,0.08,0
+T-FDFD0D619E,241.06,electronics,Newegg,11,0.07,0
+T-1FCEFA4E99,737.75,atm,Barclays ATM,6,0.711,1
+T-EDDD74338C,38.1,grocery,Sainsbury's,11,0.363,0
+T-EB166CE8CF,6.07,grocery,Big Bazaar,0,0.059,0
+T-52B0D6452A,16.16,grocery,Trader Joe's,17,0.117,0
+T-04F3C46380,83.98,atm,Barclays ATM,11,0.375,0
+T-29E4A6069A,79.77,online,eBay,9,0.05,0
+T-86FDCD5720,12.03,grocery,Reliance Fresh,13,0.032,0
+T-B054016D49,43.06,electronics,Reliance Digital,9,0.346,0
+T-5E45D5A6F4,29.22,grocery,Whole Foods,19,0.098,0
+T-47246C39EF,87.59,online,Bandcamp,22,0.036,0
+T-8158DC8604,35.48,online,Bandcamp,18,0.393,0
+T-07ACDF52DB,19.36,grocery,Big Bazaar,7,0.085,0
+T-841D5697CB,513.69,travel,Booking.com,16,0.098,0
+T-D3E5558867,5.24,online,Etsy,5,0.063,0
+T-D76DF8228B,234.08,travel,Uber,4,0.067,0
+T-D5BF6E0029,24.41,grocery,Aldi,14,0.118,0
+T-3128364F11,14.54,grocery,Aldi,20,0.098,0
+T-E99073ED82,10.56,grocery,Aldi,11,0.101,0
+T-798FD0EBE9,136.96,electronics,Best Buy,7,0.066,0
+T-AD124420BD,117.7,atm,Barclays ATM,20,0.536,0
+T-7597C3EE6D,64.29,online,eBay,17,0.056,0
+T-33C61D149E,46.48,grocery,Reliance Fresh,19,0.346,0
+T-BED1F8B978,527.86,travel,Airbnb,0,0.026,0
+T-10DF816EC6,154.48,travel,British Airways,3,0.041,0
+T-DC6BE062DB,610.52,electronics,Newegg,21,0.257,0
+T-5284904A94,44.02,electronics,Croma,11,0.079,0
+T-95DB862060,24.33,grocery,Kroger,23,0.044,0
+T-6E0270F63B,28.17,online,Etsy,8,0.092,0
+T-6E5ADF515A,346.4,travel,Marriott,9,0.098,0
+T-E622FA4BD4,547.08,travel,Airbnb,18,0.284,0
+T-DC09370525,16.85,grocery,Whole Foods,9,0.117,0
+T-391BA9717F,147.8,electronics,Currys,18,0.061,0
+T-3A97623C00,11.84,grocery,Aldi,14,0.054,0
+T-6B041B3AD3,27.37,grocery,Reliance Fresh,11,0.06,0
+T-FD2BEFAAC8,32.82,online,eBay,20,0.111,0
+T-38C1773481,148.74,atm,Chase ATM,13,0.086,0
+T-E4D7EC1E62,12.76,grocery,Kroger,22,0.118,0
+T-F6D08AECCC,13.2,online,AppStore,9,0.034,0
+T-DDB38A0E79,35.03,grocery,Reliance Fresh,21,0.042,0
+T-A5EB33BF8F,154.46,online,Steam,23,0.032,0
+T-410316CE79,47.36,grocery,Whole Foods,8,0.091,0
+T-60BB15E275,56.71,online,Shopify Store,9,0.042,0
+T-619A906F45,58.38,atm,Chase ATM,14,0.067,0
+T-5A388FCD17,59.42,atm,Barclays ATM,21,0.04,0
+T-2DE24B4C5A,102.98,electronics,Newegg,7,0.021,0
+T-D900F2F44F,3344.62,electronics,Newegg,5,0.709,1
+T-AD83E58A16,34.08,grocery,Sainsbury's,18,0.112,0
+T-EE8FB9FDB6,74.32,electronics,Currys,16,0.098,0
+T-6E447C791F,19.39,grocery,Whole Foods,16,0.075,0
+T-E622E065DA,77.44,atm,Halifax ATM,18,0.072,0
+T-CA7386E1A0,5.69,grocery,Reliance Fresh,16,0.074,0
+T-7F5BB7DAAB,35.0,online,Amazon,17,0.283,0
+T-6ACA4E8DD5,41.31,grocery,Sainsbury's,0,0.11,0
+T-1253AFB17A,299.46,electronics,Croma,9,0.254,0
+T-0509023D3D,68.75,online,Shopify Store,13,0.068,0
+T-7AE4CC818B,17.95,online,AppStore,14,0.031,0
+T-25913EFAFD,19.29,grocery,Big Bazaar,16,0.048,0
+T-3C6D100E05,1514.32,travel,Airbnb,16,0.044,0
+T-7D63721382,268.82,travel,Airbnb,18,0.089,0
+T-22D7819031,57.89,electronics,Best Buy,7,0.418,0
+T-0D9AB8A94C,87.3,atm,Halifax ATM,17,0.109,0
+T-C977EBEAD7,372.04,travel,British Airways,16,0.036,0
+T-2C1A8C80C6,45.5,online,Bandcamp,21,0.026,0
+T-83C0564B40,31.56,grocery,Trader Joe's,12,0.096,0
+T-294B22C9CC,124.55,atm,Halifax ATM,11,0.344,0
+T-744FE4DD63,63.36,atm,HDFC ATM,6,0.085,0
+T-2DA10C2D8E,50.85,online,eBay,22,0.297,0
+T-4662C739F2,39.13,atm,Chase ATM,20,0.082,0
+T-9AAAA2F4CC,296.62,travel,Marriott,17,0.097,0
+T-AF5AE444F5,13.52,grocery,Big Bazaar,12,0.061,0
+T-4DBDF7644B,401.94,online,eBay,21,0.042,0
+T-7E6FE0EE42,31.78,grocery,Aldi,12,0.085,0
+T-0B3BC3ED83,9.94,grocery,Sainsbury's,21,0.027,0
+T-B97C8B3892,291.28,online,Bandcamp,13,0.042,0
+T-FB72AA94F8,553.5,electronics,Croma,14,0.031,0
+T-B43248C61D,580.24,electronics,B&H Photo,12,0.076,0
+T-D3932024E8,42.31,travel,Uber,12,0.065,0
+T-EB2729FE2D,51.51,online,AppStore,20,0.077,0
+T-81582955AB,7192.48,online,AppStore,3,0.807,1
+T-D201B0298B,52.79,grocery,Whole Foods,17,0.067,0
+T-5141C875A6,70.38,atm,SBI ATM,5,0.103,0
+T-102A889A15,12.07,online,Etsy,13,0.53,0
+T-DF137C0CE0,191.89,electronics,Newegg,8,0.103,0
+T-EFF13A74EB,188.4,online,eBay,8,0.047,0
+T-37656E4F3F,86.0,atm,Halifax ATM,19,0.034,0
+T-A096429A63,6.38,online,eBay,7,0.12,0
+T-8D647EC094,80.09,atm,Barclays ATM,15,0.053,0
+T-FA5ADF9945,52.65,online,Shopify Store,8,0.057,0
+T-06CCE6B3EB,316.88,travel,Emirates,7,0.034,0
+T-B2B8713DFF,20.62,grocery,Aldi,21,0.031,0
+T-7413B507B0,83.33,atm,Chase ATM,21,0.079,0
+T-E8D0833945,67.9,atm,Barclays ATM,22,0.072,0
+T-52BAF2F104,718.12,travel,British Airways,0,0.045,0
+T-5A338A9C6A,36.85,online,AppStore,21,0.095,0
+T-9CA6644622,32.19,online,AppStore,22,0.04,0
+T-8A58EAA0BE,17.03,grocery,Aldi,18,0.481,0
+T-AB2367F474,787.27,travel,Emirates,13,0.062,0
+T-5BD0D41F32,12.5,electronics,B&H Photo,10,0.024,0
+T-979512DD9F,45.68,online,Bandcamp,11,0.081,0
+T-7B885D49BA,138.94,atm,Barclays ATM,10,0.108,0
+T-49DF1E0475,52.86,atm,SBI ATM,7,0.034,0
+T-CF47691F66,60.97,online,Etsy,20,0.077,0
+T-06D4185974,57.42,atm,SBI ATM,15,0.052,0
+T-88D53ED060,17.14,online,Bandcamp,8,0.408,0
+T-5051C48547,14.08,grocery,Big Bazaar,18,0.029,0
+T-723B4FCBCE,36.4,grocery,Big Bazaar,10,0.066,0
+T-52C6007C14,27.49,grocery,Reliance Fresh,4,0.109,0
+T-4CFD656657,158.5,online,Bandcamp,12,0.119,0
+T-D682FC3296,17.68,grocery,Sainsbury's,8,0.067,0
+T-EE7D618E86,295.86,electronics,Croma,17,0.048,0
