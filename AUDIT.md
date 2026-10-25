@@ -103,7 +103,7 @@ Every tile shows a real number from `GET /session-stats`, which itself aggregate
 | FRAUD API status card (HEALTHY / DEGRADED / DRIFT / DOWN) | `/status.fraud_api_up` + `/status.active_incident_type` | ✓ turns red on crash, amber on drift |
 | UPTIME readout | `/live-metrics.uptime_pct` | ✓ derived from Guardian's `health_history` deque |
 | LATENCY readout | `/live-metrics.latency_ms_p50` | ✓ derived from the last 60s of poll latencies |
-| CONFIDENCE readout | `/status.confidence` | ✓ 100 when stable, drops as PSI grows |
+| CONFIDENCE readout | `/status.confidence` | ✓ high when the live window matches the baseline, 0 when the KS test rejects it |
 | GUARDIAN strip | `/status.active_incident_type` | ✓ says WATCHING when clear, RESPONDING when active |
 | Oscilloscope trace | `/score-history` + LAST_INCIDENTS cache | ✓ green when normal, red during drift, gap during crash |
 | Scope callouts | Cross-reference of samples' timestamps with incident detected_at / resolved_at | ✓ pinned to real event times |
@@ -206,6 +206,6 @@ The audit is a shell script at `audit.sh` in the repo root:
 bash audit.sh
 ```
 
-It runs 19 checks: 3 service-health probes, 10 Guardian read endpoints, 2 Guardian write endpoints, 4 chaos endpoints. Every line prints PASS or FAIL and the actual observed value so you can spot-check yourself.
+It runs 35 checks (plus one skipped when no report exists yet): 3 service-health probes, the Guardian read endpoints, the `/config` round trip and clamping, `/approve` and report-name rejection, `/replay`, scoring and validation, the chaos modes verified through the fraud-api health response, and the frontend. Every line prints PASS or FAIL and the actual observed value so you can spot-check yourself.
 
 If any line prints FAIL, the corresponding UI element is broken. If every line prints PASS, every UI element on the dashboard is backed by live, working code.

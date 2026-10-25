@@ -110,3 +110,10 @@ def test_bundled_dataset_has_expected_shape():
         rows = list(csv.DictReader(f))
     assert len(rows) == 500
     assert sum(r["is_fraud"] == "1" for r in rows) == 20
+
+
+def test_replay_info_counts_the_bundled_rows():
+    """Regression: CR CR LF line endings once made this endpoint report 1001 rows."""
+    info = client.get("/replay/info").json()
+    assert info["available"] is True
+    assert info["rows"] == 500

@@ -244,6 +244,30 @@ Total: **9 passing tests.** All ran green locally before commit.
 
 ---
 
+## STAGE 12: Hardening, honest testing and the report (done, 25 October 2026)
+
+In plain words: I stopped adding features and tried hard to break what exists. That found real problems, and I fixed them.
+
+**The big one: the detector cried wolf.** Guardian opened "silent failure" incidents while the system was perfectly healthy. The reason is a statistics trap. The PSI number (how different today's scores look from the baseline) is naturally too high when it is computed from only 60 scores, so a healthy system often scored above the 0.20 alarm line. A simulation of 200 healthy hours showed the old rule raised a false incident in every single hour. The new rule asks a stricter question first (the KS test must say "these are clearly different distributions", p below 0.0001), then checks that PSI is also large, and only opens an incident after three checks in a row. In the same simulation that is 2 false hours out of 200 (1.0%), and real corruption is still caught every time (median 54 seconds). The cost is honest: tiny shifts (+0.05) are mostly missed (found in 21% of runs).
+
+**Other things I found and fixed:**
+- The approve button crashed with a server error if fraud-api was down; it now reports a clear error and leaves the incident waiting.
+- The post-mortem printed the word "None" for fields that were not filled in yet.
+- The report endpoint accepted any file name; it now accepts only real report names.
+- The settings panel changed a threshold that the detector then ignored; now it really applies.
+- The replay dataset file had doubled line endings (so it claimed 1001 rows); fixed, with a test.
+- The one-click Windows launcher had three Windows-only bugs (a trailing space in a variable, wrong line endings, special characters); rewritten and tested cold and warm, and it now refuses to start if a port is busy.
+- The GitHub Actions workflow never ran at all (it watched `main`, the repository uses `master`); now it runs on both, boots the services, and runs the audit and an end-to-end scenario.
+- Dashboard faults seen in screenshots: a stray "NO SIGNAL" label, report buttons overlapping the incident number, and a dialog that called synthetic data "real credit-card transactions".
+
+**What is verified now:** 38 automated tests (16 + 22), a 35-check audit, and an end-to-end scenario (no false alarm for 40 s, corruption opens a pending incident, no automatic rollback, approval resolves it in about 6.5 s). The outputs are saved in `report/results/`.
+
+**What is NOT verified (said plainly):** the Docker Compose stack was not started here because the Docker engine would not respond, so Grafana, Prometheus targets, restart-on-crash and the MLflow artifact upload under Compose are untested. Also: the scorer is a hand-written rule set with 25% recall on the replay file, the data are synthetic, and the approve action has no login.
+
+**The report:** `report/GuardianOps_Report.docx` and `.pdf` follow the Manipal University Jaipur sample structure (title, certificate, declaration, acknowledgments, abstract, contents, lists of figures and tables, five chapters, references, annexures). Placeholders in square brackets (your name, registration number, course, guide, head of department, certificate page) are yours to fill in. Rebuild with `python report/build/build_report.py` (needs Microsoft Word); screenshots come from `python report/build/capture_screenshots.py` and diagrams from `python report/build/make_figures.py`.
+
+---
+
 ## How to actually run this project
 
 ```bash

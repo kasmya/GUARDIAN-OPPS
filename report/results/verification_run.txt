@@ -1,0 +1,78 @@
+waiting for the four services ...
+all up after 1s
+waiting for the Guardian baseline ...
+
+=== endpoint audit ===
+==========================================================
+  GuardianOps end-to-end audit   2026-10-25 17:51:34
+==========================================================
+
+-- Service liveness --
+  PASS  fraud-api  GET /health                        [200] ok mode=normal
+  PASS  guardian   GET /health                        [200] ok
+  PASS  chaos      GET /health                        [200] ok
+
+-- Guardian: read endpoints --
+  PASS  GET /status                                   [200] fraud_up=True conf=0.0 active=None
+  PASS  GET /live-metrics                             [200] uptime=97.78% p50=4.2ms
+  PASS  GET /baseline                                 [200] size=200 mean=0.321 std=0.114
+  PASS  GET /score-history                            [200] verdict=significant live=80
+  PASS  GET /session-stats                            [200] incidents=2 crashes=1 silent=1
+  PASS  GET /incidents                                [200] 2 incident rows
+  PASS  GET /pending-approvals                        [200] 0 pending
+  PASS  GET /reports                                  [200] 1 report files
+  PASS  GET /report/latest                            [200] incident 2, 1487 bytes
+  PASS  GET /config                                   [200] alert=0.2 poll=0.5s check=1.0s window=60
+  PASS  GET /metrics (prometheus)                     [200] 
+
+-- Guardian: write endpoints and negative cases --
+  PASS  POST /check-now                               [200] verdict=insufficient_data psi=0.0
+  PASS  POST /config psi_alert=0.25 is applied        [200] 0.25
+  PASS  POST /config psi_alert=9 is clamped           [200] 1.0
+  PASS  POST /config restores original value          [200] 0.2
+  PASS  POST /approve/999999 is refused (400)         [400] incident 999999 not pending approval
+  PASS  GET /reports/<traversal> is refused           [404] Not Found
+  PASS  GET /reports/{name}                           [200] 1487 bytes
+
+-- fraud-api: scoring and replay --
+  PASS  fraud-api  GET /metrics                       [200] 
+  PASS  fraud-api  POST /score                        [200] score=0.3079 label=ok
+  PASS  POST /score high-risk -> fraud                [200] score=0.725 label=fraud
+  PASS  POST /score invalid hour is refused (422)     [422] rejected
+  PASS  fraud-api  GET /replay/info                   [200] rows=500
+  PASS  fraud-api  POST /replay?limit=500             [200] n=500 TP=5 FP=0 TN=480 FN=15 precision=1.0 recall=0.25 f1=0.4 acc=0.97
+
+-- chaos-injector: failure modes really change fraud-api --
+  PASS  chaos  POST /reset                            [200] mode=normal
+  PASS  chaos  POST /slow?ms=300                      [200] scenario=slow
+  PASS    fraud-api now reports mode=slow             [200] slow
+  PASS  chaos  POST /corrupt                          [200] scenario=corrupt
+  PASS    fraud-api now reports mode=corrupt          [200] corrupt
+  PASS  chaos  POST /reset                            [200] mode=normal
+  PASS    fraud-api back to mode=normal               [200] normal
+
+-- Frontend --
+  PASS  dashboard GET /index.html
+
+==========================================================
+  35 passed, 0 failed.
+==========================================================
+
+=== end-to-end silent-failure scenario ===
+[17:51:43] 1. speeding Guardian up via POST /config (poll 0.5 s, drift check 1 s)
+[17:51:43] 2. waiting for the 200-sample baseline and a full 60-sample window
+[17:51:43] 3. healthy for 40 s: no new incident may open
+[17:52:23]    ok - no false alarm
+[17:52:23] 4. injecting silent corruption via chaos-injector
+[17:52:24] 5. waiting for a pending_approval silent_failure incident
+[17:52:35]    incident #3 opened, psi=0.5211, ks_p=5.949e-07
+[17:52:35] 6. policy P-002: Guardian must NOT roll back by itself
+[17:52:41]    ok - still corrupt and still pending after 6 s
+[17:52:41] 7. approving the rollback
+[17:52:41] 8. verifying the outcome
+[17:52:41]    ok - resolved in 6.53 s, report served, double approval refused
+
+E2E SCENARIO PASSED
+
+audit exit=0  e2e exit=0
+done

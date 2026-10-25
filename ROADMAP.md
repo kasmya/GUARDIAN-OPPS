@@ -25,7 +25,7 @@ Reading order:
 | **Runtime configuration** | Live-editable via `POST /config` — the settings-panel sliders on the dashboard change Guardian's behaviour on its next monitor cycle, no restart | [services/guardian/app/main.py](services/guardian/app/main.py) |
 | **Real transaction replay + ground-truth evaluation** | `POST /replay` streams 500 realistic credit-card transactions (with injected fraud patterns and truth labels) through `/score` and returns a full confusion matrix + precision/recall/F1/accuracy | [services/fraud-api/app/main.py](services/fraud-api/app/main.py), [data/replay/generate.py](data/replay/generate.py) |
 | **Automated end-to-end health audit** | `bash audit.sh` probes all 21 endpoints and prints PASS/FAIL — proof there is no hidden mock | [audit.sh](audit.sh) |
-| **Unit testing** | 9 tests, per-service pytest suites, wired into CI | [services/*/tests/](services/) |
+| **Unit testing** | 38 tests, per-service pytest suites, plus audit and end-to-end scenario, wired into CI | [services/*/tests/](services/) |
 | **Premium dashboard UI** | Single-file dashboard (no build step, zero npm deps) with 12 wired components: live scope trace, distribution histogram, session ledger, narration feed, timeline, chaos controls, replay modal, incident report renderer, plain-English approval card | [frontend/index.html](frontend/index.html) |
 
 **Everything above is real, tested, and running.** `bash audit.sh` proves it.
@@ -39,7 +39,7 @@ Reading order:
 3. *(15 s)* Click **CORRUPT OUTPUT**. Trace stays up but goes red. "This one's the killer. The API is *up*, latency is normal, but it's giving *wrong* answers. Most monitoring never catches this."
 4. *(15 s)* Point at the sticky amber banner + Guardian's plain-English approval card: "Guardian computed PSI drift statistics, decided this needs a human, and wrote out its full reasoning — with the actual numbers — for the audit trail. In a real bank, you can't rollback a live fraud model without a compliance sign-off."
 5. *(5 s)* Click **AUTHORIZE ROLLBACK**. "Rolled back. Auto-generated post-mortem written. Logged to MLflow as a queryable incident."
-6. *(10 s)* Click **REPLAY REAL DATASET**. Modal opens with confusion matrix. "500 real credit-card transactions, ground-truth labels — the pipeline computes precision 1.0, recall 0.25, F1 0.40. This exposes exactly where the rule-based model needs a real ML upgrade — which is a one-file change with Guardian still monitoring."
+6. *(10 s)* Click **REPLAY LABELLED DATASET**. Modal opens with confusion matrix. "500 seeded synthetic transactions, ground-truth labels — the pipeline computes precision 1.0, recall 0.25, F1 0.40. This exposes exactly where the rule-based model needs a real ML upgrade — which is a one-file change with Guardian still monitoring."
 
 ---
 
@@ -88,7 +88,7 @@ Pick the 3-5 that match the role you're applying for. Every bullet is defensible
 ### Data engineering / MLOps focus
 
 - *Built GuardianOps, a self-healing MLOps observability pipeline around a real-time fraud-detection API — three microservices in Docker Compose, Prometheus + Grafana monitoring, MLflow incident ledger, GitHub Actions CI, 21-endpoint automated audit script.*
-- *Implemented drift detection using Population Stability Index and Kolmogorov-Smirnov tests over a rolling 60-sample window against a frozen 200-sample baseline; drove <30s time-to-detect on silent output corruption incidents.*
+- *Implemented drift detection using Population Stability Index and Kolmogorov-Smirnov tests over a rolling 60-sample window against a frozen 200-sample baseline; a simulation of 200 healthy hours cut false incidents from 100% to 1.0% of hours, while injected corruption is detected in 100% of runs (median 54 s).*
 - *Designed a two-tier recovery-policy state machine — auto-restart for crash class failures, human approval required for silent-failure class — mirroring bank compliance rules for live-model rollback.*
 - *Repurposed MLflow as an incident audit ledger — every resolved incident writes tags, metrics (MTTR, blast radius), and an auto-generated markdown post-mortem as a queryable run.*
 - *Chaos-engineered the pipeline with a dedicated failure-injection service (crash / latency / distribution corruption) — validated the safety net catches all three classes before production deployment.*
@@ -97,7 +97,7 @@ Pick the 3-5 that match the role you're applying for. Every bullet is defensible
 
 - *Architected a 6-service Docker Compose stack (FastAPI × 3, Prometheus, Grafana, MLflow, nginx) with runtime-mutable configuration exposed over an admin REST API — no restarts required to change drift thresholds or poll intervals.*
 - *Built a segment-coloured live SVG oscilloscope (250-sample rolling window) that colour-codes trace segments by state (healthy / drift / crash) and pins event callouts to real incident timestamps via a client-side collision-avoidance layout.*
-- *Wrote a reproducible end-to-end audit script (`audit.sh`) that probes every backend endpoint and asserts every UI element is bound to a real backing call — 21 checks, zero mocks.*
+- *Wrote a reproducible end-to-end audit script (`audit.sh`) with 35 checks over the live endpoints, plus an end-to-end silent-failure scenario run in CI, no mocks.*
 
 ### Software craftsmanship focus
 

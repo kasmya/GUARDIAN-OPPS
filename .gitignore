@@ -90,3 +90,9 @@ audit-*.log
 demo-*.mp4
 demo-*.gif
 *.local.*
+
+# report build scratch (contains the sample report text/pages, never commit)
+report/build/sample_png/
+report/build/sample_text.txt
+report/build/out_png/
+report/build/__pycache__/

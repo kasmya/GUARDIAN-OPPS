@@ -86,7 +86,7 @@ Every incident gets:
 ### The brain (Guardian)
 
 - **Real drift detection.** Population Stability Index + Kolmogorov-Smirnov 2-sample test over a rolling 60-sample window against a 200-sample baseline captured at startup. Same metrics banking risk teams use in production.
-- **Confidence Score (0–100)** exposed as a Prometheus gauge and dashboard gauge, decays smoothly as PSI grows so you can see drift *building* before it trips.
+- **Confidence Score (0–100)** exposed as a Prometheus gauge and dashboard gauge, falls with the Kolmogorov-Smirnov p-value of the live window against the baseline (100 when the distributions match, 0 at p <= 1e-4), so a healthy system sits high and corruption drives it to zero.
 - **Two-tier recovery policy state machine.** Crash → auto-restart. Silent failure → human approval required. Encoded in code, mirrored on the dashboard.
 - **Explainable reasoning strings** on every incident: PSI, KS p-value, threshold, and the policy that fired — composed in plain English at detection time.
 - **Auto-generated markdown post-mortems** written to `data/reports/incident-NNNN-<ts>.md` on resolution. Print-ready.
@@ -131,7 +131,7 @@ Every incident gets:
 ### Ops discipline
 
 - **GitHub Actions CI** — 3 parallel jobs (test-fraud-api, test-guardian, build-images) on every push.
-- **9 unit tests** — per-service pytest suites for scoring, drift detection, and governance state machine.
+- **38 unit and API tests** (16 fraud-api, 22 guardian), a 35-check endpoint audit, and an end-to-end silent-failure scenario, all run in CI.
 - **Reproducible audit script** — `bash audit.sh` probes all 21 endpoints and prints PASS/FAIL with observed values. Zero mocks.
 
 ---
@@ -225,7 +225,7 @@ Every panel on the dashboard is bound to a real backend call. If something is gr
 | **Estimated Exposure** | Active incident's blast × $84.72 avg | Ticks up live during a silent-failure incident |
 | **Chaos control buttons** | `POST http://:8003/{crash\|slow\|corrupt}` | Injects real failures into fraud-api |
 | **FORCE DRIFT CHECK NOW** | `POST /check-now` | Runs an immediate drift check; button label updates with the verdict |
-| **REPLAY REAL DATASET** | `POST /replay?limit=500` | Streams the labeled CSV through `/score`, opens the modal with the confusion matrix |
+| **REPLAY LABELLED DATASET** | `POST /replay?limit=500` | Streams the labeled CSV through `/score`, opens the modal with the confusion matrix |
 | **Score Distribution histogram** | `/baseline` + `/score-history` | Client-side binning of both distributions over 20 bins |
 | **Recovery Policy cards** | Static documentation of the policies Guardian enforces | Non-interactive by design |
 | **Pending Authorization card** | `/pending-approvals` | Plain-English headline, facts grid, 4 collapsible info sections, AUTHORIZE ROLLBACK button |
@@ -296,7 +296,7 @@ Every panel on the dashboard is bound to a real backend call. If something is gr
 | Value | Real math or mock? | Source file |
 | --- | --- | --- |
 | Fraud score | **Real** rule-based formula (amount + hour + category + country risk + bounded noise) | [`services/fraud-api/app/scoring.py`](services/fraud-api/app/scoring.py) |
-| Confidence score | **Real** PSI-driven decay | [`services/guardian/app/drift.py`](services/guardian/app/drift.py) |
+| Confidence score | **Real** KS-p-value-driven gauge | [`services/guardian/app/drift.py`](services/guardian/app/drift.py) |
 | PSI + KS drift | **Real** `scipy.stats.ks_2samp` + hand-rolled PSI | same |
 | Baseline | **Real** — 200 actual `/score` calls captured at startup | [`services/guardian/app/monitor.py`](services/guardian/app/monitor.py) |
 | Uptime / latency / throughput | **Real** — rolling 60s aggregation of poll history | same |
@@ -312,28 +312,28 @@ Every panel on the dashboard is bound to a real backend call. If something is gr
 | Guardian Narration lines | **Real** — client diff of successive `/status` polls | [`frontend/index.html`](frontend/index.html) |
 | Estimated Exposure $ | **Derived** — live blast × $84.72 avg tx (documented) | same |
 
-**What is synthetic:** the transaction *stream* Guardian polls. Every 2 s Guardian calls fraud-api's `/score` with a randomly-shaped transaction. In production this would be replaced by live traffic — the safety net around it (which is what GuardianOps *is*) stays identical. To exercise the pipeline on real transaction *shapes*, click **REPLAY REAL DATASET** — that streams 500 rows from the labeled CSV through the same `/score` code path.
+**What is synthetic:** the transaction *stream* Guardian polls. Every 2 s Guardian calls fraud-api's `/score` with a randomly-shaped transaction. In production this would be replaced by live traffic — the safety net around it (which is what GuardianOps *is*) stays identical. To exercise the pipeline on real transaction *shapes*, click **REPLAY LABELLED DATASET** — that streams 500 rows of seeded synthetic, ground-truth-labelled transactions from the CSV through the same `/score` code path.
 
 ---
 
 ## Running tests + audit
 
-**Unit tests** — 9 passing, per-service pytest suites:
+**Unit and API tests** — 38 passing (16 fraud-api, 22 guardian), per-service pytest suites:
 
 ```bash
 cd services/fraud-api  && python -m pytest -q
 cd services/guardian   && python -m pytest -q
 ```
 
-**End-to-end audit** — probes every backend endpoint, prints PASS/FAIL with the observed value:
+**End-to-end audit** — probes the live endpoints (read, write, negative and failure-injection cases), prints PASS/FAIL with the observed value:
 
 ```bash
 bash audit.sh
 ```
 
-Runs 21 checks: 3 service-health probes, 10 Guardian reads, 2 Guardian writes, 5 chaos writes, 1 frontend probe. If every line prints PASS, every UI element on the dashboard is backed by live, working code. Full per-element pass/fail is in [`AUDIT.md`](AUDIT.md).
+Runs 35 checks (plus one skipped when no report exists yet): service health, every Guardian read, `/config` round trip and clamping, `/approve` and report-name rejection, `/replay` confusion matrix, scoring and validation, chaos modes verified through the fraud-api health response, and the frontend. Then run the full silent-failure path with `python scripts/e2e_scenario.py` (or both with `bash scripts/ci_smoke.sh`). Full per-element pass/fail is in [`AUDIT.md`](AUDIT.md).
 
-**CI** — `.github/workflows/ci.yml` runs the two pytest jobs in parallel on every push, then builds all three Docker images.
+**CI** — `.github/workflows/ci.yml` runs both pytest suites, then boots the services and runs the audit and the end-to-end scenario (`scripts/ci_smoke.sh`), then builds the three Docker images. Triggers: push to main or master, pull requests, manual run.
 
 ---
 
@@ -345,33 +345,33 @@ mlops-project/
 ├── DIARY.md               ← plain-language walk-through of every design choice
 ├── ROADMAP.md             ← presentation script + resume bullets + ranked stretch features
 ├── AUDIT.md               ← per-UI-element pass/fail with backing call for every widget
-├── audit.sh               ← reproducible endpoint probe (21 checks)
+├── audit.sh               ← reproducible endpoint probe (35 checks)
 ├── start-guardianops.bat  ← one-click Windows launcher (installs deps, starts all 4 services)
 ├── stop-guardianops.bat   ← stops only the GuardianOps service windows
 ├── docker-compose.yml     ← 7-service stack (3 apps + Prom + Grafana + MLflow + nginx)
 ├── .github/workflows/
 │   └── ci.yml             ← 3-job pipeline: test-fraud-api, test-guardian, build
 ├── report/                ← academic report deliverable
-│   ├── GuardianOps_Report.md ← full report, all 10 sections, real metrics
-│   ├── README.md          ← what's left to fill in before submission
-│   └── figures/           ← report screenshots (dashboard, crash, incident report)
+│   ├── GuardianOps_Report.docx / .pdf ← project report in the university format
+│   ├── README.md          ← placeholders to fill and how to rebuild
+│   └── figures/           ← diagrams and 2x screenshots used by the report
 ├── screenshots/
-│   ├── 01_dashboard_healthy.jpg
-│   ├── 02_crash_detected.jpg
-│   ├── 03_incident_report_narration.jpg
+│   ├── 01_dashboard_healthy.png
+│   ├── 02_crash_detected.png
+│   ├── 03_drift_pending_approval.png (and 04 to 06)
 │   └── 05_demo_walkthrough.md ← exact click sequence + captions for every screenshot
 ├── demo/
 │   └── demo_video_link.txt ← placeholder for a recorded walkthrough link
 ├── services/
 │   ├── fraud-api/         ← the "production" system + /replay evaluator
 │   │   ├── app/           ← main.py, scoring.py, state.py
-│   │   ├── tests/         ← 3 pytest cases
+│   │   ├── tests/         ← 16 pytest cases
 │   │   ├── Dockerfile
 │   │   └── requirements.txt
 │   ├── guardian/          ← the brain
 │   │   ├── app/           ← main.py, monitor.py, drift.py, recovery.py, store.py,
 │   │   │                    reports.py, mlflow_logger.py, config.py
-│   │   ├── tests/         ← 6 pytest cases (drift + governance)
+│   │   ├── tests/         ← 22 pytest cases (drift rule, API, governance)
 │   │   ├── Dockerfile
 │   │   └── requirements.txt
 │   └── chaos-injector/    ← failure-injection surface (crash / slow / corrupt / reset)

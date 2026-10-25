@@ -19,7 +19,7 @@ turns a steady green.
 
 ---
 
-## 01 — `01_dashboard_healthy.jpg`
+## 01 — `01_dashboard_healthy.png`
 
 **What it shows:** steady-state operation. Nothing wrong.
 
@@ -32,7 +32,7 @@ turns a steady green.
 
 ---
 
-## 02 — `02_crash_detected.jpg`
+## 02 — `02_crash_detected.png`
 
 **What it shows:** fraud-api killed outright; Guardian has classified it as a crash and is mid-recovery.
 
@@ -53,7 +53,7 @@ re-launch the `fraud-api` window — Guardian will detect the recovery either wa
 
 ---
 
-## 03 — `03_incident_report_narration.jpg`
+## 03 — `03_drift_pending_approval.png (and 04 to 06)`
 
 **What it shows:** the auto-generated incident post-mortem document + the live Guardian Narration console, both populated from the crash you just resolved.
 
@@ -95,7 +95,7 @@ resolves the incident and the banner disappears.
 
 ---
 
-## 05 — Replay Real Dataset modal (recommended, not yet captured)
+## 05 — Replay Labelled Dataset modal (recommended, not yet captured)
 
 **What it shows:** the confusion matrix + precision/recall/F1/accuracy from
 scoring the labeled 500-transaction dataset.
@@ -103,7 +103,7 @@ scoring the labeled 500-transaction dataset.
 **Click sequence:**
 1. (If you haven't already) click **Authorize Rollback** to close out the
    drift incident from step 04
-2. Click **REPLAY REAL DATASET** button
+2. Click **REPLAY LABELLED DATASET** button
 3. Wait ~2–3 seconds for the modal to populate
 4. Screenshot the confusion-matrix grid + the four metric tiles
 

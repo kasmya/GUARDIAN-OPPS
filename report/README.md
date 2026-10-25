@@ -1,38 +1,35 @@
-# GuardianOps — Report Package
+# GuardianOps Report Package
 
-This folder contains the academic report deliverable, separate from the project's
-own `README.md` / `DIARY.md` / `ROADMAP.md` (which document the engineering side
-for other developers).
-
-## Contents
+The academic report follows the Manipal University Jaipur project-report format
+(title page, certificate page, declaration, acknowledgments, abstract, contents,
+lists of figures and tables, Chapters 1 to 5, references, annexures).
 
 | File | Purpose |
 | --- | --- |
-| `GuardianOps_Report.md` | The full report — markdown source. All 10 required sections, with `[PLACEHOLDER: ...]` markers for anything only you can fill in (your name, course code, professor, citations). |
-| `figures/dashboard_demo.jpg` | Real screenshot: healthy steady-state dashboard |
-| `figures/pipeline_demo.jpg` | Real screenshot: crash detected, Session Ledger updated |
-| `figures/drift_alert_demo.jpg` | Real screenshot: auto-generated incident report + live narration console |
-| `figures/architecture.txt` | Placeholder instructions for rendering `architecture.png` — see the file |
+| `GuardianOps_Report.docx` | Editable report (Times New Roman, A4). Fill the bracketed placeholders here. |
+| `GuardianOps_Report.pdf` | The same report exported by Word, with all page numbers in the contents and lists filled in. |
+| `figures/` | Diagrams (`fig_1_1` to `fig_4_7`) and 2x screenshots (`fig_4_*`) used by the report. |
+| `results/drift_evaluation.json` | Output of `services/guardian/tools/evaluate_drift.py` (false-alarm and detection simulation). |
+| `results/verification_run.txt` | Saved output of `scripts/ci_smoke.sh` (endpoint audit and end-to-end scenario). |
+| `assets/muj_logo.png` | University logo used on the title page. |
+| `build/` | Generators: `make_figures.py`, `capture_screenshots.py`, `build_report.py`, `content.py`, `docx_lib.py`. |
 
-## Before you submit
+## Fill in before submitting
 
-1. **Fill in every `[PLACEHOLDER: ...]`** in `GuardianOps_Report.md` — your name, course, institution, professor, submission date confirmation, and citation formatting per your course's required style (IEEE/APA/etc).
-2. **Capture the two remaining screenshots** listed in `../screenshots/05_demo_walkthrough.md` (pending-approval card, replay confusion matrix) — both take under 2 minutes with `start-guardianops.bat` running.
-3. **Convert to your required file format.** The markdown source converts cleanly:
-   - To Word: open in any editor that supports Markdown import (Word 365, Google Docs via "Open with Google Docs"), or run `pandoc GuardianOps_Report.md -o GuardianOps_Report.docx` if you have [Pandoc](https://pandoc.org/) installed.
-   - To PDF: `pandoc GuardianOps_Report.md -o GuardianOps_Report.pdf`, or export from Word/Google Docs once converted.
-4. **Tell Claude your exact formatting requirements** (font, spacing, citation style, page limits, section numbering convention) and it will reflow this content into that exact format — the content itself is already final and fact-checked against the live system.
+Square-bracket placeholders: student name, registration number, course name and code,
+faculty guide, head of department, and the signed certificate page (page 2 is reserved for it).
+The department line on the title page is kept from the format sample; change it if yours differs.
+The declaration is a statement you make as the author; read it and adjust it to your
+institution's rules on tools and assistance before signing.
 
-## What's real vs. placeholder in the report
+## Rebuild
 
-Every number in §7 (Results) was captured from a live run of the system on the
-date stated in the report — not invented. The `audit.sh` output and `pytest`
-output backing those numbers are reproducible by anyone who clones this repo
-and runs the commands in the main `README.md`. Only the following are
-placeholders, by design, because they're information only you have:
+```bash
+python report/build/make_figures.py                 # diagrams (Playwright + Edge)
+python report/build/capture_screenshots.py          # needs the stack running on 8001-8003 and 8080
+python report/build/build_report.py                 # needs Microsoft Word for the PDF export
+```
 
-- Your name, institution, course code, professor name
-- The exact citation format your course requires
-- The repository's public URL (fill in once you've pushed)
-- Two optional screenshots (drift banner, replay modal) — instructions in
-  `screenshots/05_demo_walkthrough.md`
+Every number in the report comes from `report/results/` or from the test and audit
+output described in Chapter 4. The Docker Compose stack was not run when the report was
+written; Chapter 4 says so.
